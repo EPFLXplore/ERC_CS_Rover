@@ -25,8 +25,8 @@ RUN apt-get install -y libgstreamer1.0-dev \
     gstreamer1.0-qt5 \
     gstreamer1.0-pulseaudio
 
-RUN sudo apt install ubuntu-restricted-extras
-RUN apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+RUN sudo apt install -y ubuntu-restricted-extras
+RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 
 # Add USB rules
 RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /etc/udev/rules.d/80-movidius.rules
