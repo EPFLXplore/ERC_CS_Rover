@@ -5,10 +5,26 @@ FROM ghcr.io/epflxplore/docker_commons:foxy-desktop as build-rover
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Install CS packages
+# Install Rover packages
 RUN apt-get update && apt-get upgrade -y
 RUN apt install -y curl
-RUN apt-get install gstreamer1.0*
+
+RUN apt-get install libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer-plugins-bad1.0-dev \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
+    gstreamer1.0-libav \
+    gstreamer1.0-tools \
+    gstreamer1.0-x \
+    gstreamer1.0-alsa \
+    gstreamer1.0-gl \
+    gstreamer1.0-gtk3 \
+    gstreamer1.0-qt5 \
+    gstreamer1.0-pulseaudio
+
 RUN sudo apt install ubuntu-restricted-extras
 RUN apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 
@@ -16,8 +32,7 @@ RUN apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /etc/udev/rules.d/80-movidius.rules
 RUN /etc/init.d/udev restart
 
-RUN python3 -m pip install numpy
-
+# Build and Install OpenCV
 RUN git clone https://github.com/opencv/opencv.git
 WORKDIR /opencv
 RUN git checkout 4.1.0
@@ -40,6 +55,8 @@ RUN make install
 RUN ldconfig
 
 USER $USERNAME
+
+RUN python3 -m pip install numpy
 
 # Set a diretory to store the project
 WORKDIR /home/$USERNAME/dev_ws/src
