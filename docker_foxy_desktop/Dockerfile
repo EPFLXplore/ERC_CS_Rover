@@ -33,9 +33,8 @@ RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /et
 RUN /etc/init.d/udev restart
 
 # Build and Install OpenCV
-RUN git clone https://github.com/opencv/opencv.git
+RUN git clone https://github.com/opencv/opencv.git --branch 4.1.0
 WORKDIR /opencv
-RUN git checkout 4.1.0
 
 WORKDIR /opencv/build
 RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
