@@ -3,20 +3,26 @@ from rclpy.node import Node, Publisher
 from sensor_msgs.msg import CompressedImage, Image
 from std_msgs.msg import String
 from jtop import jtop
+import threading
 
 
 class Monitor(Node):
 
     def __init__(self):
         super().__init__('performance_monitor')
-        self.create_timer(1.0, self.timer_callback)
         self.perf_pub = self.create_publisher(String, 'CS/performance', 10)
+        self.initializeJtop(self.perf_pub)
 
-    def timer_callback(self):
+    def timer_callback(self, jetson):
         msg = String()
-        msg.data = jtop().json()
+        msg.data = jetson.json()
+        print(jetson.stats)
         self.perf_pub.publish(msg)
 
+    def initializeJtop(self, publisher):
+        jetson = jtop()
+        jetson.attach(self.timer_callback)
+        threading.Thread(target=jetson.loop_for_ever).start()
 
 def main(args=None):
 
