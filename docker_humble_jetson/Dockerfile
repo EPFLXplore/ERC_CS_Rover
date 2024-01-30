@@ -1,7 +1,7 @@
 ###########################################
-# Xplore Rover image Build Docker
+# Xplore Navigation image
 ###########################################
-FROM ghcr.io/epflxplore/docker_commons:foxy-desktop as build-rover
+FROM ghcr.io/epflxplore/docker_commons:humble-jetson
 
 ARG DEBIAN_FRONTEND=noninteractive
 

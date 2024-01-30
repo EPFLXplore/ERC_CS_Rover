@@ -32,7 +32,7 @@ current_dir=$(pwd)
 parent_dir=$(dirname "$current_dir")
 
 docker run -it \
-    --name rover_foxy_desktop \
+    --name rover_humble_desktop \
     --rm \
     --privileged \
     --net=host \
@@ -44,5 +44,5 @@ docker run -it \
     -v /run/user/1000/at-spi:/run/user/1000/at-spi \
     -v /dev:/dev \
     -v $parent_dir:/home/xplore/dev_ws/src \
-    -v rover_foxy_desktop_home_volume:/home/xplore \
-    ghcr.io/epflxplore/rover:foxy-desktop
+    -v rover_humble_desktop_home_volume:/home/xplore \
+    ghcr.io/epflxplore/rover:humble-desktop
