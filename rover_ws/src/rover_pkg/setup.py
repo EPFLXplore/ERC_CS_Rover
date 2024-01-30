@@ -22,7 +22,8 @@ setup(
         'console_scripts': [
             'rover = rover_pkg.rover:main',
             'cameras_publisher = rover_pkg.cameras_publisher:main',
-            'gripper_camera = rover_pkg.gripper_camera:main'
+            'gripper_camera = rover_pkg.gripper_camera:main',
+            'monitor = rover_pkg.monitor:main'
         ],
     },
 )
