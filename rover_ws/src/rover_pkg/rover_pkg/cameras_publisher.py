@@ -87,7 +87,7 @@ class CamerasPublisher(Node):
         for i in range(len(self.active_cameras)):
             ret, frame = self.camera_list[self.active_cameras[i]].read()
             if ret:
-                self.cam_publisher[i].publish(self.bridge.cv2_to_compressed_imgmsg(frame))
+                self.camera_publishers[i].publish(self.bridge.cv2_to_compressed_imgmsg(frame))
 
     def stop_camera(self):
         print("Stop camera...")
