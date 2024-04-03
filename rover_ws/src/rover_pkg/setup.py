@@ -23,7 +23,8 @@ setup(
             'rover = rover_pkg.rover:main',
             'cameras_publisher = rover_pkg.cameras_publisher:main',
             'gripper_camera = rover_pkg.gripper_camera:main',
-            'monitor = rover_pkg.monitor:main'
+            'monitor = rover_pkg.monitor:main',
+	    'new_camera_cs = rover_pkg.new_camera_cs:main'
         ],
     },
 )
