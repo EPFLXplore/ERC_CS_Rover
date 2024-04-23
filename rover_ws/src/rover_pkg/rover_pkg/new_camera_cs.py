@@ -28,11 +28,14 @@ class NewCameras(Node):
     def publish_feeds(self):
         self.camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('m','j','p','g'))
         while True:
-            ret, frame = self.camera.read()
-            if not ret:
-                break
-            self.cam_pub.publish(self.bridge.cv2_to_compressed_imgmsg(frame))
-            sleep(1/15)
+            while True:
+                ret, frame = self.camera.read()
+                if not ret:
+                    break
+                self.cam_pub.publish(self.bridge.cv2_to_compressed_imgmsg(frame))
+                sleep(1/15)
+            self.camera = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L)
+            sleep(1)
 
 
 
