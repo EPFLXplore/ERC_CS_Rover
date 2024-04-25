@@ -24,6 +24,9 @@ setup(
             'cameras_publisher = rover_pkg.cameras_publisher:main',
             'gripper_camera = rover_pkg.gripper_camera:main',
             'monitor = rover_pkg.monitor:main',
+            'new_rover = rover_pkg.new_rover:main',
+            'nav_test_node = rover_pkg.nav_test_node:main',
+            'hd_test_node = rover_pkg.hd_test_node:main',
 	    'new_camera_cs = rover_pkg.new_camera_cs:main'
         ],
     },

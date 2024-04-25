@@ -6,7 +6,7 @@ def generate_launch_description():
         Node(
             package='rover_pkg',
             namespace='rover_pkg',
-            executable='rover',
+            executable='new_rover',
             name='rover'
         ),
         Node(
