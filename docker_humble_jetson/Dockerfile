@@ -35,7 +35,7 @@ RUN /etc/init.d/udev restart
 
 USER $USERNAME
 
-RUN python3 -m pip install numpy
+RUN python3 -m pip install numpy aiohttp aiortc
 
 # Set a diretory to store the project
 WORKDIR /home/$USERNAME/dev_ws/src
