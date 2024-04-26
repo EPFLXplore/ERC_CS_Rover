@@ -29,11 +29,10 @@ class NewCamerasWebRTC(Node):
         self.cam_pub = self.create_publisher(CompressedImage, 'camera_webrtc', 1) #
 
         self.bridge = CvBridge() #
-
-
         self.relay = None
         self.ros_relay = None
         self.webcam = None
+        self.pcs = set()
 
         if True:
             logging.basicConfig(level=logging.DEBUG)
@@ -47,10 +46,8 @@ class NewCamerasWebRTC(Node):
             ssl_context = None
 
         app = web.Application()
-        app.on_shutdown.append(on_shutdown)
-        #app.router.add_get("/", index) #html no need
-        #app.router.add_get("/client.js", javascript) #already in html and no need 
-        app.router.add_post("/offer", offer)
+        app.on_shutdown.append(self.on_shutdown)
+        app.router.add_post("/offer", self.offer)
         web.run_app(app, host="0.0.0.0", port=8080, ssl_context=ssl_context)
 
 
@@ -101,33 +98,34 @@ class NewCamerasWebRTC(Node):
         offer = RTCSessionDescription(sdp=params["sdp"], type=params["type"])
 
         pc = RTCPeerConnection()
-        pcs.add(pc)
+        self.pcs.add(pc)
 
         @pc.on("connectionstatechange")
         async def on_connectionstatechange():
             print("Connection state is %s" % pc.connectionState)
             if pc.connectionState == "failed":
                 await pc.close()
-                pcs.discard(pc)
+                self.pcs.discard(pc)
 
         # open media source
-        audio, video = create_local_tracks(
-            args.play_from, decode=not args.play_without_decoding
+        audio, video = self.create_local_tracks(
+            #args.play_from, decode=not args.play_without_decoding
+            None, False
         )
 
         if audio:
             audio_sender = pc.addTrack(audio)
-            if args.audio_codec:
-                force_codec(pc, audio_sender, args.audio_codec)
-            elif args.play_without_decoding:
-                raise Exception("You must specify the audio codec using --audio-codec")
+            # if args.audio_codec:
+            #     self.force_codec(pc, audio_sender, args.audio_codec)
+            # elif args.play_without_decoding:
+            #     raise Exception("You must specify the audio codec using --audio-codec")
 
         if video:
             video_sender = pc.addTrack(video)
-            if args.video_codec:
-                force_codec(pc, video_sender, args.video_codec)
-            elif args.play_without_decoding:
-                raise Exception("You must specify the video codec using --video-codec")
+            # if args.video_codec:
+            #     self.force_codec(pc, video_sender, args.video_codec)
+            # elif args.play_without_decoding:
+            #     raise Exception("You must specify the video codec using --video-codec")
 
         await pc.setRemoteDescription(offer)
 
@@ -142,14 +140,11 @@ class NewCamerasWebRTC(Node):
         )
 
 
-    pcs = set()
-
-
     async def on_shutdown(self, app):
         # close peer connections
-        coros = [pc.close() for pc in pcs]
+        coros = [pc.close() for pc in self.pcs]
         await asyncio.gather(*coros)
-        pcs.clear()
+        self.pcs.clear()
 
 
 
