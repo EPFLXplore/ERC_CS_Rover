@@ -47,7 +47,7 @@ class RoverNode():
         # ===== PUBLISHERS =====
 
         # publish rover state continuously via JSON
-        self.rover_state_pub = self.node.create_publisher(String, 'ROVER/State', 1)
+        self.rover_state_pub = self.node.create_publisher(String, 'Rover/RoverState', 1)
         timer_period = 0.1  # seconds
         self.timer = self.node.create_timer(timer_period, self.timer_callback)
 
@@ -105,7 +105,7 @@ class RoverNode():
     def timer_callback(self):
         # print(self.rover_state_json['handling_device'])
         msg = String()
-        msg.data = str(self.rover_state_json)
+        msg.data = json.dumps(self.rover_state_json)
         self.rover_state_pub.publish(msg)
 
         # # dummy update for testing

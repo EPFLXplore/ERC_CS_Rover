@@ -90,7 +90,7 @@ class NavTestNode(Node):
         self.publisher_motorcmds.publish(motor)
 
         status = Wheelstatus()
-        status.data = [1., 2., 3., 4., 5., 6., 7., 8.]
+        status.data = [1., 2., 3., 4.]
         status.state = [False, False, True, True, False, False, True, True]
         self.publisher_wheel_ang.publish(status)
        
