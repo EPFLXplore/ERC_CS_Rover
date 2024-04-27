@@ -35,7 +35,8 @@ RUN /etc/init.d/udev restart
 
 USER $USERNAME
 
-RUN python3 -m pip install numpy aiohttp aiortc
+RUN python3 -m pip install numpy
+RUN pip install aiohttp aiortc
 
 # Set a diretory to store the project
 WORKDIR /home/$USERNAME/dev_ws/src
@@ -50,3 +51,6 @@ RUN rosdep update \
 
 # Clean up
 RUN sudo rm -rf /var/lib/apt/lists/*
+
+# Remove all the confidential Xplore source code from the image
+RUN sudo rm -rf /home/$USERNAME/dev_ws/src/*
