@@ -45,4 +45,5 @@ docker run -it \
     -v /dev:/dev \
     -v $parent_dir:/home/xplore/dev_ws/src \
     -v rover_foxy_jetson_home_volume:/home/xplore \
-    ghcr.io/epflxplore/rover:foxy-jetson
+    ghcr.io/epflxplore/rover:foxy-jetson \
+    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; /bin/bash"
