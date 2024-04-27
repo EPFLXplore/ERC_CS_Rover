@@ -9,7 +9,24 @@ env:
   IMAGE_NAME: epflxplore/rover
 
 jobs:
-   build-and-push-image:
+  delete-untagged-images:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+  
+    steps:
+      - name: Delete all untagged images from repository
+        uses: Chizkiyahu/delete-untagged-ghcr-action@v3
+        with:
+            token: ${{ secrets.PAT_TOKEN }}
+            repository_owner: ${{ github.repository_owner }}
+            owner_type: org
+            repository: ${{ github.repository }}
+            untagged_only: true
+
+  build-and-push-image:
     runs-on: ubuntu-latest
 
     strategy:
