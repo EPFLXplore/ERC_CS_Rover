@@ -1,15 +1,7 @@
 {
 	"rover": {
 		"hardware": {
-			"computer": "Jetson Xavier AGX",
-			"cpu_usage": "0.0",
-			"gpu_usage": "0.0",
-			"memory_usage": "0.0",
-			"disk_usage": "0.0",
-			"temperature": "0.0",
-			"voltage": "0.0",
-			"current": "0.0",
-			"power": "0.0"
+			"json": "0.0"
 		},
 		"software": {
 			"os": "Ubuntu 20.04",
