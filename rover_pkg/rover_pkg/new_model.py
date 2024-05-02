@@ -12,7 +12,7 @@ class NewModel:
 #         self.Elec
 
     def jetson_callback(self):
-        self.rover_state_json['rover']['hardware']['json'] = self.jetson.json()
+        self.rover_state_json['rover']['hardware']['json'] = self.rover_node.jetson.json()
 
 
 class HandlingDevice:

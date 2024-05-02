@@ -39,13 +39,13 @@ class RoverNode():
         self.node = rclpy.create_node('ROVER')
 
         self.model = NewModel(self)
-        
-        self.jetson = jtop()
-        self.jetson.attach(self.model.jetson_callback)
-        threading.Thread(target=self.jetson.loop_for_ever).start()
 
         with open('/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json') as json_file:
             self.rover_state_json = dict(json.load(json_file))
+            
+        self.jetson = jtop()
+        self.jetson.attach(self.model.jetson_callback)
+        threading.Thread(target=self.jetson.loop_for_ever).start()
 
         # ==========================================================
         #              MESSAGES BETWEEN ROVER AND CS
