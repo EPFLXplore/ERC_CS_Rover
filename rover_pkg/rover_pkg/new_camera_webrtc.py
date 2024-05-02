@@ -46,10 +46,10 @@ class NewCamerasWebRTC(Node):
         else:
             ssl_context = None
 
-        app = web.Application()
-        app.on_shutdown.append(self.on_shutdown)
-        app.router.add_post("/offer", self.offer)
-        cors = aiohttp_cors.setup(app, defaults={
+        self.app = web.Application()
+        self.app.on_shutdown.append(self.on_shutdown)
+        self.app.router.add_post("/offer", self.offer)
+        cors = aiohttp_cors.setup(self.app, defaults={
             "*": aiohttp_cors.ResourceOptions(
                 allow_credentials=True,
                 expose_headers="*",
@@ -57,11 +57,13 @@ class NewCamerasWebRTC(Node):
             )
         })
 
-        for route in list(app.router.routes()):
+        for route in list(self.app.router.routes()):
             cors.add(route)
 
-        threading.Thread(target=lambda _ : web.run_app(app, host="0.0.0.0", port=8080, ssl_context=ssl_context)).start()
-        
+        threading.Thread(target=self.launch_server).start()
+
+    def launch_server(self):
+        web.run_app(self.app, host="0.0.0.0", port=8080, ssl_context=None)
 
 
     def create_local_tracks(self, play_from, decode):
