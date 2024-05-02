@@ -11,6 +11,9 @@ class NewModel:
         # self.Cams = Cameras(rover_node)
 #         self.Elec
 
+    def jetson_callback(self):
+        self.rover_state_json['rover']['hardware']['json'] = self.jetson.json()
+
 
 class HandlingDevice:
     def __init__(self, rover_node):
