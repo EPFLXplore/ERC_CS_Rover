@@ -6,6 +6,7 @@ import os
 import platform
 import ssl
 
+import aiohttp_cors
 from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaPlayer, MediaRelay
@@ -161,4 +162,15 @@ if __name__ == "__main__":
     app.router.add_get("/", index)
     app.router.add_get("/client.js", javascript)
     app.router.add_post("/offer", offer)
+    cors = aiohttp_cors.setup(app, defaults={
+      "*": aiohttp_cors.ResourceOptions(
+           allow_credentials=True,
+           expose_headers="*",
+           allow_headers="*"
+       )
+     })
+
+    for route in list(app.router.routes()):
+        cors.add(route)
+
     web.run_app(app, host=args.host, port=args.port, ssl_context=ssl_context)

@@ -5,6 +5,7 @@ import logging
 import os
 import platform
 import ssl
+import threading
 
 import rclpy
 from rclpy.node import Node, Publisher
@@ -12,7 +13,7 @@ from sensor_msgs.msg import CompressedImage, Image
 import cv2
 from cv_bridge import CvBridge
 
-
+import aiohttp_cors
 from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaPlayer, MediaRelay
@@ -48,7 +49,19 @@ class NewCamerasWebRTC(Node):
         app = web.Application()
         app.on_shutdown.append(self.on_shutdown)
         app.router.add_post("/offer", self.offer)
-        web.run_app(app, host="0.0.0.0", port=8080, ssl_context=ssl_context)
+        cors = aiohttp_cors.setup(app, defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*"
+            )
+        })
+
+        for route in list(app.router.routes()):
+            cors.add(route)
+
+        threading.Thread(target=lambda _ : web.run_app(app, host="0.0.0.0", port=8080, ssl_context=ssl_context)).start()
+        
 
 
     def create_local_tracks(self, play_from, decode):
@@ -175,3 +188,25 @@ class NewCamerasWebRTC(Node):
     # )
 
     # args = parser.parse_args()
+
+def main(args=None):
+
+    print("Start webrtc node...")
+    
+    rclpy.init(args=args)
+
+    cameras_publisher = NewCamerasWebRTC()
+    
+    print("Camera WebRTC ready")
+
+    rclpy.spin(cameras_publisher)
+
+    cameras_publisher.on_shutdown()
+    cameras_publisher.destroy_node()
+
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+
