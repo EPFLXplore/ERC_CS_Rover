@@ -42,6 +42,7 @@ docker run -it \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
     -v $XAUTH:$XAUTH \
     -v /run/user/1000/at-spi:/run/user/1000/at-spi \
+    -v /run/jtop.sock:/run/jtop.sock \
     -v /dev:/dev \
     -v $parent_dir:/home/xplore/dev_ws/src \
     -v rover_humble_desktop_home_volume:/home/xplore \
