@@ -9,7 +9,7 @@ class NewModel:
         self.HD = HandlingDevice(rover_node)
         self.Nav = Navigation(rover_node)
         # self.Cams = Cameras(rover_node)
-#         self.Elec
+        self.Elec = Elec(rover_node)
 
     def jetson_callback(self):
         self.rover_state_json['rover']['hardware']['json'] = self.rover_node.jetson.json()
@@ -133,3 +133,15 @@ class Navigation:
     def nav_displacement(self, displacement):
         self.displacement_mode = displacement.modedeplacement
         self.info = displacement.info
+
+class Elec:
+    def __init__(self, rover_node):
+        self.rover_node = rover_node
+
+        # EL --> Rover
+        # self.node.create_subscription(Voltage, 'EL/voltage', self.update_battery_voltage , 10)
+
+    def update_mass_measurement(self, msg):
+        self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
+        # self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
+        # self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]

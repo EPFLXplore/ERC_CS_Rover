@@ -14,7 +14,7 @@ from sensor_msgs.msg import JointState, Joy
 from nav_msgs.msg import Odometry, Path
 # from diagnostic_msgs.msg import DiagnosticStatus
 
-from custom_msg.msg import Wheelstatus, Motorcmds
+from custom_msg.msg import Wheelstatus, Motorcmds, MassArray
 
 # from std_srvs.srv import SetBool
 import json
@@ -80,8 +80,8 @@ class RoverNode():
         # self.node.create_subscription(Float32MultiArray,  'SC/motors_speed',         self.controller.science_motors_vels, 10)
         # self.node.create_subscription(Float32MultiArray,  'SC/motors_currents',      self.controller.science_motors_currents, 10)
         # self.node.create_subscription(Int8MultiArray,     'SC/limit_switches',       self.controller.science_limit_switches, 10)
-        # self.node.create_subscription(MassArray,         'EL/container/mass',        self.controller.science_container_mass, 10)
-        # self.node.create_subscription(MassArray,         'EL/drill/mass',            self.controller.science_drill_mass, 10)
+        #self.node.create_subscription(MassArray,         'EL/container/mass',        self.controller.science_container_mass, 10)
+        self.node.create_subscription(MassArray,         'EL/drill/mass',            self.model.Elec.update_mass_measurement, 10)
         # self.node.create_subscription(SpectroResponse,   'EL/spectro_response',   self.controller.science_spectrometer, 10)
         # self.node.create_subscription(NPK,               'EL/npk',            self.controller.science_npk, 10)
         # self.node.create_subscription(FourInOne,         'EL/four_in_one',    self.controller.science_4in1, 10)
