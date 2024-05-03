@@ -19,7 +19,7 @@ relay = None
 webcam = None
 
 
-def create_local_tracks(play_from, decode):
+def create_local_tracks(play_from, decode, video=0):
     global relay, webcam
 
     if play_from:
@@ -37,7 +37,7 @@ def create_local_tracks(play_from, decode):
                     "video=Integrated Camera", format="dshow", options=options
                 )
             else:
-                webcam = MediaPlayer("/dev/video0", format="v4l2", options=options)
+                webcam = MediaPlayer("/dev/video" + video, format="v4l2", options=options)
             relay = MediaRelay()
         return None, relay.subscribe(webcam.video)
 
@@ -65,6 +65,8 @@ async def offer(request):
     params = await request.json()
     offer = RTCSessionDescription(sdp=params["sdp"], type=params["type"])
 
+    video = params.get("video") if "video" in params else 0
+
     pc = RTCPeerConnection()
     pcs.add(pc)
 
@@ -77,7 +79,7 @@ async def offer(request):
 
     # open media source
     audio, video = create_local_tracks(
-        args.play_from, decode=not args.play_without_decoding
+        args.play_from, decode=not args.play_without_decoding, video=video
     )
 
     if audio:
