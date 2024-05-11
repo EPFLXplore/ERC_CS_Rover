@@ -1,18 +1,81 @@
 from custom_msg.msg import Wheelstatus, Motorcmds
+from nav_msgs.msg import Odometry
+from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
 import numpy as np
+import json
+from rclpy.action import GoalResponse
 
 class NewModel:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 
-        # self.drill = Drill(rover_node)
+        self.Drill = Drill(rover_node)
         self.HD = HandlingDevice(rover_node)
         self.Nav = Navigation(rover_node)
         # self.Cams = Cameras(rover_node)
         self.Elec = Elec(rover_node)
 
     def jetson_callback(self):
-        self.rover_state_json['rover']['hardware']['json'] = self.rover_node.jetson.json()
+        self.rover_node.rover_state_json['rover']['hardware']['json'] = self.rover_node.jetson.json()
+
+    def change_mode_system_service(self, request, response):
+
+        system = request.system
+        mode = request.mode
+
+        sub_systems_status = self.rover_node.rover_state_json['rover']['status']['systems']
+
+        res_sub_systems = dict()
+        res_sub_systems['status']['navigation'] = sub_systems_status['navigation']['status']
+        res_sub_systems['status']['handling_device'] = sub_systems_status['handling_device']['status']
+        res_sub_systems['status']['drill'] = sub_systems_status['drill']['status']
+        res_sub_systems['status']['camera'] = sub_systems_status['camera']['status']
+
+        if system == 0:
+            # Want to put on the Drill
+            if mode == 1 and (sub_systems_status['navigation'] == 'On' or sub_systems_status['navigation'] == 'Manual'):
+                response.systems_state = json.dumps(res_sub_systems)
+                response.error_type = 1
+                response.error_message = "put off the navigation before put on the drill"
+                return response
+        
+            print("ok to change drill")
+
+        elif system == 1:
+            # HD
+            print("ok to change hd")
+        elif system == 2:
+            # Want to put on the NAV
+            if mode == 1 and sub_systems_status['drill'] == 'On':
+                response.systems_state = json.dumps(res_sub_systems)
+                response.error_type = 1
+                response.error_message = "put off the drill before put on the navigation"
+                return response
+            
+            print("ok to change nav")
+            
+        elif system == 3:
+            # Camera
+            print("ok to change camera")
+        else:
+            # throw error
+            response.systems_state = json.dumps(res_sub_systems)
+            response.error_type = 1
+            response.error_message = "system value > 3..."
+            return response
+
+        # NEED TO CHANGE DE MODE ACCORDIGNLY!
+
+        res_sub_systems['status']['navigation'] = sub_systems_status['navigation']['status']
+        res_sub_systems['status']['handling_device'] = sub_systems_status['handling_device']['status']
+        res_sub_systems['status']['drill'] = sub_systems_status['drill']['status']
+        res_sub_systems['status']['camera'] = sub_systems_status['camera']['status']
+
+        response.systems_state = json.dumps(res_sub_systems)
+        response.error_type = 0
+        response.error_message = "no errors"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               "
+
+        return response
 
 
 class HandlingDevice:
@@ -38,8 +101,34 @@ class HandlingDevice:
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = self.joint_positions[i]
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = self.joint_velocities[i]
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = self.joint_current[i]
+    
+    def hd_manipulation_action(self, goal_handle):
+        print("Manipulation HD action starting...")
 
-# class Drill:
+        feedback = HDManipulation.Feedback()
+        i = 0
+
+        while i < 2:
+
+            feedback.current_status = "ok"
+            feedback.warning_type = 0
+            feedback.warning_message = ""
+            goal_handle.publish_feedback(feedback)
+            i = i + 1
+        
+        goal_handle.succeed()
+
+        result = HDManipulation.Result()
+        result.result = ""
+        result.error_type = 0
+        result.error_message = ""
+        return result
+    
+    def hd_manipulation_goal_status(self, goal):
+        if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
+            return GoalResponse.REJECT
+        
+        return GoalResponse.ACCEPT
 
 class Navigation:
     def __init__(self, rover_node):
@@ -133,6 +222,49 @@ class Navigation:
     def nav_displacement(self, displacement):
         self.displacement_mode = displacement.modedeplacement
         self.info = displacement.info
+    
+    def feedback_odometry(self):
+        msg = Odometry()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.pose.pose.position.x = 0
+        msg.pose.pose.position.y = 0
+        msg.pose.pose.position.z = 0
+        msg.pose.pose.orientation.x = 1
+        msg.pose.pose.orientation.y = 1
+        msg.pose.pose.orientation.z = 1
+        msg.pose.pose.orientation.w = 1
+        return msg
+    
+    def nav_reach_goal_status(self, goal):
+        if self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Off':
+            return GoalResponse.REJECT
+        
+        return GoalResponse.ACCEPT
+
+    def nav_reach_goal_action(self, goal_handle):
+        print("Reach Goal action starting...")
+
+        feedback = NAVReachGoal.Feedback()
+        i = 0
+
+        while i < 2:
+
+            feedback.current_status = "ok"
+            feedback.current_pos = self.feedback_odometry()
+            feedback.distance_to_goal = 2
+            feedback.warning_type = 0
+            feedback.warning_message = ""
+            goal_handle.publish_feedback(feedback)
+            i = i + 1
+        
+        goal_handle.succeed()
+
+        result = NAVReachGoal.Result()
+        result.result = ""
+        result.final_pos = self.feedback_odometry()
+        result.error_type = 0
+        result.error_message = ""
+        return result
 
 class Elec:
     def __init__(self, rover_node):
@@ -145,3 +277,35 @@ class Elec:
         self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
         # self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
         # self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
+
+class Drill:
+    def __init__(self, rover_node):
+        self.rover_node = rover_node
+    
+    def drill_goal_status(self, goal):
+        if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
+            return GoalResponse.REJECT
+        
+        return GoalResponse.ACCEPT
+
+    def drill_action(self, goal_handle):
+        print("Drill action starting...")
+
+        feedback = DrillTerrain.Feedback()
+        i = 0
+
+        while i < 2:
+
+            feedback.current_status = "ok"
+            feedback.warning_type = 0
+            feedback.warning_message = ""
+            goal_handle.publish_feedback(feedback)
+            i = i + 1
+        
+        goal_handle.succeed()
+
+        result = DrillTerrain.Result()
+        result.result = ""
+        result.error_type = 0
+        result.error_message = ""
+        return result

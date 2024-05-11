@@ -37,7 +37,7 @@ def create_local_tracks(play_from, decode, video=0):
                     "video=Integrated Camera", format="dshow", options=options
                 )
             else:
-                webcam = MediaPlayer("/dev/video" + video, format="v4l2", options=options)
+                webcam = MediaPlayer("/dev/video" + str(video), format="v4l2", options=options)
             relay = MediaRelay()
         return None, relay.subscribe(webcam.video)
 

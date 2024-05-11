@@ -3,6 +3,7 @@
 import time
 import rclpy
 from rclpy.logging import LoggingSeverity
+from rclpy.action import ActionServer
 # import math
 import sys
 
@@ -15,6 +16,8 @@ from nav_msgs.msg import Odometry, Path
 # from diagnostic_msgs.msg import DiagnosticStatus
 
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray
+from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
+from custom_msg.srv import ChangeModeSystem
 
 # from std_srvs.srv import SetBool
 import json
@@ -53,10 +56,23 @@ class RoverNode():
 
         # ===== PUBLISHERS =====
 
-        # publish rover state continuously via JSON
         self.rover_state_pub = self.node.create_publisher(String, 'Rover/RoverState', 1)
-        timer_period = 0.1  # seconds
-        self.timer = self.node.create_timer(timer_period, self.timer_callback)
+        self.timer = self.node.create_timer(0.1, self.timer_callback)
+
+        # ===== SERVICES =====
+
+        self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service)
+
+        # ===== ACTIONS =====
+
+        self.hd_manipulation_action = ActionServer(self, HDManipulation, "/Rover/HandlingDeviceManipulation", self.model.HD.hd_manipulation_action,
+                                                   self.model.HD.hd_manipulation_goal_status)
+
+        self.nav_reach_goal_action = ActionServer(self, NAVReachGoal, "/Rover/NavigationReachGoal", self.model.Nav.nav_reach_goal_action,
+                                                  self.model.Nav.nav_reach_goal_status)
+
+        self.drill_action_ = ActionServer(self, DrillTerrain, "/Rover/DrillTerrain", self.model.Drill.drill_action, 
+                                          self.model.Drill.drill_goal_status)
 
         # ===== SUBSCRIBERS =====
 
