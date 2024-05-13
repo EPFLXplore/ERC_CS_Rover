@@ -163,7 +163,3 @@ class RoverNode():
 def main():
     rover = RoverNode()
     rover.run()
-
-
-
-

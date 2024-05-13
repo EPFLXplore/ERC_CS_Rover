@@ -57,7 +57,7 @@
 					"message": "Handling device is running"
 				},
 				"drill": {
-					"status": "Off",
+					"status": "On",
 					"message": "Drill is running"
 				},
 				"electronics": {

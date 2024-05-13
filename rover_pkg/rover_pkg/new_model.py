@@ -24,26 +24,28 @@ class NewModel:
         mode = request.mode
 
         sub_systems_status = self.rover_node.rover_state_json['rover']['status']['systems']
+        print(sub_systems_status)
+        res_sub_systems = {}
+        res_sub_systems['status'] = {}
 
-        res_sub_systems = dict()
         res_sub_systems['status']['navigation'] = sub_systems_status['navigation']['status']
         res_sub_systems['status']['handling_device'] = sub_systems_status['handling_device']['status']
         res_sub_systems['status']['drill'] = sub_systems_status['drill']['status']
-        res_sub_systems['status']['camera'] = sub_systems_status['camera']['status']
+        res_sub_systems['status']['cameras'] = sub_systems_status['cameras']['status']
 
         if system == 0:
-            # Want to put on the Drill
+            # the Drill
+
             if mode == 1 and (sub_systems_status['navigation'] == 'On' or sub_systems_status['navigation'] == 'Manual'):
                 response.systems_state = json.dumps(res_sub_systems)
                 response.error_type = 1
                 response.error_message = "put off the navigation before put on the drill"
                 return response
         
-            print("ok to change drill")
 
         elif system == 1:
             # HD
-            print("ok to change hd")
+            print("")
         elif system == 2:
             # Want to put on the NAV
             if mode == 1 and sub_systems_status['drill'] == 'On':
@@ -52,11 +54,10 @@ class NewModel:
                 response.error_message = "put off the drill before put on the navigation"
                 return response
             
-            print("ok to change nav")
             
         elif system == 3:
             # Camera
-            print("ok to change camera")
+            print("")
         else:
             # throw error
             response.systems_state = json.dumps(res_sub_systems)
@@ -69,7 +70,7 @@ class NewModel:
         res_sub_systems['status']['navigation'] = sub_systems_status['navigation']['status']
         res_sub_systems['status']['handling_device'] = sub_systems_status['handling_device']['status']
         res_sub_systems['status']['drill'] = sub_systems_status['drill']['status']
-        res_sub_systems['status']['camera'] = sub_systems_status['camera']['status']
+        res_sub_systems['status']['cameras'] = sub_systems_status['cameras']['status']
 
         response.systems_state = json.dumps(res_sub_systems)
         response.error_type = 0
