@@ -49,11 +49,11 @@
 		"status": {
 			"systems": {
 				"navigation": {
-					"status": "Off",
+					"status": "On",
 					"message": "Navigation system is running"
 				},
 				"handling_device": {
-					"status": "Off",
+					"status": "On",
 					"message": "Handling device is running"
 				},
 				"drill": {

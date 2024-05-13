@@ -118,6 +118,7 @@ class HandlingDevice:
         
         goal_handle.succeed()
 
+        print("Manipulation HD action is finished")
         result = HDManipulation.Result()
         result.result = ""
         result.error_type = 0
@@ -225,14 +226,14 @@ class Navigation:
     
     def feedback_odometry(self):
         msg = Odometry()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.pose.pose.position.x = 0
-        msg.pose.pose.position.y = 0
-        msg.pose.pose.position.z = 0
-        msg.pose.pose.orientation.x = 1
-        msg.pose.pose.orientation.y = 1
-        msg.pose.pose.orientation.z = 1
-        msg.pose.pose.orientation.w = 1
+        msg.header.stamp = self.rover_node.node.get_clock().now().to_msg()
+        msg.pose.pose.position.x = 0.0
+        msg.pose.pose.position.y = 0.0
+        msg.pose.pose.position.z = 0.0
+        msg.pose.pose.orientation.x = 1.0
+        msg.pose.pose.orientation.y = 1.0
+        msg.pose.pose.orientation.z = 1.0
+        msg.pose.pose.orientation.w = 1.0
         return msg
     
     def nav_reach_goal_status(self, goal):
@@ -242,7 +243,7 @@ class Navigation:
         return GoalResponse.ACCEPT
 
     def nav_reach_goal_action(self, goal_handle):
-        print("Reach Goal action starting...")
+        print("NAV Reach Goal action starting...")
 
         feedback = NAVReachGoal.Feedback()
         i = 0
@@ -259,6 +260,7 @@ class Navigation:
         
         goal_handle.succeed()
 
+        print("NAV Reach Goal action is finished")
         result = NAVReachGoal.Result()
         result.result = ""
         result.final_pos = self.feedback_odometry()
@@ -304,6 +306,7 @@ class Drill:
         
         goal_handle.succeed()
 
+        print("DRILL action is finished")
         result = DrillTerrain.Result()
         result.result = ""
         result.error_type = 0
