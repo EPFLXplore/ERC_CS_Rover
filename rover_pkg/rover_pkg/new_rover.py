@@ -13,6 +13,7 @@ from std_msgs.msg       import Int8, Int16, Int32, Bool, String, Int8MultiArray,
 # from actionlib_msgs.msg import GoalID
 from sensor_msgs.msg import JointState, Joy
 from nav_msgs.msg import Odometry, Path
+from rclpy.callback_groups import ReentrantCallbackGroup
 # from diagnostic_msgs.msg import DiagnosticStatus
 
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray
@@ -46,9 +47,9 @@ class RoverNode():
         with open('/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json') as json_file:
             self.rover_state_json = dict(json.load(json_file))
             
-        self.jetson = jtop()
-        self.jetson.attach(self.model.jetson_callback)
-        threading.Thread(target=self.jetson.loop_for_ever).start()
+        #self.jetson = jtop()
+        #self.jetson.attach(self.model.jetson_callback)
+        #threading.Thread(target=self.jetson.loop_for_ever).start()
 
         # ==========================================================
         #              MESSAGES BETWEEN ROVER AND CS
@@ -65,14 +66,14 @@ class RoverNode():
 
         # ===== ACTIONS =====
 
-        self.hd_manipulation_action = ActionServer(self, HDManipulation, "/Rover/HandlingDeviceManipulation", self.model.HD.hd_manipulation_action,
-                                                   self.model.HD.hd_manipulation_goal_status)
+        self.hd_manipulation_action = ActionServer(self.node, HDManipulation, "/Rover/HandlingDeviceManipulation", self.model.HD.hd_manipulation_action,
+                                        goal_callback=self.model.HD.hd_manipulation_goal_status)
 
-        self.nav_reach_goal_action = ActionServer(self, NAVReachGoal, "/Rover/NavigationReachGoal", self.model.Nav.nav_reach_goal_action,
-                                                  self.model.Nav.nav_reach_goal_status)
+        self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, "/Rover/NavigationReachGoal", self.model.Nav.nav_reach_goal_action,
+                                                  goal_callback=self.model.Nav.nav_reach_goal_status)
 
-        self.drill_action_ = ActionServer(self, DrillTerrain, "/Rover/DrillTerrain", self.model.Drill.drill_action, 
-                                          self.model.Drill.drill_goal_status)
+        self.drill_action_ = ActionServer(self.node, DrillTerrain, "/Rover/DrillTerrain", self.model.Drill.drill_action, 
+                                          goal_callback=self.model.Drill.drill_goal_status)
 
         # ===== SUBSCRIBERS =====
 

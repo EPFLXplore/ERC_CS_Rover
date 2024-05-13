@@ -73,7 +73,7 @@ class NewModel:
 
         response.systems_state = json.dumps(res_sub_systems)
         response.error_type = 0
-        response.error_message = "no errors"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               "
+        response.error_message = "no errors"  
 
         return response
 
@@ -103,7 +103,7 @@ class HandlingDevice:
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = self.joint_current[i]
     
     def hd_manipulation_action(self, goal_handle):
-        print("Manipulation HD action starting...")
+        print("Manipulation HD action starting...")   
 
         feedback = HDManipulation.Feedback()
         i = 0
