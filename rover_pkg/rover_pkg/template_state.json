@@ -49,15 +49,15 @@
 		"status": {
 			"systems": {
 				"navigation": {
-					"status": "On",
+					"status": "Off",
 					"message": "Navigation system is running"
 				},
 				"handling_device": {
-					"status": "On",
+					"status": "Off",
 					"message": "Handling device is running"
 				},
 				"drill": {
-					"status": "On",
+					"status": "Off",
 					"message": "Drill is running"
 				},
 				"electronics": {
