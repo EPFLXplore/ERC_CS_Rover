@@ -18,6 +18,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from custom_msg.srv import ChangeModeSystem
 
 # from std_srvs.srv import SetBool
@@ -62,7 +63,7 @@ class RoverNode():
 
         # ===== SERVICES =====
 
-        self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service)
+        self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service, callback_group=ReentrantCallbackGroup())
 
         # ===== ACTIONS =====
 
@@ -130,6 +131,7 @@ class RoverNode():
         # print(self.rover_state_json['handling_device'])
         msg = String()
         msg.data = json.dumps(self.rover_state_json)
+        print(self.rover_state_json['rover']['status']['systems'])
         self.rover_state_pub.publish(msg)
 
         # # dummy update for testing
@@ -155,7 +157,11 @@ class RoverNode():
         # run ros
     def run(self):
         print("Rover node started !")
-        rclpy.spin(self.node)
+        executor = rclpy.executors.MultiThreadedExecutor()
+        executor.add_node(self.node)
+        executor.spin()
+        #thr = threading.Thread(target=executor.spin, daemon=True).start()
+        #rclpy.spin(self.node)
         rclpy.shutdown()
 
 
