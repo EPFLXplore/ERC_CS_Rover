@@ -209,7 +209,11 @@
 					"z": "0.0",
 					"w": "0.0"
 				}
-			}
+			},
+			"goal": false,
+			"distance_to_goal": "0.0",
+			"warning_type": "0",
+			"warning_message": "No Warning"
 		}
 	},
 	"handling_device": {
@@ -292,7 +296,9 @@
 			"control_mode": "Direct",
 			"current_step": "Idle",
 			"next_step": "Idle",
-			"current_task": "Button1"
+			"current_task": "Button1",
+			"warning_type": "0",
+			"warning_message": "No Warning"
 		},
 		"drill": {
 			"motors": {
@@ -310,7 +316,9 @@
 			"state": {
 				"mode": "Off",
 				"current_step": "Idle",
-				"next_step": "Idle"
+				"next_step": "Idle",
+				"warning_type": "0",
+				"warning_message": "No Warning"
 			}
 		}
 	},
