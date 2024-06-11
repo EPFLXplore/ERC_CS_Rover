@@ -23,7 +23,6 @@ class NewModel:
         system = request.system
         mode = request.mode
         self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto'
-        #self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
         response.systems_state = json.dumps(self.rover_node.rover_state_json['rover'])
         response.error_type = 0
         response.error_message = "no errors"  
@@ -134,6 +133,7 @@ class HandlingDevice:
         return result
     
     def hd_manipulation_goal_status(self, goal):
+        # NO NEED TO REJECT IF IT IS CHECKED ON THE CLIENT SIDE BEFORE!
         if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
             return GoalResponse.REJECT
         

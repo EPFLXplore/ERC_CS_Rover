@@ -131,7 +131,7 @@ class RoverNode():
         # print(self.rover_state_json['handling_device'])
         msg = String()
         msg.data = json.dumps(self.rover_state_json)
-        print(self.rover_state_json['rover']['status']['systems'])
+        #print(self.rover_state_json['rover']['status']['systems'])
         self.rover_state_pub.publish(msg)
 
         # # dummy update for testing
