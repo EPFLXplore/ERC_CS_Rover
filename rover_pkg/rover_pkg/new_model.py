@@ -22,67 +22,36 @@ class NewModel:
 
         system = request.system
         mode = request.mode
-        self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto'
-        response.systems_state = json.dumps(self.rover_node.rover_state_json['rover'])
-        response.error_type = 0
-        response.error_message = "no errors"  
-        return response
-        '''
-        # //////////////////////////////////////////
-        sub_systems_status = self.rover_node.rover_state_json['rover']['status']['systems']
-        # for after
-        res_sub_systems = {}
-        res_sub_systems['navigation'] = sub_systems_status['navigation']['status']
-        res_sub_systems['handling_device'] = sub_systems_status['handling_device']['status']
-        res_sub_systems['drill'] = sub_systems_status['drill']['status']
-        res_sub_systems['cameras'] = sub_systems_status['cameras']['status']
-        # //////////////////////////////////////////
 
         if system == 0:
-            # the Drill
-
-            if mode == 1 and (res_sub_systems['navigation'] == 'On' or res_sub_systems['navigation'] == 'Manual'):
-                response.systems_state = json.dumps(res_sub_systems)
-                response.error_type = 1
-                response.error_message = "put off the navigation before put on the drill"
-                return response
-            
-            # for now rover holds the current states of subsystems
-            self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
+            # NAV
+            self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
 
         elif system == 1:
-            # the HD
+            # HD
             self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
 
         elif system == 2:
-            # the NAV
-            if (mode == 1 or mode == 2) and res_sub_systems['drill'] == 'On':
-                response.systems_state = json.dumps(res_sub_systems)
-                response.error_type = 1
-                response.error_message = "put off the drill before put on the navigation"
-                return response
-            
-            self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
-
-
-        elif system == 3:
             # Camera
             self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Stream' if (mode == 1) else 'Off'
 
+        elif system == 3:
+            # Drill
+            self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
 
+
+        res_sub_systems = {}
         sub_systems_status = self.rover_node.rover_state_json['rover']['status']['systems']
         res_sub_systems['navigation'] = sub_systems_status['navigation']['status']
         res_sub_systems['handling_device'] = sub_systems_status['handling_device']['status']
         res_sub_systems['drill'] = sub_systems_status['drill']['status']
         res_sub_systems['cameras'] = sub_systems_status['cameras']['status']
-
-        print(sub_systems_status)
 
         response.systems_state = json.dumps(res_sub_systems)
         response.error_type = 0
         response.error_message = "no errors"  
         return response
-        '''
+        
 
 
 class HandlingDevice:

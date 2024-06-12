@@ -24,7 +24,6 @@ from custom_msg.srv import ChangeModeSystem
 # from std_srvs.srv import SetBool
 import json
 
-from jtop import jtop
 import threading
 
 
