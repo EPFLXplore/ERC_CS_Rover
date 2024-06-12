@@ -14,28 +14,37 @@ class NewCameras(Node):
 
         super().__init__('new_cameras_cs')
 
+        self.camera_ids = ["/dev/video0", "/dev/video2"]
+
         # publishers for the cameras
-        self.cam_pub = self.create_publisher(CompressedImage, 'camera_new', 1)
-
-        self.camera = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L) 
-
+        self.cam_pubs = [self.create_publisher(CompressedImage, 'camera_' + str(i), 1) for i in range(len(self.camera_ids))]
         self.bridge = CvBridge()
 
-        self.publish_feeds()
+        # self.publish_feeds()
+        for i in range(len(self.camera_ids)):
+            threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)).start()
 
 
 
-    def publish_feeds(self):
-        self.camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('m','j','p','g'))
+def publish_feeds(camera_id, publisher, bridge):
+    print("Starting camera " + camera_id)
+    camera = cv2.VideoCapture(camera_id, cv2.CAP_V4L)
+    camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('m','j','p','g'))
+    camera.set(cv2.CAP_PROP_FPS, 15)
+    
+    while True:
+        print("Open " + camera_id)
         while True:
-            while True:
-                ret, frame = self.camera.read()
-                if not ret:
-                    break
-                self.cam_pub.publish(self.bridge.cv2_to_compressed_imgmsg(frame))
-                sleep(1/15)
-            self.camera = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L)
-            sleep(1)
+            ret, frame = camera.read()
+            print("Capturing " + camera_id)
+            if not ret:
+                break
+            publisher.publish(bridge.cv2_to_compressed_imgmsg(frame))
+            sleep(1/15)
+        camera = cv2.VideoCapture(camera_id, cv2.CAP_V4L)
+        camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('m','j','p','g'))
+        camera.set(cv2.CAP_PROP_FPS, 15)
+        sleep(1)
 
 
 
