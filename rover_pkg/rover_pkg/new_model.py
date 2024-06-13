@@ -88,7 +88,7 @@ class HandlingDevice:
 
             feedback.current_status = "ok"
             feedback.warning_type = 0
-            feedback.warning_message = ""
+            feedback.warning_message = "no warning"
             goal_handle.publish_feedback(feedback)
             i = i + 1
         
@@ -96,13 +96,12 @@ class HandlingDevice:
 
         print("Manipulation HD action is finished")
         result = HDManipulation.Result()
-        result.result = ""
+        result.result = "action finished"
         result.error_type = 0
-        result.error_message = ""
+        result.error_message = "no error"
         return result
     
     def hd_manipulation_goal_status(self, goal):
-        # NO NEED TO REJECT IF IT IS CHECKED ON THE CLIENT SIDE BEFORE!
         if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
             return GoalResponse.REJECT
         
@@ -231,7 +230,7 @@ class Navigation:
             feedback.current_pos = self.feedback_odometry()
             feedback.distance_to_goal = 2
             feedback.warning_type = 0
-            feedback.warning_message = ""
+            feedback.warning_message = "no warning"
             goal_handle.publish_feedback(feedback)
             i = i + 1
         
@@ -242,7 +241,7 @@ class Navigation:
         result.result = ""
         result.final_pos = self.feedback_odometry()
         result.error_type = 0
-        result.error_message = ""
+        result.error_message = "no error"
         return result
 
 class Elec:
