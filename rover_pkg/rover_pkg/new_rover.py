@@ -60,6 +60,15 @@ class RoverNode():
         self.rover_state_pub = self.node.create_publisher(String, 'Rover/RoverState', 1)
         self.timer = self.node.create_timer(0.1, self.timer_callback)
 
+        # -- NAV messages --
+        self.nav_cmd_pub = self.node.create_publisher(Joy, '/CS/NAV_gamepad', 1) # Name to be changed
+        self.nav_mode_pub = self.node.create_publisher(Int8, '/ROVER/NAV_mode', 1)
+
+        # -- HD messages --
+        self.hd_cmd_pub = self.create_publisher(Float32MultiArray, "/CS/HD_gamepad", 10)
+        # self.man_inv_axis_pub = self.create_publisher(Float32MultiArray, "/ROVER/HD_man_inv_axis", 10)
+        self.hd_mode_pub = self.create_publisher(Int8, "/ROVER/HD_mode", 10)
+
         # ===== SERVICES =====
 
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service, callback_group=ReentrantCallbackGroup())
@@ -79,17 +88,13 @@ class RoverNode():
 
         ### here we will define services and topics that the rover will subscribe to
 
+        # -- CS messages --
+
+        self.node.create_subscription(Joy, 'CS/GamepadCmdsNavigation', self.transfer_gamepad_cmd_nav, 10)
+        self.node.create_subscription(Joy, 'CS/GamepadCmdsHandlingDevice', self.transfer_gamepad_cmd_hd, 10)
+
         # SC --> Rover
         # self.node.create_subscription(Int8, 'SC/fsm_state_to_cs'          , self.model.SC.science_fsm_callback   , 10)  # self.SC_infos_pub.publish)
-
-        # NAV --> Rover
-        #self.node.create_subscription(PoseStamped,        '/lio_sam/current_pose'          , self.NAV_odometry_pub.publish , 10) # CS DIRECTLY SUBSCRIBED
-
-        # # HD --> Rover
-        # self.node.create_subscription(JointState, 'HD/motor_control/joint_telemetry', self.update_hd_joint_telemetry , 10)
-    
-        # dummy publisher
-        # self.dummy_pub = self.node.create_publisher(JointState, 'HD/motor_control/joint_telemetry', 10)
 
         # -- SC messages --
         # self.node.create_subscription(Int8,               'SC/fsm_state_to_cs',      self.controller.science_state, 10)
@@ -127,30 +132,30 @@ class RoverNode():
 
     # timer callback for sending rover state continuously
     def timer_callback(self):
-        # print(self.rover_state_json['handling_device'])
         msg = String()
         msg.data = json.dumps(self.rover_state_json)
-        #print(self.rover_state_json['rover']['status']['systems'])
         self.rover_state_pub.publish(msg)
 
-        # # dummy update for testing
-        # t2 = time.time() - self.t1
+    def transfer_gamepad_cmd_nav(self, msg):
+        # TODO: Check that the mode is set to MANUAL
+        self.nav_cmd_pub.publish(msg)
 
-        # d = JointState()
-        # vals = [math.sin(t2), math.cos(t2), math.tan(t2)]
-        # d.position = vals
-        # self.dummy_pub.publish(d)
+    def transfer_gamepad_cmd_hd(self, msg):
+        # TODO: Check that the mode is set to MANUAL
+        axes = Float32MultiArray()
+        axes.data = msg.axes
 
-    
+        # Reverse the axes for Joint 3 and Joint 4
+        if msg.buttons[0] == 1:
+            axes.data[2] = -axes.data[2]
+        if msg.buttons[1] == 1:
+            axes.data[3] = -axes.data[3]
 
+        # add the gripper buttons to the axes
+        gripper_vel = msg.buttons[2] - msg.buttons[3] if msg.buttons[2] or msg.buttons[3] else msg.buttons[4] - msg.buttons[5]
+        axes.data.append(gripper_vel)
 
-
-    # def update_hd_joint_telemetry(self, msg):
-    #     positions = msg.position
-    #     velocities = msg.velocity
-
-    #     for i in range(len(positions)):
-    #         self.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = positions[i]
+        self.hd_cmd_pub.publish(axes)
         
 
         # run ros
