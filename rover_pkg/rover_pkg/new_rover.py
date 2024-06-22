@@ -65,9 +65,9 @@ class RoverNode():
         self.nav_mode_pub = self.node.create_publisher(Int8, '/ROVER/NAV_mode', 1)
 
         # -- HD messages --
-        self.hd_cmd_pub = self.create_publisher(Float32MultiArray, "/CS/HD_gamepad", 10)
+        self.hd_cmd_pub = self.node.create_publisher(Float32MultiArray, "/CS/HD_gamepad", 10)
         # self.man_inv_axis_pub = self.create_publisher(Float32MultiArray, "/ROVER/HD_man_inv_axis", 10)
-        self.hd_mode_pub = self.create_publisher(Int8, "/ROVER/HD_mode", 10)
+        self.hd_mode_pub = self.node.create_publisher(Int8, "/ROVER/HD_mode", 10)
 
         # ===== SERVICES =====
 
