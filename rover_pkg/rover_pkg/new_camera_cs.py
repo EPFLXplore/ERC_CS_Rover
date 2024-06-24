@@ -52,19 +52,18 @@ def publish_feeds(camera_id, publisher, bridge):
     camera = cv2.VideoCapture(camera_id, cv2.CAP_V4L)
     camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('m','j','p','g'))
     camera.set(cv2.CAP_PROP_FPS, 15)
+    global stop_threads
     
     while True:
         print("Open " + camera_id)
         while True:
             ret, frame = camera.read()
             print("Capturing " + camera_id)
-            global stop_threads
             if (not ret) or stop_threads:
                 break
             publisher.publish(bridge.cv2_to_compressed_imgmsg(frame))
             sleep(1/15)
 
-        global stop_threads
         if stop_threads:
             break
         camera = cv2.VideoCapture(camera_id, cv2.CAP_V4L)
