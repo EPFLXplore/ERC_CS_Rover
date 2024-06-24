@@ -25,7 +25,7 @@ class NewCameras(Node):
 
         global stop_threads
         stop_threads = False
-        self.threads = [threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)) for i in range(len(self.camera_ids))]
+        self.threads = []
 
         self.service = self.create_service(SetBool, '/ROVER/start_cameras', self.start_cameras_callback)
 
@@ -33,6 +33,9 @@ class NewCameras(Node):
         global stop_threads
         if request.data:
             stop_threads = False
+
+            self.threads = [threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)) for i in range(len(self.camera_ids))]
+
             for thread in self.threads:
                 thread.start()
             response.success = True
@@ -41,6 +44,9 @@ class NewCameras(Node):
             stop_threads = True
             for thread in self.threads:
                 thread.join()
+
+            self.threads = []
+            
             response.success = True
             response.message = "Cameras stopped"
         return response
