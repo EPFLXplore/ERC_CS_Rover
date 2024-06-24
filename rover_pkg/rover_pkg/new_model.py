@@ -1,9 +1,11 @@
 from custom_msg.msg import Wheelstatus, Motorcmds
 from nav_msgs.msg import Odometry
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
+from std_srvs.srv       import SetBool
 import numpy as np
 import json
 from rclpy.action import GoalResponse
+import rclpy
 
 class NewModel:
     def __init__(self, rover_node):
@@ -33,7 +35,23 @@ class NewModel:
 
         elif system == 2:
             # Camera
-            self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Stream' if (mode == 1) else 'Off'
+            # call boolset service to start/stop cameras
+            request = SetBool.Request()
+            request.data = True if (mode == 1) else False
+            future = self.rover_node.camera_service.call_async(request)
+            future.add_done_callback(lambda f: service_callback(f))
+        
+            def service_callback(self, future):
+                try:
+                    response = future.result()
+                    if response.success:
+                        self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Stream' if (mode == 1) else 'Off'
+                    else:
+                        self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Off' if (mode == 1) else 'Stream'
+                        log_error(self.rover_node, 1, "Error in camera service callback")
+                except Exception as e:
+                    log_error(self.rover_node, 1, "Error in camera service callback: " + str(e))
+
 
         elif system == 3:
             # Drill
@@ -288,3 +306,11 @@ class Drill:
         result.error_type = 0
         result.error_message = ""
         return result
+    
+def log_error(node, error_type, error_message):
+    error = { "type": error_type, "message": error_message }
+    node.rover_state_json['rover']['status']['error'] = node.rover_state_json['rover']['status']['error'].append(error)
+
+def log_warning(node, warning_type, warning_message):
+    warning = { "type": warning_type, "message": warning_message }
+    node.rover_state_json['rover']['status']['warning'] = node.rover_state_json['rover']['status']['warning'].append(warning)

@@ -8,6 +8,7 @@ from rclpy.action import ActionServer
 import sys
 
 from std_msgs.msg       import Int8, Int16, Int32, Bool, String, Int8MultiArray,  Int16MultiArray, Float32MultiArray, UInt8MultiArray
+from std_srvs.srv       import SetBool
 
 # from geometry_msgs.msg  import Twist, PoseStamped
 # from actionlib_msgs.msg import GoalID
@@ -55,6 +56,8 @@ class RoverNode():
         #              MESSAGES BETWEEN ROVER AND CS
         # ==========================================================
 
+        reentrant_callback_group = ReentrantCallbackGroup()
+
         # ===== PUBLISHERS =====
 
         self.rover_state_pub = self.node.create_publisher(String, 'Rover/RoverState', 1)
@@ -71,7 +74,9 @@ class RoverNode():
 
         # ===== SERVICES =====
 
-        self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service, callback_group=ReentrantCallbackGroup())
+        self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service, callback_group=reentrant_callback_group)
+
+        self.camera_service = self.node.create_client(SetBool, '/ROVER/start_cameras', callback_group=reentrant_callback_group)
 
         # ===== ACTIONS =====
 
@@ -134,7 +139,12 @@ class RoverNode():
     def timer_callback(self):
         msg = String()
         msg.data = json.dumps(self.rover_state_json)
+        self.clear_rover_msgs()
         self.rover_state_pub.publish(msg)
+
+    def clear_rover_msgs(self):
+        self.rover_state_json['rover']['status']['error'] = []
+        self.rover_state_json['rover']['status']['warning'] = []
 
     def transfer_gamepad_cmd_nav(self, msg):
         # TODO: Check that the mode is set to MANUAL
