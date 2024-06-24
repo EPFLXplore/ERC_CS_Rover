@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node, Publisher
-from sensor_msgs.msg import CompressedImage, Image
+from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Int8MultiArray
 
 import cv2
