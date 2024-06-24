@@ -41,7 +41,7 @@ class NewModel:
             future = self.rover_node.camera_service.call_async(request)
             future.add_done_callback(lambda f: service_callback(f))
         
-            def service_callback(self, future):
+            def service_callback(future):
                 try:
                     response = future.result()
                     if response.success:
