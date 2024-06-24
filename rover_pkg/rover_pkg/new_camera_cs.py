@@ -30,15 +30,14 @@ class NewCameras(Node):
         self.service = self.create_service(SetBool, '/ROVER/start_cameras', self.start_cameras_callback)
 
     def start_cameras_callback(self, request, response):
+        global stop_threads
         if request.data:
-            global stop_threads
             stop_threads = False
             for thread in self.threads:
                 thread.start()
             response.success = True
             response.message = "Cameras started"
         else:
-            global stop_threads
             stop_threads = True
             for thread in self.threads:
                 thread.join()
