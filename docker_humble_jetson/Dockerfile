@@ -28,7 +28,6 @@ RUN apt-get install -y libgstreamer1.0-dev \
 
 RUN ACCEPT_EULA=Y apt install -y ubuntu-restricted-extras
 RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-RUN pip3 install -U jetson-stats
 
 # Add USB rules
 RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /etc/udev/rules.d/80-movidius.rules
@@ -38,6 +37,7 @@ USER $USERNAME
 
 RUN python3 -m pip install numpy
 RUN pip install aiohttp aiortc aiohttp_cors
+RUN pip3 install -U jetson-stats
 
 # Set a diretory to store the project
 WORKDIR /home/$USERNAME/dev_ws/src
