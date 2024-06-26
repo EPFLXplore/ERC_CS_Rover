@@ -17,8 +17,8 @@ class NewModel:
         # self.Cams = Cameras(rover_node)
         self.Elec = Elec(rover_node)
 
-    def jetson_callback(self):
-        self.rover_node.rover_state_json['rover']['hardware']['json'] = self.rover_node.jetson.json()
+    def update_metrics(self, metrics):
+        self.rover_node.rover_state_json['rover']['hardware'] = json.load(metrics.data)
 
     def change_mode_system_service(self, request, response):
 

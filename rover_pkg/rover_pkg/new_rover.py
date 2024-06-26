@@ -98,6 +98,8 @@ class RoverNode():
         self.node.create_subscription(Joy, 'CS/GamepadCmdsNavigation', self.transfer_gamepad_cmd_nav, 10)
         self.node.create_subscription(Joy, 'CS/GamepadCmdsHandlingDevice', self.transfer_gamepad_cmd_hd, 10)
 
+        self.node.create_subscription(String, '/ROVER/performance', self.model.update_metrics, 10)
+
         # SC --> Rover
         # self.node.create_subscription(Int8, 'SC/fsm_state_to_cs'          , self.model.SC.science_fsm_callback   , 10)  # self.SC_infos_pub.publish)
 
