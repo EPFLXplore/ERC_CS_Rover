@@ -31,7 +31,7 @@ current_dir=$(pwd)
 # Use dirname to get the parent directory
 parent_dir=$(dirname "$current_dir")
 
-JTOP_GID=$(getent group jtop)
+JTOP_GID=$(getent group jtop | awk -F: '{print $3}')
 
 docker run -it \
     --name rover_humble_jetson \
