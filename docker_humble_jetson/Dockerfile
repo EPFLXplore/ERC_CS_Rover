@@ -38,7 +38,7 @@ USER $USERNAME
 
 RUN python3 -m pip install numpy
 RUN pip install aiohttp aiortc aiohttp_cors
-RUN pip install pymongo[srv]
+RUN pip install pymongo
 
 # Set a diretory to store the project
 WORKDIR /home/$USERNAME/dev_ws/src
