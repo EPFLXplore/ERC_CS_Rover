@@ -10,13 +10,12 @@ class Monitor(Node):
 
     def __init__(self):
         super().__init__('performance_monitor')
-        self.perf_pub = self.create_publisher(String, 'CS/performance', 10)
+        self.perf_pub = self.create_publisher(String, '/ROVER/performance', 10)
         self.initializeJtop(self.perf_pub)
 
     def timer_callback(self, jetson):
         msg = String()
         msg.data = jetson.json()
-        print(jetson.stats)
         self.perf_pub.publish(msg)
 
     def initializeJtop(self, publisher):
@@ -30,7 +29,7 @@ def main(args=None):
 
     rclpy.init(args=args)
     monitor = Monitor()
-    print("Cameras ready")
+    print("Jtop ready")
 
     rclpy.spin(monitor)
 

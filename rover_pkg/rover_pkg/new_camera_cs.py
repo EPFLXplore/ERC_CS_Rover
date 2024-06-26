@@ -1,14 +1,16 @@
 import rclpy
 from rclpy.node import Node, Publisher
-from sensor_msgs.msg import CompressedImage, Image
+from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Int8MultiArray
-from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
+from std_srvs.srv import SetBool
 
 import cv2
 from cv_bridge import CvBridge
 import threading
 
 from time import sleep
+
+global stop_threads
 
 class NewCameras(Node):
     def __init__(self):
@@ -27,9 +29,33 @@ class NewCameras(Node):
         self.cam_pubs = [self.create_publisher(CompressedImage, 'camera_' + str(i), qos_profile) for i in range(len(self.camera_ids))]
         self.bridge = CvBridge()
 
-        # self.publish_feeds()
-        for i in range(len(self.camera_ids)):
-            threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)).start()
+        global stop_threads
+        stop_threads = False
+        self.threads = []
+
+        self.service = self.create_service(SetBool, '/ROVER/start_cameras', self.start_cameras_callback)
+
+    def start_cameras_callback(self, request, response):
+        global stop_threads
+        if request.data:
+            stop_threads = False
+
+            self.threads = [threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)) for i in range(len(self.camera_ids))]
+
+            for thread in self.threads:
+                thread.start()
+            response.success = True
+            response.message = "Cameras started"
+        else:
+            stop_threads = True
+            for thread in self.threads:
+                thread.join()
+
+            self.threads = []
+            
+            response.success = True
+            response.message = "Cameras stopped"
+        return response
 
 
 
@@ -38,16 +64,20 @@ def publish_feeds(camera_id, publisher, bridge):
     camera = cv2.VideoCapture(camera_id, cv2.CAP_V4L)
     camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('m','j','p','g'))
     camera.set(cv2.CAP_PROP_FPS, 15)
+    global stop_threads
     
     while True:
         print("Open " + camera_id)
         while True:
             ret, frame = camera.read()
             print("Capturing " + camera_id)
-            if not ret:
+            if (not ret) or stop_threads:
                 break
             publisher.publish(bridge.cv2_to_compressed_imgmsg(frame))
             sleep(1/15)
+
+        if stop_threads:
+            break
         camera = cv2.VideoCapture(camera_id, cv2.CAP_V4L)
         camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('m','j','p','g'))
         camera.set(cv2.CAP_PROP_FPS, 15)

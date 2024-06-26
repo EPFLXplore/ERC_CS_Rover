@@ -31,11 +31,14 @@ current_dir=$(pwd)
 # Use dirname to get the parent directory
 parent_dir=$(dirname "$current_dir")
 
+JTOP_GID=$(getent group jtop | awk -F: '{print $3}')
+
 docker run -it \
     --name rover_humble_jetson \
     --rm \
     --privileged \
     --net=host \
+    --group-add $JTOP_GID \
     -e DISPLAY=unix$DISPLAY \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=$XAUTH \

@@ -8,6 +8,7 @@ from rclpy.action import ActionServer
 import sys
 
 from std_msgs.msg       import Int8, Int16, Int32, Bool, String, Int8MultiArray,  Int16MultiArray, Float32MultiArray, UInt8MultiArray
+from std_srvs.srv       import SetBool
 
 # from geometry_msgs.msg  import Twist, PoseStamped
 # from actionlib_msgs.msg import GoalID
@@ -20,6 +21,8 @@ from custom_msg.msg import Wheelstatus, Motorcmds, MassArray
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from custom_msg.srv import ChangeModeSystem
+
+from rover_pkg.db_logger import MongoDBLogger
 
 # from std_srvs.srv import SetBool
 import json
@@ -43,6 +46,7 @@ class RoverNode():
         self.node = rclpy.create_node('ROVER')
 
         self.model = NewModel(self)
+        self.logger = MongoDBLogger("Onyx", "rover_state")
 
         with open('/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json') as json_file:
             self.rover_state_json = dict(json.load(json_file))
@@ -55,6 +59,8 @@ class RoverNode():
         #              MESSAGES BETWEEN ROVER AND CS
         # ==========================================================
 
+        reentrant_callback_group = ReentrantCallbackGroup()
+
         # ===== PUBLISHERS =====
 
         self.rover_state_pub = self.node.create_publisher(String, 'Rover/RoverState', 1)
@@ -65,13 +71,15 @@ class RoverNode():
         self.nav_mode_pub = self.node.create_publisher(Int8, '/ROVER/NAV_mode', 1)
 
         # -- HD messages --
-        self.hd_cmd_pub = self.create_publisher(Float32MultiArray, "/CS/HD_gamepad", 10)
+        self.hd_cmd_pub = self.node.create_publisher(Float32MultiArray, "/CS/HD_gamepad", 10)
         # self.man_inv_axis_pub = self.create_publisher(Float32MultiArray, "/ROVER/HD_man_inv_axis", 10)
-        self.hd_mode_pub = self.create_publisher(Int8, "/ROVER/HD_mode", 10)
+        self.hd_mode_pub = self.node.create_publisher(Int8, "/ROVER/HD_mode", 10)
 
         # ===== SERVICES =====
 
-        self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service, callback_group=ReentrantCallbackGroup())
+        self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service, callback_group=reentrant_callback_group)
+
+        self.camera_service = self.node.create_client(SetBool, '/ROVER/start_cameras', callback_group=reentrant_callback_group)
 
         # ===== ACTIONS =====
 
@@ -92,6 +100,8 @@ class RoverNode():
 
         self.node.create_subscription(Joy, 'CS/GamepadCmdsNavigation', self.transfer_gamepad_cmd_nav, 10)
         self.node.create_subscription(Joy, 'CS/GamepadCmdsHandlingDevice', self.transfer_gamepad_cmd_hd, 10)
+
+        self.node.create_subscription(String, '/ROVER/performance', self.model.update_metrics, 10)
 
         # SC --> Rover
         # self.node.create_subscription(Int8, 'SC/fsm_state_to_cs'          , self.model.SC.science_fsm_callback   , 10)  # self.SC_infos_pub.publish)
@@ -133,8 +143,15 @@ class RoverNode():
     # timer callback for sending rover state continuously
     def timer_callback(self):
         msg = String()
+        self.rover_state_json["timestamp"] = int(time.time()) # epoch
+        self.logger.log(self.rover_state_json)
         msg.data = json.dumps(self.rover_state_json)
+        self.clear_rover_msgs() # clear temporary messages like errors and warnings
         self.rover_state_pub.publish(msg)
+
+    def clear_rover_msgs(self):
+        self.rover_state_json['rover']['status']['error'] = []
+        self.rover_state_json['rover']['status']['warning'] = []
 
     def transfer_gamepad_cmd_nav(self, msg):
         # TODO: Check that the mode is set to MANUAL
