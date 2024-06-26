@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node, Publisher
 from sensor_msgs.msg import CompressedImage, Image
 from std_msgs.msg import Int8MultiArray
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 
 import cv2
 from cv_bridge import CvBridge
@@ -14,10 +15,16 @@ class NewCameras(Node):
 
         super().__init__('new_cameras_cs')
 
-        self.camera_ids = ["/dev/video0", "/dev/video2"]
+        self.camera_ids = ["/dev/video0"]#, "/dev/video2"]
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            durability=QoSDurabilityPolicy.VOLATILE,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1,
+        )
 
         # publishers for the cameras
-        self.cam_pubs = [self.create_publisher(CompressedImage, 'camera_' + str(i), 1) for i in range(len(self.camera_ids))]
+        self.cam_pubs = [self.create_publisher(CompressedImage, 'camera_' + str(i), qos_profile) for i in range(len(self.camera_ids))]
         self.bridge = CvBridge()
 
         # self.publish_feeds()
