@@ -18,7 +18,7 @@ class NewModel:
         self.Elec = Elec(rover_node)
 
     def update_metrics(self, metrics):
-        self.rover_node.rover_state_json['rover']['hardware'] = json.load(metrics.data)
+        self.rover_node.rover_state_json['rover']['hardware'] = json.loads(metrics.data)
 
     def change_mode_system_service(self, request, response):
 

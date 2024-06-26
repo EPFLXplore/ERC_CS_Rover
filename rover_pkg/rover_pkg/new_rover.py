@@ -22,6 +22,8 @@ from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from custom_msg.srv import ChangeModeSystem
 
+from rover_pkg.db_logger import MongoDBLogger
+
 # from std_srvs.srv import SetBool
 import json
 
@@ -44,6 +46,7 @@ class RoverNode():
         self.node = rclpy.create_node('ROVER')
 
         self.model = NewModel(self)
+        self.logger = MongoDBLogger("Onyx", "rover_state")
 
         with open('/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json') as json_file:
             self.rover_state_json = dict(json.load(json_file))
@@ -140,8 +143,10 @@ class RoverNode():
     # timer callback for sending rover state continuously
     def timer_callback(self):
         msg = String()
+        self.rover_state_json["timestamp"] = int(time.time()) # epoch
+        self.logger.log(self.rover_state_json)
         msg.data = json.dumps(self.rover_state_json)
-        self.clear_rover_msgs()
+        self.clear_rover_msgs() # clear temporary messages like errors and warnings
         self.rover_state_pub.publish(msg)
 
     def clear_rover_msgs(self):
