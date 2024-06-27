@@ -50,10 +50,6 @@ class RoverNode():
 
         with open('/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json') as json_file:
             self.rover_state_json = dict(json.load(json_file))
-            
-        #self.jetson = jtop()
-        #self.jetson.attach(self.model.jetson_callback)
-        #threading.Thread(target=self.jetson.loop_for_ever).start()
 
         # ==========================================================
         #              MESSAGES BETWEEN ROVER AND CS
@@ -74,6 +70,9 @@ class RoverNode():
         self.hd_cmd_pub = self.node.create_publisher(Float32MultiArray, "/CS/HD_gamepad", 10)
         # self.man_inv_axis_pub = self.create_publisher(Float32MultiArray, "/ROVER/HD_man_inv_axis", 10)
         self.hd_mode_pub = self.node.create_publisher(Int8, "/ROVER/HD_mode", 10)
+
+        # -- SC messages --
+        self.sc_cmd_pub = self.create_publisher(String, "/SC/drill_cmd", 1)
 
         # ===== SERVICES =====
 

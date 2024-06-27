@@ -285,20 +285,26 @@ class Drill:
         return GoalResponse.ACCEPT
 
     def drill_action(self, goal_handle):
-        print("Drill action starting...")
+        print("Drill action starting... " + str(goal_handle.request.action))
 
-        feedback = DrillTerrain.Feedback()
-        i = 0
+        if(goal_handle.request.action == "auto"):
+            feedback = DrillTerrain.Feedback()
+            i = 0
 
-        while i < 2:
+            while i < 2:
 
-            feedback.current_status = "ok"
-            feedback.warning_type = 0
-            feedback.warning_message = ""
-            goal_handle.publish_feedback(feedback)
-            i = i + 1
-        
-        goal_handle.succeed()
+                feedback.current_status = "ok"
+                feedback.warning_type = 0
+                feedback.warning_message = ""
+                goal_handle.publish_feedback(feedback)
+                i = i + 1
+            
+            goal_handle.succeed()
+            
+        else:
+            self.rover_node.sc_cmd_pub.publish(goal_handle.request.action)
+            goal_handle.succeed()
+
 
         print("DRILL action is finished")
         result = DrillTerrain.Result()
