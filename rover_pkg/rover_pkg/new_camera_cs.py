@@ -75,6 +75,10 @@ def publish_feeds(camera_id, publisher, bridge):
     
     while True:
         print("Open " + camera_id)
+
+        for i in range(10):
+            ret, frame = camera.read()
+
         image_idx = 0
         while True:
             print("Capturing " + str(image_idx) + " | time: " + str(time.time()))
