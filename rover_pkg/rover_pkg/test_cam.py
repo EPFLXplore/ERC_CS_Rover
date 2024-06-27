@@ -26,21 +26,19 @@ class ImageSubscriber(Node):
         """
         # Initiate the Node class's constructor and give it a name
         super().__init__("image_subscriber")
-        # qos_profile = QoSProfile(
-        #     reliability=QoSReliabilityPolicy.BEST_EFFORT,
-        #     durability=QoSDurabilityPolicy.VOLATILE,
-        #     history=QoSHistoryPolicy.KEEP_LAST,
-        #     depth=1,
-        #     deadline=rclpy.duration.Duration(seconds=0.1),
-        #     liveliness=rclpy.qos.QoSLivelinessPolicy.AUTOMATIC,
-        #     liveliness_lease_duration=rclpy.duration.Duration(seconds=1),
-        #     latency_budget=rclpy.duration.Duration(seconds=0.05)
-        # )
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            durability=QoSDurabilityPolicy.VOLATILE,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1,
+        )
+
+        self.img_index = 0
 
         # Create the subscriber. This subscriber will receive an Image
         # from the video_frames topic. The queue size is 10 messages.
         self.subscription = self.create_subscription(
-            CompressedImage, "/camera_0", self.listener_callback, 1 #qos_profile
+            CompressedImage, "/camera_0", self.listener_callback, qos_profile
         )
         self.subscription  # prevent unused variable warning
 
@@ -54,11 +52,17 @@ class ImageSubscriber(Node):
         # Display the message on the console
         self.get_logger().info("Receiving video frame")
 
+        print("Received " + str(self.img_index) + " | time: " + str(time.time()))
+
         # Convert ROS Image message to OpenCV image
         current_frame = self.br.compressed_imgmsg_to_cv2(data)
 
+        print("Decompressed " + str(self.img_index) + " | time: " + str(time.time()))
+
         # Display image
         cv2.imshow("camera", current_frame)
+
+        self.img_index += 1
 
         cv2.waitKey(1)
 

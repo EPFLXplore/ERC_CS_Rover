@@ -2,12 +2,14 @@ import rclpy
 from rclpy.node import Node, Publisher
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Int8MultiArray
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 from std_srvs.srv import SetBool
 
 import cv2
 from cv_bridge import CvBridge
 import threading
 
+import time
 from time import sleep
 
 global stop_threads
@@ -34,6 +36,11 @@ class NewCameras(Node):
         self.threads = []
 
         self.service = self.create_service(SetBool, '/ROVER/start_cameras', self.start_cameras_callback)
+        
+        self.threads = [threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)) for i in range(len(self.camera_ids))]
+
+        for thread in self.threads:
+            thread.start()
 
     def start_cameras_callback(self, request, response):
         global stop_threads
@@ -68,12 +75,19 @@ def publish_feeds(camera_id, publisher, bridge):
     
     while True:
         print("Open " + camera_id)
+        image_idx = 0
         while True:
+            print("Capturing " + str(image_idx) + " | time: " + str(time.time()))
             ret, frame = camera.read()
-            print("Capturing " + camera_id)
+            print("Captured " + str(image_idx) + " | time: " + str(time.time()))
             if (not ret) or stop_threads:
                 break
-            publisher.publish(bridge.cv2_to_compressed_imgmsg(frame))
+            
+            compressed_image = bridge.cv2_to_compressed_imgmsg(frame)
+            print("Compressed " + str(image_idx) + " | time: " + str(time.time()))
+            publisher.publish(compressed_image)
+            print("Sent " + str(image_idx) + " | time: " + str(time.time()))
+            image_idx += 1
             sleep(1/15)
 
         if stop_threads:
