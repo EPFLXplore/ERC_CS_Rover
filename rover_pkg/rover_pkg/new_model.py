@@ -1,5 +1,6 @@
 from custom_msg.msg import Wheelstatus, Motorcmds
 from nav_msgs.msg import Odometry
+from std_msgs.msg import Int8, Int16, Int32, Bool, String, Int8MultiArray,  Int16MultiArray, Float32MultiArray, UInt8MultiArray
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
 from std_srvs.srv       import SetBool
 import numpy as np
@@ -27,6 +28,10 @@ class NewModel:
 
         if system == 0:
             # NAV
+            if mode == 1:
+                mode_cmd = Int8()
+                mode_cmd.data = 1
+                self.rover_node.nav_mode_pub.publish(mode_cmd)
             self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
 
         elif system == 1:
