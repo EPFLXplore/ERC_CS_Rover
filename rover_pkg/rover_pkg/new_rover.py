@@ -72,7 +72,7 @@ class RoverNode():
         self.hd_mode_pub = self.node.create_publisher(Int8, "/ROVER/HD_mode", 10)
 
         # -- SC messages --
-        self.sc_cmd_pub = self.create_publisher(String, "/SC/drill_cmd", 1)
+        self.sc_cmd_pub = self.node.create_publisher(String, "/SC/drill_cmd", 1)
 
         # ===== SERVICES =====
 

@@ -32,6 +32,10 @@ class NewModel:
                 mode_cmd = Int8()
                 mode_cmd.data = 1
                 self.rover_node.nav_mode_pub.publish(mode_cmd)
+            elif mode == 2:
+                mode_cmd = Int8()
+                mode_cmd.data = 0
+                self.rover_node.nav_mode_pub.publish(mode_cmd)
             self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
 
         elif system == 1:
@@ -307,7 +311,9 @@ class Drill:
             goal_handle.succeed()
             
         else:
-            self.rover_node.sc_cmd_pub.publish(goal_handle.request.action)
+            action = String()
+            action.data = goal_handle.request.action
+            self.rover_node.sc_cmd_pub.publish(action)
             goal_handle.succeed()
 
 
