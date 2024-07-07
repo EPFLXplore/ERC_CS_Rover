@@ -46,5 +46,5 @@ docker run -it \
     -v $parent_dir:/home/xplore/dev_ws/src \
     -v cs_humble_desktop_home_volume:/home/xplore \
     -w /home/xplore/dev_ws/src \
-    ghcr.io/epflxplore/cs:humble-desktop \
+    ghcr.io/epflxplore/rover:humble-desktop \
     /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon build && . install/setup.bash && ros2 run rover_pkg new_rover"
