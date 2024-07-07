@@ -51,4 +51,4 @@ docker run -it \
     -v rover_humble_jetson_home_volume:/home/xplore \
     -w /home/xplore/dev_ws/src \
     ghcr.io/epflxplore/rover:humble-jetson \
-    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon build && . install/setup.bash && ros2 run rover_pkg new_rover"
+    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon build && source install/setup.bash && ros2 run rover_pkg new_rover"
