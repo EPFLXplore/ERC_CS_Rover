@@ -32,19 +32,21 @@ current_dir=$(pwd)
 parent_dir=$(dirname "$current_dir")
 
 docker run -it \
-    --name cs_humble_desktop \
+    --name rover_humble_jetson \
     --rm \
     --privileged \
     --net=host \
+    --group-add $JTOP_GID \
     -e DISPLAY=unix$DISPLAY \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=$XAUTH \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
     -v $XAUTH:$XAUTH \
     -v /run/user/1000/at-spi:/run/user/1000/at-spi \
+    -v /run/jtop.sock:/run/jtop.sock \
     -v /dev:/dev \
     -v $parent_dir:/home/xplore/dev_ws/src \
-    -v cs_humble_desktop_home_volume:/home/xplore \
+    -v rover_humble_jetson_home_volume:/home/xplore \
     -w /home/xplore/dev_ws/src \
-    ghcr.io/epflxplore/rover:humble-desktop \
+    ghcr.io/epflxplore/rover:humble-jetson \
     /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon build && . install/setup.bash && ros2 run rover_pkg new_rover"
