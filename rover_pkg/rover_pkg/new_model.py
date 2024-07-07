@@ -106,7 +106,8 @@ class HandlingDevice:
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = self.joint_current[i]
     
     def hd_manipulation_action(self, goal_handle):
-        print("Manipulation HD action starting...")   
+        print("Manipulation HD action starting...")  
+        print("Goal type: " + str(goal_handle.request.task_type) + " Goal id: " + str(goal_handle.request.task_id) )
 
         feedback = HDManipulation.Feedback()
         i = 0
@@ -247,6 +248,7 @@ class Navigation:
 
     def nav_reach_goal_action(self, goal_handle):
         print("NAV Reach Goal action starting...")
+        print("Goal: " + str(goal_handle.request.mode))
 
         feedback = NAVReachGoal.Feedback()
         i = 0
@@ -323,6 +325,14 @@ class Drill:
         result.error_type = 0
         result.error_message = ""
         return result
+
+    def update_motor_status(self, msg):
+        node.rover_state_json['drill']['motors']['motor_module']['position'] = msg.encoder
+        node.rover_state_json['drill']['motors']['motor_drill']['speed'] = msg.vel
+
+    def update_drill_status(std, msg):
+        node.rover_state_json['drill']['state']['current_step'] = msg.data
+
     
 def log_error(node, error_type, error_message):
     error = { "type": error_type, "message": error_message }

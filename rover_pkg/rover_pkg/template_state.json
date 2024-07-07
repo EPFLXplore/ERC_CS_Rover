@@ -299,11 +299,12 @@
       "current_task": "Button1",
       "warning_type": "0",
       "warning_message": "No Warning"
-    },
+    }
+  },
     "drill": {
       "motors": {
         "motor_module": {
-          "speed": "0.0",
+          "position": "0.0",
           "current": "0.0",
           "state": true
         },
@@ -320,8 +321,7 @@
         "warning_type": "0",
         "warning_message": "No Warning"
       }
-    }
-  },
+    },
   "electronics": {
     "power": {
       "voltage": "0.0",

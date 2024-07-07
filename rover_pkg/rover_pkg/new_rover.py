@@ -17,7 +17,7 @@ from nav_msgs.msg import Odometry, Path
 from rclpy.callback_groups import ReentrantCallbackGroup
 # from diagnostic_msgs.msg import DiagnosticStatus
 
-from custom_msg.msg import Wheelstatus, Motorcmds, MassArray
+from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from custom_msg.srv import ChangeModeSystem
@@ -102,10 +102,9 @@ class RoverNode():
 
         self.node.create_subscription(String, '/ROVER/performance', self.model.update_metrics, 10)
 
-        # SC --> Rover
-        # self.node.create_subscription(Int8, 'SC/fsm_state_to_cs'          , self.model.SC.science_fsm_callback   , 10)  # self.SC_infos_pub.publish)
-
         # -- SC messages --
+        self.node.create_subscription(ScMotorStatus,         'SC/motor_status',            self.model.Drill.update_motor_status, 10)
+        self.node.create_subscription(String,         'SC/fsm_status',            self.model.Drill.update_drill_status, 10)
         # self.node.create_subscription(Int8,               'SC/fsm_state_to_cs',      self.controller.science_state, 10)
         # self.node.create_subscription(Float32MultiArray,  'SC/motors_pos',           self.controller.science_motors_pos, 10)
         # self.node.create_subscription(Float32MultiArray,  'SC/motors_speed',         self.controller.science_motors_vels, 10)
