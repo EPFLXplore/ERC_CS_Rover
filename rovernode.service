@@ -1,0 +1,15 @@
+# Service to launch the rover node. Copy this file: sudo cp ~/Desktop/ERC_CS_Rover/rovernode.service /etc/systemd/system/rovernode.service and run sudo systemctl enable rovernode.service to enable the service.
+
+
+[Unit]
+Description=Rover Node Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStart=/bin/bash /home/brokkoly/Desktop/ERC_CS_Rover/start_rover.sh
+ExecStop=/usr/bin/docker stop rover_humble_jetson
+
+[Install]
+WantedBy=default.target
