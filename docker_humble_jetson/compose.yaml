@@ -1,63 +1,31 @@
+name: rover_containers
 services:
-  rover:
-    stdin_open: true
-    tty: true
-    container_name: rover_humble_jetson
-    privileged: true
-    network_mode: host
-    environment:
-      - DISPLAY=unix$DISPLAY
-      - QT_X11_NO_MITSHM=1
-      - XAUTHORITY=${XAUTH}
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ${XAUTH}:${XAUTH}
-      - /run/user/1000/at-spi:/run/user/1000/at-spi
-      - /run/jtop.sock:/run/jtop.sock
-      - /dev:/dev
-      - ${PARENT_DIR}:/home/xplore/dev_ws/src
-      - rover_humble_jetson_home_volume:/home/xplore
-      - ./launch_utilities:/home/xplore/dev_ws/launch_utilities
-    image: ghcr.io/epflxplore/rover:humble-jetson
-    command: /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME;
-      /bin/bash ./launch_utilities/node_launch.sh rover"
-  nav:
-    stdin_open: true
-    tty: true
-    container_name: nav_humble_jetson
-    runtime: nvidia
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities:
-                - gpu
-    privileged: true
-    network_mode: host
-    depends_on:
-      - rover
-    environment:
-      - DISPLAY=unix$DISPLAY
-      - QT_X11_NO_MITSHM=1
-      - XAUTHORITY=${XAUTH}
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ${XAUTH}:${XAUTH}
-      - /run/user/1000/at-spi:/run/user/1000/at-spi
-      - /dev:/dev
-      - ${PARENT_DIR}/../ERC_NAV:/home/xplore/dev_ws/src
-      - nav_humble_desktop_home_volume:/home/xplore
-      - ./launch_utilities:/home/xplore/dev_ws/launch_utilities
-    image: ghcr.io/epflxplore/nav:humble-jetson
-    command: /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME;
-      /bin/bash ./launch_utilities/node_launch.sh nav"
-
+    mongo:
+        container_name: mongodb
+        ports:
+            - 27017:27017
+        image: mongo:4.0.13
+    rover:
+        container_name: rover_humble_jetson
+        privileged: true
+        network_mode: host
+        group_add:
+            - ${JTOP_GID}
+        environment:
+            - DISPLAY=unix$DISPLAY
+            - QT_X11_NO_MITSHM=1
+            - XAUTHORITY=${XAUTH}
+        volumes:
+            - /tmp/.X11-unix:/tmp/.X11-unix:rw
+            - ${XAUTH}:${XAUTH}
+            - /run/user/1000/at-spi:/run/user/1000/at-spi
+            - /dev:/dev
+            - ${PARENT_DIR}:/home/xplore/dev_ws/src
+            - rover_humble_jetson_home_volume:/home/xplore
+        image: ghcr.io/epflxplore/rover:humble-jetson
+        command: /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon
+            build && source install/setup.bash && ros2 run rover_pkg new_rover"
 volumes:
-  rover_humble_jetson_home_volume:
-    external: true
-    name: rover_humble_jetson_home_volume
-  nav_humble_desktop_home_volume:
-    external: true
-    name: nav_humble_desktop_home_volume
+    rover_humble_jetson_home_volume:
+        external: true
+        name: rover_humble_jetson_home_volume

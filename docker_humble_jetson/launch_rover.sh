@@ -34,4 +34,4 @@ current_dir=$(pwd)
 export PARENT_DIR=$(dirname "$current_dir")
 export XAUTH=$XAUTH
 
-docker compose up
+docker compose -f old_compose.yaml up
