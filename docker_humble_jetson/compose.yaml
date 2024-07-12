@@ -2,6 +2,7 @@ name: rover_containers
 services:
     mongo:
         container_name: mongodb
+        network_mode: host
         ports:
             - 27017:27017
         image: mongo:4.0.13

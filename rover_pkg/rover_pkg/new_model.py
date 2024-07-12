@@ -25,6 +25,7 @@ class NewModel:
 
         system = request.system
         mode = request.mode
+        print("Change:", system, mode)
 
         if system == 0:
             # NAV
@@ -327,11 +328,11 @@ class Drill:
         return result
 
     def update_motor_status(self, msg):
-        node.rover_state_json['drill']['motors']['motor_module']['position'] = msg.encoder
-        node.rover_state_json['drill']['motors']['motor_drill']['speed'] = msg.vel
+        self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = msg.encoder
+        self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = msg.vel
 
-    def update_drill_status(std, msg):
-        node.rover_state_json['drill']['state']['current_step'] = msg.data
+    def update_drill_status(self, msg):
+        self.rover_node.rover_state_json['drill']['state']['current_step'] = msg.data
 
     
 def log_error(node, error_type, error_message):
