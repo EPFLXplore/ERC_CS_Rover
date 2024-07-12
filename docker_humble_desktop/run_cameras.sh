@@ -1,3 +1,5 @@
+cd /home/xplore/ERC_CS_Rover/docker_humble_desktop
+
 # If not working, first do: sudo rm -rf /tmp/.docker.xauth
 # If still not working, try running the script as root.
 
