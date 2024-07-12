@@ -39,8 +39,8 @@ class NewCameras(Node):
         
         self.threads = [threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)) for i in range(len(self.camera_ids))]
 
-        for thread in self.threads:
-            thread.start()
+        #for thread in self.threads:
+        #    thread.start()
 
     def start_cameras_callback(self, request, response):
         global stop_threads

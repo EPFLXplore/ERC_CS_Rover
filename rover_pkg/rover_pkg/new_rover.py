@@ -23,6 +23,7 @@ from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from custom_msg.srv import ChangeModeSystem
 
 from rover_pkg.db_logger import MongoDBLogger
+from bson import json_util
 
 # from std_srvs.srv import SetBool
 import json
@@ -142,7 +143,11 @@ class RoverNode():
     def timer_callback(self):
         msg = String()
         self.rover_state_json["timestamp"] = int(time.time()) # epoch
-        self.logger.log(self.rover_state_json)
+
+        # Log in MongoDB
+        rover_bson = json.loads(json_util.dumps(self.rover_state_json))
+        self.logger.log(rover_bson)
+
         msg.data = json.dumps(self.rover_state_json)
         self.clear_rover_msgs() # clear temporary messages like errors and warnings
         self.rover_state_pub.publish(msg)
