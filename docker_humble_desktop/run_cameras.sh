@@ -31,14 +31,11 @@ current_dir=$(pwd)
 # Use dirname to get the parent directory
 parent_dir=$(dirname "$current_dir")
 
-JTOP_GID=$(getent group jtop | awk -F: '{print $3}')
-
 docker run -it \
-    --name rover_humble_jetson \
+    --name rover_humble_desktop \
     --rm \
     --privileged \
     --net=host \
-    --group-add $JTOP_GID \
     -e DISPLAY=unix$DISPLAY \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=$XAUTH \
@@ -48,6 +45,5 @@ docker run -it \
     -v /run/jtop.sock:/run/jtop.sock \
     -v /dev:/dev \
     -v $parent_dir:/home/xplore/dev_ws/src \
-    -v rover_humble_jetson_home_volume:/home/xplore \
-    ghcr.io/epflxplore/rover:humble-jetson \
+    -v rover_humble_desktop_home_volume:/home/xplore \
     /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon build && unset RMW_IMPLEMENTATION && source install/setup.bash && ros2 run rover_pkg new_camera_cs"
