@@ -30,12 +30,12 @@ class NewModel:
         if system == 0:
             # NAV
             if mode == 1:
-                mode_cmd = Int8()
-                mode_cmd.data = 1
+                mode_cmd = String()
+                mode_cmd.data = "manual"
                 self.rover_node.nav_mode_pub.publish(mode_cmd)
             elif mode == 2:
-                mode_cmd = Int8()
-                mode_cmd.data = 0
+                mode_cmd = String()
+                mode_cmd.data = "auto"
                 self.rover_node.nav_mode_pub.publish(mode_cmd)
             self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
 

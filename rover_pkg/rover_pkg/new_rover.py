@@ -65,7 +65,7 @@ class RoverNode():
 
         # -- NAV messages --
         self.nav_cmd_pub = self.node.create_publisher(Joy, '/CS/NAV_gamepad', 1) # Name to be changed
-        self.nav_mode_pub = self.node.create_publisher(Int8, '/ROVER/NAV_mode', 1)
+        self.nav_mode_pub = self.node.create_publisher(String, '/ROVER/NAV_mode', 1)
 
         # -- HD messages --
         self.hd_cmd_pub = self.node.create_publisher(Float32MultiArray, "/CS/HD_gamepad", 10)
