@@ -18,7 +18,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 # from diagnostic_msgs.msg import DiagnosticStatus
 
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
-from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
+from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain, DrillCmd
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from custom_msg.srv import ChangeModeSystem
 
@@ -89,7 +89,7 @@ class RoverNode():
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, "/Rover/NavigationReachGoal", self.model.Nav.nav_reach_goal_action,
                                                   goal_callback=self.model.Nav.nav_reach_goal_status)
 
-        self.drill_action_ = ActionServer(self.node, DrillTerrain, "/Rover/DrillTerrain", self.model.Drill.drill_action, 
+        self.drill_action_ = ActionServer(self.node, DrillCmd, "/Rover/DrillTerrain", self.model.Drill.drill_action, 
                                           goal_callback=self.model.Drill.drill_goal_status)
 
         # ===== SUBSCRIBERS =====
