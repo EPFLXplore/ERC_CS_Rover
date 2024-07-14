@@ -1,7 +1,7 @@
 from custom_msg.msg import Wheelstatus, Motorcmds
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Int8, Int16, Int32, Bool, String, Int8MultiArray,  Int16MultiArray, Float32MultiArray, UInt8MultiArray
-from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
+from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain, DrillCmd
 from std_srvs.srv       import SetBool
 import numpy as np
 import json
@@ -300,7 +300,7 @@ class Drill:
         print("Drill action starting... " + str(goal_handle.request.action))
 
         if(goal_handle.request.action == "auto"):
-            feedback = DrillTerrain.Feedback()
+            feedback = DrillCmd.Feedback()
             i = 0
 
             while i < 2:
@@ -321,7 +321,7 @@ class Drill:
 
 
         print("DRILL action is finished")
-        result = DrillTerrain.Result()
+        result = DrillCmd.Result()
         result.result = ""
         result.error_type = 0
         result.error_message = ""
