@@ -33,7 +33,7 @@ class NewModel:
                 mode_cmd = String()
                 mode_cmd.data = "manual"
                 self.rover_node.nav_mode_pub.publish(mode_cmd)
-            elif mode == 2:
+            elif mode == 2 or mode == 0:
                 mode_cmd = String()
                 mode_cmd.data = "auto"
                 self.rover_node.nav_mode_pub.publish(mode_cmd)
