@@ -1,7 +1,7 @@
 from custom_msg.msg import Wheelstatus, Motorcmds
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Int8, Int16, Int32, Bool, String, Int8MultiArray,  Int16MultiArray, Float32MultiArray, UInt8MultiArray
-from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain
+from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain, DrillCmd
 from std_srvs.srv       import SetBool
 import numpy as np
 import json
@@ -30,12 +30,12 @@ class NewModel:
         if system == 0:
             # NAV
             if mode == 1:
-                mode_cmd = Int8()
-                mode_cmd.data = 1
+                mode_cmd = String()
+                mode_cmd.data = "manual"
                 self.rover_node.nav_mode_pub.publish(mode_cmd)
-            elif mode == 2:
-                mode_cmd = Int8()
-                mode_cmd.data = 0
+            elif mode == 2 or mode == 0:
+                mode_cmd = String()
+                mode_cmd.data = "auto"
                 self.rover_node.nav_mode_pub.publish(mode_cmd)
             self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
 
@@ -300,7 +300,7 @@ class Drill:
         print("Drill action starting... " + str(goal_handle.request.action))
 
         if(goal_handle.request.action == "auto"):
-            feedback = DrillTerrain.Feedback()
+            feedback = DrillCmd.Feedback()
             i = 0
 
             while i < 2:
@@ -321,7 +321,7 @@ class Drill:
 
 
         print("DRILL action is finished")
-        result = DrillTerrain.Result()
+        result = DrillCmd.Result()
         result.result = ""
         result.error_type = 0
         result.error_message = ""
