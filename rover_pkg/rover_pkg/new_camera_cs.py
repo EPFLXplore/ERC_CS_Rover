@@ -19,7 +19,7 @@ class NewCameras(Node):
 
         super().__init__('new_cameras_cs')
 
-        self.camera_ids = ["/dev/video0"]#, "/dev/video2"]
+        self.camera_ids = ["/dev/video0", "/dev/video2", "/dev/video8", "/dev/video26"]
         qos_profile = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
             durability=QoSDurabilityPolicy.VOLATILE,
