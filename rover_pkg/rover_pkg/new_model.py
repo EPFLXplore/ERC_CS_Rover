@@ -3,6 +3,7 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import Int8, Int16, Int32, Bool, String, Int8MultiArray,  Int16MultiArray, Float32MultiArray, UInt8MultiArray
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain, DrillCmd
 from std_srvs.srv       import SetBool
+from custom_msg.srv import ChangeModeSystem, HDMode
 import numpy as np
 import json
 from rclpy.action import GoalResponse
@@ -41,7 +42,24 @@ class NewModel:
 
         elif system == 1:
             # HD
-            self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
+            request = HDMode.Request()
+            request.mode = mode
+
+            print("HD mode:", mode)
+
+            future = self.rover_node.hd_mode_service.call_async(request)
+            future.add_done_callback(lambda f: service_callback(f))
+        
+            def service_callback(future):
+                try:
+                    response = future.result()
+                    if response.success and response.system_mode == mode:
+                        self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
+                    else:
+                        log_error(self.rover_node, 1, "Error in camera service callback")
+                except Exception as e:
+                    log_error(self.rover_node, 1, "Error in camera service callback: " + str(e))
+            
 
         elif system == 2:
             # Camera

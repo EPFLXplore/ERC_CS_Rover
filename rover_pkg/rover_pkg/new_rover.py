@@ -20,7 +20,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain, DrillCmd
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
-from custom_msg.srv import ChangeModeSystem
+from custom_msg.srv import ChangeModeSystem, HDMode
 
 from rover_pkg.db_logger import MongoDBLogger
 from bson import json_util
@@ -68,7 +68,9 @@ class RoverNode():
         self.nav_mode_pub = self.node.create_publisher(String, '/ROVER/NAV_mode', 1)
 
         # -- HD messages --
-        self.hd_cmd_pub = self.node.create_publisher(Float32MultiArray, "/CS/HD_gamepad", 10)
+        # self.hd_cmd_pub = self.node.create_publisher(Float32MultiArray, "/CS/HD_gamepad", 10)
+        self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, "/ROVER/HD/manual_inverse", 1)
+        self.hd_cmd_direct_pub = self.node.create_publisher(Float32MultiArray, "/ROVER/HD/manual_direct", 1)
         # self.man_inv_axis_pub = self.create_publisher(Float32MultiArray, "/ROVER/HD_man_inv_axis", 10)
         self.hd_mode_pub = self.node.create_publisher(Int8, "/ROVER/HD_mode", 10)
 
@@ -80,6 +82,8 @@ class RoverNode():
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service, callback_group=reentrant_callback_group)
 
         self.camera_service = self.node.create_client(SetBool, '/ROVER/start_cameras', callback_group=reentrant_callback_group)
+                
+        self.hd_mode_service = self.node.create_client(HDMode, '/HD/fsm/mode', callback_group=reentrant_callback_group)
 
         # ===== ACTIONS =====
 
@@ -161,21 +165,11 @@ class RoverNode():
         self.nav_cmd_pub.publish(msg)
 
     def transfer_gamepad_cmd_hd(self, msg):
-        # TODO: Check that the mode is set to MANUAL
-        axes = Float32MultiArray()
-        axes.data = msg.axes
+        if(self.rover_state_json['rover']['status']['systems']['handling_device']['status'] == "Manual Direct"):
+            self.hd_cmd_direct_pub.publish(msg)
 
-        # Reverse the axes for Joint 3 and Joint 4
-        if msg.buttons[0] == 1:
-            axes.data[2] = -axes.data[2]
-        if msg.buttons[1] == 1:
-            axes.data[3] = -axes.data[3]
-
-        # add the gripper buttons to the axes
-        gripper_vel = msg.buttons[2] - msg.buttons[3] if msg.buttons[2] or msg.buttons[3] else msg.buttons[4] - msg.buttons[5]
-        axes.data.append(gripper_vel)
-
-        self.hd_cmd_pub.publish(axes)
+        if(self.rover_state_json['rover']['status']['systems']['handling_device']['status'] == "Manual Inverse"):
+            self.hd_cmd_inverse_pub.publish(msg)
         
 
         # run ros
