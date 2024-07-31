@@ -8,6 +8,7 @@ import numpy as np
 import json
 from rclpy.action import GoalResponse
 import rclpy
+import math
 
 class NewModel:
     def __init__(self, rover_node):
@@ -53,7 +54,7 @@ class NewModel:
             def service_callback(future):
                 try:
                     response = future.result()
-                    if response.success and response.system_mode == mode:
+                    if response.system_mode == mode:
                         self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
                     else:
                         log_error(self.rover_node, 1, "Error in camera service callback")
@@ -119,8 +120,8 @@ class HandlingDevice:
         self.joint_current = joint_state.effort
 
         # update the rover status
-        for i in range(len(self.joint_positions)):
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = self.joint_positions[i]
+        for i in range(7):
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = math.degrees(self.joint_positions[i])
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = self.joint_velocities[i]
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = self.joint_current[i]
     

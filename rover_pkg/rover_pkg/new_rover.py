@@ -138,10 +138,7 @@ class RoverNode():
         self.node.create_subscription(Wheelstatus,      '/NAV/absolute_encoders',       self.model.Nav.nav_wheel, 10)
         self.node.create_subscription(Motorcmds,        '/NAV/displacement',            self.model.Nav.nav_displacement, 10)
 
-
-
-
-        ####### Also include a method for obtaining stats of the device (htop or jtop)
+        self.node.get_logger().info("Rover Node Started")
 
     # timer callback for sending rover state continuously
     def timer_callback(self):
@@ -178,7 +175,6 @@ class RoverNode():
 
         # run ros
     def run(self):
-        print("Rover node started !")
         executor = rclpy.executors.MultiThreadedExecutor()
         executor.add_node(self.node)
         executor.spin()
