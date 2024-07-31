@@ -166,10 +166,14 @@ class RoverNode():
 
     def transfer_gamepad_cmd_hd(self, msg):
         if(self.rover_state_json['rover']['status']['systems']['handling_device']['status'] == "Manual Direct"):
-            self.hd_cmd_direct_pub.publish(msg)
+            msgHD = Float32MultiArray()
+            msgHD.data = msg.axes
+            self.hd_cmd_direct_pub.publish(msgHD)
 
         if(self.rover_state_json['rover']['status']['systems']['handling_device']['status'] == "Manual Inverse"):
-            self.hd_cmd_inverse_pub.publish(msg)
+            msgHD = Float32MultiArray()
+            msgHD.data = msg.axes
+            self.hd_cmd_inverse_pub.publish(msgHD)
         
 
         # run ros
