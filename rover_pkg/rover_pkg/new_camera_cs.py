@@ -15,7 +15,7 @@ from time import sleep
 
 import sys, os, json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from ...config import INTERFACE_NAMES_PATH
+from .config import INTERFACE_NAMES_PATH
 
 global stop_threads
 
