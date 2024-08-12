@@ -5,7 +5,9 @@ import rclpy
 from rclpy.logging import LoggingSeverity
 from rclpy.action import ActionServer
 # import math
-import sys
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from ...config import NAME_ROVER_NODE, NAME_ROVER_2025, TEMPLATE_STATE_PATH, INTERFACE_NAMES_PATH
 
 from std_msgs.msg       import Int8, Int16, Int32, Bool, String, Int8MultiArray,  Int16MultiArray, Float32MultiArray, UInt8MultiArray
 from std_srvs.srv       import SetBool
@@ -44,13 +46,16 @@ class RoverNode():
 
         self.t1 = time.time()
         rclpy.init(args=sys.argv)
-        self.node = rclpy.create_node('ROVER')
+        self.node = rclpy.create_node(NAME_ROVER_NODE)
 
         self.model = NewModel(self)
-        self.logger = MongoDBLogger("Onyx", "rover_state")
+        self.logger = MongoDBLogger(NAME_ROVER_2025, "rover_state")
 
-        with open('/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json') as json_file:
+        with open(TEMPLATE_STATE_PATH) as json_file:
             self.rover_state_json = dict(json.load(json_file))
+        
+        with open(INTERFACE_NAMES_PATH) as file:
+            cs_names = json.load(file)
 
         # ==========================================================
         #              MESSAGES BETWEEN ROVER AND CS
@@ -60,7 +65,7 @@ class RoverNode():
 
         # ===== PUBLISHERS =====
 
-        self.rover_state_pub = self.node.create_publisher(String, 'Rover/RoverState', 1)
+        self.rover_state_pub = self.node.create_publisher(String, cs_names["CS"]["rover_state"], 1)
         self.timer = self.node.create_timer(0.1, self.timer_callback)
 
         # -- NAV messages --
@@ -79,7 +84,7 @@ class RoverNode():
 
         # ===== SERVICES =====
 
-        self.change_rover_mode = self.node.create_service(ChangeModeSystem, "/Rover/ChangeModeSystem", self.model.change_mode_system_service, callback_group=reentrant_callback_group)
+        self.change_rover_mode = self.node.create_service(ChangeModeSystem, cs_names["CS"]["change_system"], self.model.change_mode_system_service, callback_group=reentrant_callback_group)
 
         self.camera_service = self.node.create_client(SetBool, '/ROVER/start_cameras', callback_group=reentrant_callback_group)
                 
@@ -87,13 +92,13 @@ class RoverNode():
 
         # ===== ACTIONS =====
 
-        self.hd_manipulation_action = ActionServer(self.node, HDManipulation, "/Rover/HandlingDeviceManipulation", self.model.HD.hd_manipulation_action,
+        self.hd_manipulation_action = ActionServer(self.node, HDManipulation, cs_names["HD"]["action"], self.model.HD.hd_manipulation_action,
                                         goal_callback=self.model.HD.hd_manipulation_goal_status)
 
-        self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, "/Rover/NavigationReachGoal", self.model.Nav.nav_reach_goal_action,
+        self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, cs_names["NAV"]["action"], self.model.Nav.nav_reach_goal_action,
                                                   goal_callback=self.model.Nav.nav_reach_goal_status)
 
-        self.drill_action_ = ActionServer(self.node, DrillCmd, "/Rover/DrillTerrain", self.model.Drill.drill_action, 
+        self.drill_action_ = ActionServer(self.node, DrillCmd, cs_names["DRILL"]["action"], self.model.Drill.drill_action, 
                                           goal_callback=self.model.Drill.drill_goal_status)
 
         # ===== SUBSCRIBERS =====
@@ -102,8 +107,8 @@ class RoverNode():
 
         # -- CS messages --
 
-        self.node.create_subscription(Joy, 'CS/GamepadCmdsNavigation', self.transfer_gamepad_cmd_nav, 10)
-        self.node.create_subscription(Joy, 'CS/GamepadCmdsHandlingDevice', self.transfer_gamepad_cmd_hd, 10)
+        self.node.create_subscription(Joy, cs_names["NAV"]["topic_gamepad_nav"], self.transfer_gamepad_cmd_nav, 10)
+        self.node.create_subscription(Joy, cs_names["HD"]["topic_gamepad_commands"], self.transfer_gamepad_cmd_hd, 10)
 
         self.node.create_subscription(String, '/ROVER/performance', self.model.update_metrics, 10)
 

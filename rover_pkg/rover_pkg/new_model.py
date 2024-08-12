@@ -4,7 +4,6 @@ from std_msgs.msg import Int8, Int16, Int32, Bool, String, Int8MultiArray,  Int1
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain, DrillCmd
 from std_srvs.srv       import SetBool
 from custom_msg.srv import ChangeModeSystem, HDMode
-import numpy as np
 import json
 from rclpy.action import GoalResponse
 import rclpy
@@ -17,7 +16,6 @@ class NewModel:
         self.Drill = Drill(rover_node)
         self.HD = HandlingDevice(rover_node)
         self.Nav = Navigation(rover_node)
-        # self.Cams = Cameras(rover_node)
         self.Elec = Elec(rover_node)
 
     def update_metrics(self, metrics):

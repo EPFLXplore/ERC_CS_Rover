@@ -12,12 +12,20 @@ import threading
 import time
 from time import sleep
 
+
+import sys, os, json
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from ...config import INTERFACE_NAMES_PATH
+
 global stop_threads
 
 class NewCameras(Node):
     def __init__(self):
 
         super().__init__('new_cameras_cs')
+        
+        with open(INTERFACE_NAMES_PATH) as file:
+            cs_names = json.load(file)
 
         self.camera_ids = ["/dev/video0", "/dev/video2", "/dev/video8", "/dev/video26"]
         qos_profile = QoSProfile(
@@ -35,7 +43,7 @@ class NewCameras(Node):
         stop_threads = False
         self.threads = []
 
-        self.service = self.create_service(SetBool, '/ROVER/start_cameras', self.start_cameras_callback)
+        self.service = self.create_service(SetBool, cs_names["CAMERAS"]["service"], self.start_cameras_callback)
         
         self.threads = [threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)) for i in range(len(self.camera_ids))]
 
