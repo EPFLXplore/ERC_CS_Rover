@@ -1,6 +1,5 @@
-import SubSystem
 
-class Elec(SubSystem):
+class Elec:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 

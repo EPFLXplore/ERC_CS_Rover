@@ -1,9 +1,8 @@
-import SubSystem
 from rclpy.action import GoalResponse
 from std_msgs.msg import String
 from custom_msg.action import DrillCmd
 
-class Drill(SubSystem):
+class Drill:
     def __init__(self, rover_node):
         self.rover_node = rover_node
     

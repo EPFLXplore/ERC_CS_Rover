@@ -70,7 +70,7 @@ class RoverNode():
 
         # -- NAV messages --
         self.nav_cmd_pub = self.node.create_publisher(Joy, 
-                                                      self.cs_names["ros__paramters"]["cs_pubsub_nav_gamepad"], 1) # Name to be changed
+                                                      self.cs_names["ros__parameters"]["cs_pubsub_nav_gamepad"], 1) # Name to be changed
         self.nav_mode_pub = self.node.create_publisher(String, 
                                                        self.rover_names["ros__parameters"]["rover_pubsub_nav_mode"], 1)
 

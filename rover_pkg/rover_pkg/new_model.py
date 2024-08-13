@@ -1,7 +1,11 @@
 from std_msgs.msg import String
 from std_srvs.srv import SetBool
 from custom_msg.srv import HDMode
-import Drill, Navigation, HandlingDevice, Elec, json
+from rover_pkg.drill_model import Drill
+from rover_pkg.navigation_model import Navigation
+from rover_pkg.handling_device_model import HandlingDevice
+from rover_pkg.elec_model import Elec
+import json
 
 class NewModel:
     def __init__(self, rover_node):
@@ -38,15 +42,17 @@ class NewModel:
             request = HDMode.Request()
             request.mode = mode
 
-            print("HD mode:", mode)
+            #future = self.rover_node.hd_mode_service.call_async(request)
+            #future.add_done_callback(lambda f: service_callback(f))
+            self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
 
-            future = self.rover_node.hd_mode_service.call_async(request)
-            future.add_done_callback(lambda f: service_callback(f))
         
             def service_callback(future):
                 try:
                     response = future.result()
+                    
                     if response.system_mode == mode:
+                        print("OKE CHANGEEEE")
                         self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
                     else:
                         log_error(self.rover_node, 1, "Error in camera service callback")

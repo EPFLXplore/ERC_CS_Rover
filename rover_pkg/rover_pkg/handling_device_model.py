@@ -1,9 +1,8 @@
-import SubSystem
 from rclpy.action import GoalResponse
 from custom_msg.action import HDManipulation
 import math
 
-class HandlingDevice(SubSystem):
+class HandlingDevice:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 

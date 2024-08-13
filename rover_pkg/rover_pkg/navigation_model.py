@@ -1,9 +1,9 @@
-import SubSystem
 from rclpy.action import GoalResponse
 from nav_msgs.msg import Odometry
 from custom_msg.action import NAVReachGoal
+import time
 
-class Navigation(SubSystem):
+class Navigation:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 
@@ -121,8 +121,8 @@ class Navigation(SubSystem):
         feedback = NAVReachGoal.Feedback()
         i = 0
 
-        while i < 2:
-
+        while i < 10:
+            time.sleep(5)
             feedback.current_status = "ok"
             feedback.current_pos = self.feedback_odometry()
             feedback.distance_to_goal = 2
@@ -130,6 +130,7 @@ class Navigation(SubSystem):
             feedback.warning_message = "no warning"
             goal_handle.publish_feedback(feedback)
             i = i + 1
+            
         
         goal_handle.succeed()
 
