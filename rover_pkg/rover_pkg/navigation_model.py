@@ -122,7 +122,7 @@ class Navigation:
         i = 0
 
         while i < 10:
-            time.sleep(5)
+            time.sleep(1)
             feedback.current_status = "ok"
             feedback.current_pos = self.feedback_odometry()
             feedback.distance_to_goal = 2

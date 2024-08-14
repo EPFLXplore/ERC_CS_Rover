@@ -25,6 +25,7 @@ from bson import json_util
 # from std_srvs.srv import SetBool
 import json, threading
 from .new_model import NewModel
+from .network_monitoring import NetworkMonitoring
 
 
 class RoverNode():
@@ -140,6 +141,8 @@ class RoverNode():
         # -- CS messages -
 
         self.node.get_logger().info("Rover Node Started")
+        
+        self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json)
 
     # timer callback for sending rover state continuously
     def timer_callback(self):
@@ -177,6 +180,7 @@ class RoverNode():
     def run(self):
         executor = rclpy.executors.MultiThreadedExecutor()
         executor.add_node(self.node)
+        executor.add_node(self.network_monitor)
         executor.spin()
         rclpy.shutdown()
 
