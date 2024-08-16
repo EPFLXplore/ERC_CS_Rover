@@ -31,20 +31,7 @@
       "signal_strength": "0.0",
       "frequency": "0.0",
       "channel": "0",
-      "connected_devices": [
-        {
-          "name": "device1",
-          "mac": "00:00:00:00:00:00",
-          "ipv4": "169.254.55.234",
-          "ipv6": "fe.fe.fe.fe.fe.fe.fe.fe"
-        },
-        {
-          "name": "device2",
-          "mac": "00:00:00:00:00:00",
-          "ipv4": "169.254.55.234",
-          "ipv6": "fe.fe.fe.fe.fe.fe.fe.fe"
-        }
-      ]
+      "connected_devices": []
     },
     "status": {
       "systems": {

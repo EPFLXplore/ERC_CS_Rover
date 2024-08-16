@@ -128,15 +128,15 @@ class RoverNode():
 
         self.hd_manipulation_action = ActionServer(self.node, HDManipulation, 
                                                    self.rover_names["ros__parameters"]["rover_hd_action_manipulation"], self.model.HD.make_action,
-                                                goal_callback=self.model.HD.action_status)
+                                                goal_callback=self.model.HD.action_status, cancel_callback=self.model.HD.cancel_goal)
 
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
                                                   self.rover_names["ros__parameters"]["rover_action_nav_goal"], self.model.Nav.make_action,
-                                                  goal_callback=self.model.Nav.action_status)
+                                                  goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
 
         self.drill_action = ActionServer(self.node, DrillCmd, 
                                           self.rover_names["ros__parameters"]["rover_action_drill"], self.model.Drill.make_action, 
-                                          goal_callback=self.model.Drill.action_status)
+                                          goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal)
 
         # -- CS messages -
 

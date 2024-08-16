@@ -1,4 +1,4 @@
-from rclpy.action import GoalResponse
+from rclpy.action import GoalResponse, CancelResponse
 from std_msgs.msg import String
 from custom_msg.action import DrillCmd
 
@@ -25,6 +25,10 @@ class Drill:
                 feedback.warning_type = 0
                 feedback.warning_message = ""
                 goal_handle.publish_feedback(feedback)
+                print("feedback running drill")
+                if goal_handle.is_cancel_requested:
+                    goal_handle.canceled()
+                    return DrillCmd.Result()
                 i = i + 1
             
             goal_handle.succeed()
@@ -49,3 +53,7 @@ class Drill:
 
     def update_drill_status(self, msg):
         self.rover_node.rover_state_json['drill']['state']['current_step'] = msg.data
+    
+    def cancel_goal(self, goal):
+        print("cancel goal drill")
+        return CancelResponse.ACCEPT

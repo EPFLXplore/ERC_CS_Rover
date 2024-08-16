@@ -1,4 +1,4 @@
-from rclpy.action import GoalResponse
+from rclpy.action import GoalResponse, CancelResponse
 from nav_msgs.msg import Odometry
 from custom_msg.action import NAVReachGoal
 import time
@@ -122,13 +122,17 @@ class Navigation:
         i = 0
 
         while i < 10:
-            time.sleep(1)
+            time.sleep(10)
             feedback.current_status = "ok"
             feedback.current_pos = self.feedback_odometry()
             feedback.distance_to_goal = 2
             feedback.warning_type = 0
             feedback.warning_message = "no warning"
             goal_handle.publish_feedback(feedback)
+            print("feedback running nav")
+            if goal_handle.is_cancel_requested:
+                goal_handle.canceled()
+                return NAVReachGoal.Result()
             i = i + 1
             
         
@@ -141,3 +145,7 @@ class Navigation:
         result.error_type = 0
         result.error_message = "no error"
         return result
+
+    def cancel_goal(self, goal):
+        print("cancel goal nav")
+        return CancelResponse.ACCEPT
