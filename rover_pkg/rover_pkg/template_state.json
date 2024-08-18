@@ -25,8 +25,8 @@
       ]
     },
     "network": {
-      "ipv4": "169.254.55.234",
-      "mac": "00:00:00:00:00:00",
+      "ipv4": "169.254.55.1",
+      "mac": "D4:01:C3:DC:B9:B5",
       "signal_strength": "0.0",
       "connected_devices": []
     },
