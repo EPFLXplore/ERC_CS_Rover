@@ -1,8 +1,9 @@
 from rclpy.node import Node
 import requests
 from requests.auth import HTTPBasicAuth
-import json, time
+import json
 from ping3 import ping
+
 
 class NetworkMonitoring(Node):
     def __init__(self, rover_state):
@@ -63,7 +64,7 @@ class NetworkMonitoring(Node):
                 if ip in self.devices_connected:
                     # remove the device with this ip in the list
                     self.rover_state['rover']['network']['connected_devices'][:] = [device for device in self.rover_state['rover']['network']['connected_devices'] if 
-                     device.get("ip") == ip] 
+                     device.get("ip") != ip] 
                     self.devices_connected.remove(ip)
 
     def get_wireless_devices(self):
