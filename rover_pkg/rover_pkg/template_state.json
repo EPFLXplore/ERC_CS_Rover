@@ -26,11 +26,8 @@
     },
     "network": {
       "ipv4": "169.254.55.234",
-      "ipv6": "fe.fe.fe.fe.fe.fe.fe.fe",
       "mac": "00:00:00:00:00:00",
       "signal_strength": "0.0",
-      "frequency": "0.0",
-      "channel": "0",
       "connected_devices": []
     },
     "status": {
@@ -180,7 +177,7 @@
       "is_blocked": false
     },
     "state": {
-      "mode": "Off",
+      "points": [],
       "control_mode": "Direct",
       "current_step": "Idle",
       "next_step": "Idle",
@@ -284,7 +281,6 @@
       ]
     },
     "state": {
-      "mode": "Off",
       "control_mode": "Direct",
       "current_step": "Idle",
       "next_step": "Idle",
@@ -307,7 +303,6 @@
         }
       },
       "state": {
-        "mode": "Off",
         "current_step": "Idle",
         "next_step": "Idle",
         "warning_type": "0",
