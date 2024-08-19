@@ -1,4 +1,5 @@
 from rclpy.node import Node
+import rclpy
 import requests
 from requests.auth import HTTPBasicAuth
 import json

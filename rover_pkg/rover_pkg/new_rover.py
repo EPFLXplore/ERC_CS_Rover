@@ -41,6 +41,7 @@ class RoverNode():
 
         self.model = NewModel(self)
         self.logger = MongoDBLogger("Onyx", "rover_state")
+        self.network_monitor = None
 
         with open("/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json") as json_file:
             self.rover_state_json = dict(json.load(json_file))
@@ -142,8 +143,11 @@ class RoverNode():
 
         self.node.get_logger().info("Rover Node Started")
         
-        self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json)
-
+        if len(sys.argv) > 1 and sys.argv[1] == 'true':
+            self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json)
+        else:
+            self.node.get_logger().info("No Networking")
+            
     # timer callback for sending rover state continuously
     def timer_callback(self):
         msg = String()
@@ -180,7 +184,8 @@ class RoverNode():
     def run(self):
         executor = rclpy.executors.MultiThreadedExecutor()
         executor.add_node(self.node)
-        executor.add_node(self.network_monitor)
+        if self.network_monitor != None:
+            executor.add_node(self.network_monitor)
         executor.spin()
         rclpy.shutdown()
 
