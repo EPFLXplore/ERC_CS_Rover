@@ -27,6 +27,8 @@ class NewModel:
 
         if system == 0:
             # NAV
+            self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
+            
             if mode == 1:
                 mode_cmd = String()
                 mode_cmd.data = "manual"
@@ -35,7 +37,6 @@ class NewModel:
                 mode_cmd = String()
                 mode_cmd.data = "auto"
                 self.rover_node.nav_mode_pub.publish(mode_cmd)
-            self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
 
         elif system == 1:
             # HD
@@ -84,6 +85,9 @@ class NewModel:
             # Drill
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
 
+            # EL LEDS COMMANDS
+            self.Elec.send_led_commands("drill", mode)
+
 
         res_sub_systems = {}
         sub_systems_status = self.rover_node.rover_state_json['rover']['status']['systems']
@@ -95,6 +99,7 @@ class NewModel:
         response.systems_state = json.dumps(res_sub_systems)
         response.error_type = 0
         response.error_message = "no errors"  
+
         return response
 
     

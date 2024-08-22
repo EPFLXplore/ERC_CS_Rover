@@ -58,6 +58,9 @@ class RoverNode():
         with open('/home/xplore/dev_ws/src/custom_msg/config/science_interface_names.yaml', 'r') as file:
             self.science_names = yaml.safe_load(file)
 
+        with open('/home/xplore/dev_ws/src/custom_msg/config/el_interface_names.yaml', 'r') as file:
+            self.el_names = yaml.safe_load(file)
+
         # ==========================================================
         #              MESSAGES BETWEEN ROVER AND CS
         # ==========================================================
@@ -102,7 +105,7 @@ class RoverNode():
                                       self.science_names["ros__parameters"]["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
       
         self.node.create_subscription(MassArray, 
-                                      self.science_names["ros__parameters"]["science_pubsub_drill_mass"], self.model.Elec.update_mass_measurement, 10)
+                                      self.el_names["ros__parameters"]["science_pubsub_drill_mass"], self.model.Elec.update_mass_measurement, 10)
 
 
         # -- HD messages --
