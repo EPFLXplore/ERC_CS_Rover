@@ -17,7 +17,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain, DrillCmd
-from custom_msg.srv import ChangeModeSystem, HDMode
+from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode
 
 from rover_pkg.db_logger import MongoDBLogger
 from bson import json_util
@@ -86,10 +86,6 @@ class RoverNode():
                                                             self.rover_names["ros__parameters"]["rover_hd_man_dir_topic"], 1)
         self.hd_mode_pub = self.node.create_publisher(Int8, 
                                                       self.rover_names["ros__parameters"]["rover_hd_mode"], 10)
-
-        # -- SC messages --
-        self.sc_cmd_pub = self.node.create_publisher(String, 
-                                                     self.science_names["ros__parameters"]["science_pubsub_drill"], 1)
         
         # ===== SUBSCRIBERS =====
         
@@ -127,6 +123,10 @@ class RoverNode():
                 
         self.hd_mode_service = self.node.create_client(HDMode, 
                                                        self.hd_names["ros__parameters"]["hd_fsm_mode_srv"], callback_group=reentrant_callback_group)
+
+        self.drill_service = self.node.create_client(DrillMode, 
+                                                       self.hd_names["ros__parameters"]["drill_mode_srv"], callback_group=reentrant_callback_group)
+
 
         # ===== ACTIONS =====
 

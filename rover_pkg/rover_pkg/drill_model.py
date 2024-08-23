@@ -34,10 +34,11 @@ class Drill:
             goal_handle.succeed()
             
         else:
-            action = String()
-            action.data = goal_handle.request.action
-            self.rover_node.sc_cmd_pub.publish(action)
-            goal_handle.succeed()
+            pass
+            #action = String()
+            #action.data = goal_handle.request.action
+            #self.rover_node.sc_cmd_pub.publish(action)
+            #goal_handle.succeed()
 
 
         print("DRILL action is finished")
