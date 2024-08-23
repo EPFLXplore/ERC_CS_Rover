@@ -5,6 +5,8 @@ from custom_msg.action import DrillCmd
 class Drill:
     def __init__(self, rover_node):
         self.rover_node = rover_node
+
+        self.feedback = None
     
     def action_status(self, goal):
         if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
@@ -12,41 +14,41 @@ class Drill:
         
         return GoalResponse.ACCEPT
 
-    def make_action(self, goal_handle):
-        print("Drill action starting... " + str(goal_handle.request.action))
+    def make_action(self, goal_handle_cs):
+        print("Drill action starting... " + str(goal_handle_cs.request.action))
 
-        if(goal_handle.request.action == "auto"):
-            feedback = DrillCmd.Feedback()
-            i = 0
+        self.rover_node.drill_action_client.wait_for_server()
+        future = self.rover_node.drill_action_client.send_goal_async(goal_handle_cs.request, 
+                                                                     lambda f: self.feedback_callback(f))
+        
+        # FORWARD THE FEEDBACK
+        if self.feedback != None:
+            goal_handle_cs.publish_feedback(self.feedback)
+        
+        future.add_done_callback(lambda f: self.rover_node.drill_action_client.drill_response_callback(f, goal_handle_cs))
 
-            while i < 2:
-
-                feedback.current_status = "ok"
-                feedback.warning_type = 0
-                feedback.warning_message = ""
-                goal_handle.publish_feedback(feedback)
-                print("feedback running drill")
-                if goal_handle.is_cancel_requested:
-                    goal_handle.canceled()
-                    return DrillCmd.Result()
-                i = i + 1
-            
-            goal_handle.succeed()
-            
-        else:
-            pass
-            #action = String()
-            #action.data = goal_handle.request.action
-            #self.rover_node.sc_cmd_pub.publish(action)
-            #goal_handle.succeed()
+        
 
 
-        print("DRILL action is finished")
+    def drill_response_callback(self, future, goal_handle_cs):
+        goal_handle_drill = future.result()
+
+        # CANCEL THE ACTION
+        if goal_handle_cs.is_cancel_requested:
+            goal_handle_cs.canceled()
+            return DrillCmd.Result()
+        
+        # server rover send final success of the action
+        goal_handle_cs.succeed()
+
         result = DrillCmd.Result()
         result.result = ""
         result.error_type = 0
-        result.error_message = ""
+        result.error_message = "No errors"
         return result
+    
+    def feedback_callback(self, feedback):
+        self.feedback = feedback
 
     def update_motor_status(self, msg):
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = msg.encoder

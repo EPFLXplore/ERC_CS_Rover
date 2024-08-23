@@ -2,7 +2,7 @@
 
 import time, yaml
 import rclpy
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, ActionClient
 #from config import NAME_ROVER_NODE, NAME_ROVER_2025, TEMPLATE_STATE_PATH, INTERFACE_NAMES_PATH
 
 from std_msgs.msg       import Int8, String, Float32MultiArray
@@ -74,8 +74,9 @@ class RoverNode():
         self.timer = self.node.create_timer(0.1, self.timer_callback)
 
         # -- NAV messages --
-        self.nav_cmd_pub = self.node.create_publisher(Joy, 
-                                                      self.cs_names["ros__parameters"]["cs_pubsub_nav_gamepad"], 1) # Name to be changed
+        self.nav_cmd_pub = self.node.create_publisher(Joy, self.cs_names["ros__parameters"]["cs_pubsub_nav_gamepad"], 1)
+
+        # WILL BE CONVERTED TO SERVICE
         self.nav_mode_pub = self.node.create_publisher(String, 
                                                        self.rover_names["ros__parameters"]["rover_pubsub_nav_mode"], 1)
 
@@ -84,12 +85,11 @@ class RoverNode():
                                                              self.rover_names["ros__parameters"]["rover_hd_man_inv_topic"], 1)
         self.hd_cmd_direct_pub = self.node.create_publisher(Float32MultiArray, 
                                                             self.rover_names["ros__parameters"]["rover_hd_man_dir_topic"], 1)
-        self.hd_mode_pub = self.node.create_publisher(Int8, 
-                                                      self.rover_names["ros__parameters"]["rover_hd_mode"], 10)
         
         # ===== SUBSCRIBERS =====
         
         self.node.create_subscription(Joy, self.cs_names["ros__parameters"]["cs_action_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
+        
         self.node.create_subscription(Joy, self.cs_names["ros__parameters"]["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
 
         self.node.create_subscription(String, self.rover_names["ros__parameters"]["rover_pubsub_perf"], self.model.update_metrics, 10)
@@ -102,7 +102,6 @@ class RoverNode():
       
         self.node.create_subscription(MassArray, 
                                       self.el_names["ros__parameters"]["science_pubsub_drill_mass"], self.model.Elec.update_mass_measurement, 10)
-
 
         # -- HD messages --
         self.node.create_subscription(
@@ -141,8 +140,13 @@ class RoverNode():
         self.drill_action = ActionServer(self.node, DrillCmd, 
                                           self.rover_names["ros__parameters"]["rover_action_drill"], self.model.Drill.make_action, 
                                           goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal)
+        
+        self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["ros__parameters"]["rover_hd_action_manipulation"])
 
-        # -- CS messages -
+        self.nav_action_client = ActionClient(self.node, NAVReachGoal, self.rover_names["ros__parameters"]["rover_action_nav_goal"])
+
+        self.drill_action_client = ActionClient(self.node, DrillCmd, self.rover_names["ros__parameters"]["rover_action_drill"])
+
 
         self.node.get_logger().info("Rover Node Started")
         
