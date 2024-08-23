@@ -1,9 +1,9 @@
-from custom_msg.msg import LedCommands, Leds
+from custom_msg.msg import LedsCommand, Led
 class Elec:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 
-        self.leds = self.rover_node.node.create_publisher(Leds, 
+        self.leds = self.rover_node.node.create_publisher(LedsCommand, 
                                                              self.rover_node.el_names["ros__parameters"]["el_pubsub_led_commands"], 1)
 
     def send_led_commands(self, subsystem, mode):
@@ -26,22 +26,22 @@ class Elec:
     def blink_manual(self, subsystem, blink):
         match subsystem:
             case "nav":
-                command = self.purple()
-                command.low = 0
-                command.high = 33
+                led = self.purple()
+                led.low = 0
+                led.high = 33
             case "hd":
-                command = self.yellow()
-                command.low = 33
-                command.high = 66
+                led = self.yellow()
+                led.low = 33
+                led.high = 66
             case "drill":
-                command = self.marron()
-                command.low = 66
-                command.high = 100
+                led = self.marron()
+                led.low = 66
+                led.high = 100
         
-        command.time_blink = blink
-        leds = Leds()
-        leds.leds[0] = command
-        self.leds.publish(leds)
+        led.time_blink = blink
+        command = LedsCommand()
+        command.leds = [led]
+        self.leds.publish(command)
 
     '''
     In Auto mode: blink 3 times in 5s, the overall 3 times
@@ -49,80 +49,80 @@ class Elec:
     def blink_auto(self, subsystem):
         match subsystem:
             case "nav":
-                command = self.purple()
-                command.low = 0
-                command.high = 33
+                led = self.purple()
+                led.low = 0
+                led.high = 33
 
             case "hd":
-                command = self.yellow()
-                command.low = 33
-                command.high = 66
+                led = self.yellow()
+                led.low = 33
+                led.high = 66
                 
             case "drill":
-                command = self.marron()
-                command.low = 66
-                command.high = 100
+                led = self.marron()
+                led.low = 66
+                led.high = 100
                         
-        command.time_blink = 3
-        leds = Leds()
-        leds.leds[0] = command
-        self.leds.publish(leds)
+        led.time_blink = 3
+        command = LedsCommand()
+        command.leds = [led]
+        self.leds.publish(command)
 
     '''
     
     '''
     def blue(self):
-        command = LedCommands()
-        command.red = 0
-        command.green = 0
-        command.blue = 255
+        led = Led()
+        led.red = 0
+        led.green = 0
+        led.blue = 255
 
-        return command
+        return led
     
     def purple(self):
-        command = LedCommands()
-        command.red = 102
-        command.green = 0
-        command.blue = 204
+        led = Led()
+        led.red = 102
+        led.green = 0
+        led.blue = 204
 
-        return command
+        return led
     
     def yellow(self):
-        command = LedCommands()
-        command.red = 255
-        command.green = 255
-        command.blue = 0
+        led = Led()
+        led.red = 255
+        led.green = 255
+        led.blue = 0
 
-        return command
+        return led
     
     def marron(self):
-        command = LedCommands()
-        command.time_blink = 0
-        command.red = 204
-        command.green = 102
-        command.blue = 0
+        led = Led()
+        led.time_blink = 0
+        led.red = 204
+        led.green = 102
+        led.blue = 0
 
-        return command
+        return led
     
     def stop(self, subsystem):
-        command = self.blue()
+        led = self.blue()
         match subsystem:
             case "nav":
-                command.low = 0
-                command.high = 33
+                led.low = 0
+                led.high = 33
 
             case "hd":
-                command.low = 33
-                command.high = 66
+                led.low = 33
+                led.high = 66
                 
             case "drill":
-                command.low = 66
-                command.high = 100
+                led.low = 66
+                led.high = 100
                         
-        command.time_blink = 0
-        leds = Leds()
-        leds.leds[0] = command
-        self.leds.publish(leds)
+        led.time_blink = 0
+        command = LedsCommand()
+        command.leds = [led]
+        self.leds.publish(command)
 
     def update_mass_measurement(self, msg):
         self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]

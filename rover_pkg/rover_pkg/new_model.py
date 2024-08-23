@@ -7,6 +7,31 @@ from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
 import json
 
+systems_to_name = {
+    0: "nav",
+    1: "hd",
+    2: "camera",
+    3: "drill"
+}
+
+nav_to_name = {
+    0: "Off",
+    1: "Manual",
+    2: "Auto"
+}
+
+hd_to_name = {
+    0: "Off",
+    1: "Manual Direct",
+    2: "Auto",
+    3: "Manual Inverse"
+}
+
+drill_to_name = {
+    0: "Off",
+    1: "On"
+}
+
 class NewModel:
     def __init__(self, rover_node):
         self.rover_node = rover_node
@@ -26,9 +51,7 @@ class NewModel:
         print("Change:", system, mode)
 
         if system == 0:
-            # NAV
-            self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
-            
+            # NAV  
             if mode == 1:
                 mode_cmd = String()
                 mode_cmd.data = "manual"
@@ -37,7 +60,9 @@ class NewModel:
                 mode_cmd = String()
                 mode_cmd.data = "auto"
                 self.rover_node.nav_mode_pub.publish(mode_cmd)
-
+            
+            self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
+            self.Elec.send_led_commands(systems_to_name[system], nav_to_name[mode])
         elif system == 1:
             # HD
             request = HDMode.Request()
@@ -55,6 +80,7 @@ class NewModel:
                     if response.system_mode == mode:
                         print("OKE CHANGEEEE")
                         self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
+                        self.Elec.send_led_commands(systems_to_name[system], hd_to_name[mode])
                     else:
                         log_error(self.rover_node, 1, "Error in camera service callback")
                 except Exception as e:
@@ -85,8 +111,7 @@ class NewModel:
             # Drill
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
 
-            # EL LEDS COMMANDS
-            self.Elec.send_led_commands("drill", mode)
+            self.Elec.send_led_commands(systems_to_name[system], drill_to_name[mode])
 
 
         res_sub_systems = {}
@@ -99,7 +124,6 @@ class NewModel:
         response.systems_state = json.dumps(res_sub_systems)
         response.error_type = 0
         response.error_message = "no errors"  
-
         return response
 
     
