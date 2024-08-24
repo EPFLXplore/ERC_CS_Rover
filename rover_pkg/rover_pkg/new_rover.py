@@ -139,7 +139,7 @@ class RoverNode():
 
         self.drill_action = ActionServer(self.node, DrillCmd, 
                                           self.rover_names["ros__parameters"]["rover_action_drill"], self.model.Drill.make_action, 
-                                          goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal)
+                                          goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal_from_cs)
         
         self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["ros__parameters"]["rover_hd_action_manipulation"])
 
