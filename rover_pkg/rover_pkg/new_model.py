@@ -7,39 +7,47 @@ from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
 import json
 
-systems_to_name = {
-    0: "nav",
-    1: "hd",
-    2: "camera",
-    3: "drill"
-}
-
-nav_to_name = {
-    0: "Off",
-    1: "Manual",
-    2: "Auto"
-}
-
-hd_to_name = {
-    0: "Off",
-    1: "Manual Direct",
-    2: "Auto",
-    3: "Manual Inverse"
-}
-
-drill_to_name = {
-    0: "Off",
-    1: "On"
-}
-
 class NewModel:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 
+
+        # FOR NOW WILL BE CHANGED
+        self.systems_to_name = {
+            0: "nav",
+            1: "hd",
+            2: "camera",
+            3: "drill"
+        }
+
+        self.name_system = {
+            "nav": 0,
+            "hd": 1,
+            "drill": 2
+        }
+
+        self.nav_to_name = {
+            0: "Off",
+            1: "Manual",
+            2: "Auto"
+        }
+
+        self.hd_to_name = {
+            0: "Off",
+            1: "Manual Direct",
+            2: "Auto",
+            3: "Manual Inverse"
+        }
+
+        self.drill_to_name = {
+            0: "Off",
+            1: "On"
+        }
+
         self.Drill = Drill(rover_node)
         self.HD = HandlingDevice(rover_node)
         self.Nav = Navigation(rover_node)
-        self.Elec = Elec(rover_node)
+        self.Elec = Elec(rover_node, self)
 
     def update_metrics(self, metrics):
         self.rover_node.rover_state_json['rover']['hardware'] = json.loads(metrics.data)
@@ -58,6 +66,8 @@ class NewModel:
                 mode_cmd.data = "manual"
             elif mode == 2 or mode == 0:
                 mode_cmd.data = "auto"
+
+            # ADD LEDS WHEN SERVICE IS DONE ON NAV
 
             self.rover_node.nav_mode_pub.publish(mode_cmd)
             self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
@@ -79,6 +89,7 @@ class NewModel:
                     
                     if response.error_type == 0 and response.system_mode == mode:
                         self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
+                        self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
                         return response_service(self.rover_node, response, 0, "No errors")
                     else:
                         log_error(self.rover_node, 1, "Error in hd service response callback: " + response.error_message)
@@ -127,6 +138,7 @@ class NewModel:
                     response = future.result()
                     if response.error_type == 0 and response.system_mode == mode:
                         self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
+                        self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
                         return response_service(self.rover_node, response, 0, "No errors")
                     else:
                         log_error(self.rover_node, 1, "Error in drill service response callback: " + response.error_message)

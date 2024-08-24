@@ -39,10 +39,6 @@ class RoverNode():
         rclpy.init(args=sys.argv)
         self.node = rclpy.create_node("ROVER")
 
-        self.model = NewModel(self)
-        self.logger = MongoDBLogger("Onyx", "rover_state")
-        self.network_monitor = None
-
         with open("/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json") as json_file:
             self.rover_state_json = dict(json.load(json_file))
         
@@ -60,6 +56,10 @@ class RoverNode():
 
         with open('/home/xplore/dev_ws/src/custom_msg/config/el_interface_names.yaml', 'r') as file:
             self.el_names = yaml.safe_load(file)
+
+        self.model = NewModel(self)
+        self.logger = MongoDBLogger("Onyx", "rover_state")
+        self.network_monitor = None
 
         # ==========================================================
         #              MESSAGES BETWEEN ROVER AND CS
@@ -124,7 +124,7 @@ class RoverNode():
                                                        self.hd_names["ros__parameters"]["hd_fsm_mode_srv"], callback_group=reentrant_callback_group)
 
         self.drill_service = self.node.create_client(DrillMode, 
-                                                       self.hd_names["ros__parameters"]["drill_mode_srv"], callback_group=reentrant_callback_group)
+                                                       self.science_names["ros__parameters"]["drill_mode_srv"], callback_group=reentrant_callback_group)
 
 
         # ===== ACTIONS =====
