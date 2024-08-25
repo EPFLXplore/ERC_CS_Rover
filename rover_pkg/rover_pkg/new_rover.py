@@ -18,6 +18,8 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
 from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain, DrillCmd
 from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode
+from nav2_msgs.action import NavigateToPose
+
 
 from rover_pkg.db_logger import MongoDBLogger
 from bson import json_util
@@ -143,7 +145,8 @@ class RoverNode():
         
         self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["ros__parameters"]["rover_hd_action_manipulation"])
 
-        self.nav_action_client = ActionClient(self.node, NAVReachGoal, self.rover_names["ros__parameters"]["rover_action_nav_goal"])
+        # TO BE CHANGED WITH NAV2 TOPIC
+        self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["ros__parameters"]["rover_action_nav_goal"])
 
         self.drill_action_client = ActionClient(self.node, DrillCmd, self.rover_names["ros__parameters"]["rover_action_drill"])
 
@@ -169,8 +172,8 @@ class RoverNode():
         self.rover_state_pub.publish(msg)
 
     def clear_rover_msgs(self):
-        self.rover_state_json['rover']['status']['error'] = []
-        self.rover_state_json['rover']['status']['warning'] = []
+        self.rover_state_json['rover']['status']['errors'] = []
+        self.rover_state_json['rover']['status']['warnings'] = []
 
     def transfer_gamepad_cmd_nav(self, msg):
         # TODO: Check that the mode is set to MANUAL

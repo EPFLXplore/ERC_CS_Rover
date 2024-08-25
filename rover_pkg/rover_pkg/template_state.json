@@ -90,28 +90,28 @@
     "wheels": {
       "front_left": {
         "steering_angle": "0.0",
-        "speed": "0.0",
+        "speed": "1.0",
         "current": "0.0",
         "steering_motor_state": true,
         "driving_motor_state": true
       },
       "front_right": {
         "steering_angle": "0.0",
-        "speed": "0.0",
+        "speed": "1.0",
         "current": "0.0",
         "steering_motor_state": true,
         "driving_motor_state": true
       },
       "rear_left": {
         "steering_angle": "0.0",
-        "speed": "0.0",
+        "speed": "1.0",
         "current": "0.0",
         "steering_motor_state": true,
         "driving_motor_state": true
       },
       "rear_right": {
         "steering_angle": "0.0",
-        "speed": "0.0",
+        "speed": "1.0",
         "current": "0.0",
         "steering_motor_state": true,
         "driving_motor_state": true

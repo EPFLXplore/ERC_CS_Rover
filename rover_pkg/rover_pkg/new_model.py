@@ -92,10 +92,10 @@ class NewModel:
                         self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
                         return response_service(self.rover_node, response, 0, "No errors")
                     else:
-                        log_error(self.rover_node, 1, "Error in hd service response callback: " + response.error_message)
+                        log_error(self.rover_node, "Error in hd service response callback: " + response.error_message)
                         return response_service(self.rover_node, response, 1, "Error in hd service response callback: " + response.error_message)
                 except Exception as e:
-                    log_error(self.rover_node, 1, "Error in hd service call: " + str(e))
+                    log_error(self.rover_node, "Error in hd service call: " + str(e))
                     return response_service(self.rover_node, response, 1,  "Error in hd service call: " + str(e))
             
         # --------------------------------------------------------------------
@@ -116,11 +116,11 @@ class NewModel:
                         return response_service(self.rover_node, response, 0, "No errors")
                     else:
                         #self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Off' if (mode == 1) else 'Stream'
-                        log_error(self.rover_node, 1, "Error in camera service response callback: " + response.error_message)
+                        log_error(self.rover_node, "Error in camera service response callback: " + response.error_message)
                         return response_service(self.rover_node, response, 1, "Error in camera service response callback: " + response.error_message)
 
                 except Exception as e:
-                    log_error(self.rover_node, 1, "Error in camera service call: " + str(e))
+                    log_error(self.rover_node, "Error in camera service call: " + str(e))
                     return response_service(self.rover_node, response, 1,  "Error in camera service call: " + str(e))
 
         # --------------------------------------------------------------------
@@ -141,23 +141,21 @@ class NewModel:
                         self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
                         return response_service(self.rover_node, response, 0, "No errors")
                     else:
-                        log_error(self.rover_node, 1, "Error in drill service response callback: " + response.error_message)
+                        log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
                         return response_service(self.rover_node, response, 1, "Error in drill service response callback: " + response.error_message)
 
                 except Exception as e:
-                    log_error(self.rover_node, 1, "Error in drill service call: " + str(e))
+                    log_error(self.rover_node, "Error in drill service call: " + str(e))
                     return response_service(self.rover_node, response, 1,  "Error in drill service call: " + str(e))
 
     
-def log_error(node, error_type, error_message):
-    error = { "type": error_type, "message": error_message }
-    node.rover_state_json['rover']['status']['error'] = node.rover_state_json['rover']['status']['error'].append(error)
+def log_error(node, error_message):
+    node.rover_state_json['rover']['status']['errors'] = node.rover_state_json['rover']['status']['errors'].append(error_message)
 
-def log_warning(node, warning_type, warning_message):
-    warning = { "type": warning_type, "message": warning_message }
-    node.rover_state_json['rover']['status']['warning'] = node.rover_state_json['rover']['status']['warning'].append(warning)
+def log_warning(node, warning_message):
+    node.rover_state_json['rover']['status']['warnings'] = node.rover_state_json['rover']['status']['warnings'].append(warning_message)
 
-def response_service(node, error_type, error_message, response):
+def response_service(node, response, error_type, error_message):
         res_sub_systems = {}
         sub_systems_status = node.rover_state_json['rover']['status']['systems']
         res_sub_systems['navigation'] = sub_systems_status['navigation']['status']

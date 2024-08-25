@@ -1,6 +1,8 @@
 from rclpy.action import GoalResponse, CancelResponse
 from nav_msgs.msg import Odometry
 from custom_msg.action import NAVReachGoal
+from nav2_msgs.action import NavigateToPose
+from geometry_msgs.msg import PoseStamped
 import time
 
 class Navigation:
@@ -96,16 +98,16 @@ class Navigation:
         self.displacement_mode = displacement.modedeplacement
         self.info = displacement.info
     
-    def feedback_odometry(self):
+    def feedback_odometry(self, pose_stamped):
         msg = Odometry()
         msg.header.stamp = self.rover_node.node.get_clock().now().to_msg()
-        msg.pose.pose.position.x = 0.0
-        msg.pose.pose.position.y = 0.0
-        msg.pose.pose.position.z = 0.0
-        msg.pose.pose.orientation.x = 1.0
-        msg.pose.pose.orientation.y = 1.0
-        msg.pose.pose.orientation.z = 1.0
-        msg.pose.pose.orientation.w = 1.0
+        msg.pose.pose.position.x = pose_stamped.pose.position.x
+        msg.pose.pose.position.y = pose_stamped.pose.position.y
+        msg.pose.pose.position.z = pose_stamped.pose.position.z
+        msg.pose.pose.orientation.x = pose_stamped.orientation.x
+        msg.pose.pose.orientation.y = pose_stamped.orientation.y
+        msg.pose.pose.orientation.z = pose_stamped.orientation.z
+        msg.pose.pose.orientation.w = pose_stamped.orientation.w
         return msg
     
     def action_status(self, goal):
@@ -115,37 +117,87 @@ class Navigation:
         return GoalResponse.ACCEPT
 
     def make_action(self, goal_handle):
+        self.goal_handle_cs = goal_handle
         print("NAV Reach Goal action starting...")
-        print("Goal: " + str(goal_handle.request.mode))
 
-        feedback = NAVReachGoal.Feedback()
-        i = 0
+        nav_goal = self.create_nav_goal(self.create_pose_stamped(
+            self.goal_handle_cs.request.goal.x,
+            self.goal_handle_cs.request.goal.y,
+            self.goal_handle_cs.request.goal.theta
+        ))
 
-        while i < 10:
-            time.sleep(10)
-            feedback.current_status = "ok"
-            feedback.current_pos = self.feedback_odometry()
-            feedback.distance_to_goal = 2
-            feedback.warning_type = 0
-            feedback.warning_message = "no warning"
-            goal_handle.publish_feedback(feedback)
-            print("feedback running nav")
-            if goal_handle.is_cancel_requested:
-                goal_handle.canceled()
-                return NAVReachGoal.Result()
-            i = i + 1
-            
+       
+        self.rover_node.nav_action_client.wait_for_server()
+        future_c = self.rover_node.nav_action_client.send_goal_async(nav_goal, 
+                                self.feedback_nav_to_cs)
         
-        goal_handle.succeed()
+        future_c.add_done_callback(self.nav_response_callback)
+    
+    def nav_response_callback(self, future):
+        self.goal_handle_nav = future.result()
 
-        print("NAV Reach Goal action is finished")
-        result = NAVReachGoal.Result()
-        result.result = ""
-        result.final_pos = self.feedback_odometry()
-        result.error_type = 0
-        result.error_message = "no error"
-        return result
+        # GOAL REJECTED FROM NAV - FORWARD TO CS (return is sufficient? need to test)
+
+        if not self.goal_handle_nav.accepted:
+            self.get_logger().info('Goal rejected')
+            return
+
+        self.get_logger().info('Goal accepted')
+        
+        get_result_future = self.goal_handle_nav.get_result_async()
+        get_result_future.add_done_callback(self.result_callback)
+
+    '''
+    Function handling the result of the action to the Drill. Return the result and the status to the CS as an object
+    '''
+    def result_callback(self, future):
+        self.result = future.result().result # should be exactly the same format
+        self.status = future.result().status
+        self.feedback = None
+
+        # EVERYTHING WENT FINE - ACCEPT
+
+        self.goal_handle_cs.succeed()
+        return self.result, self.status
+    
+
+    def feedback_nav_to_cs(self, navigate_to_goal_feedback):
+        feedback = NAVReachGoal.Feedback()
+        feedback.current_status = "ok"
+        feedback.current_pos = self.feedback_odometry(navigate_to_goal_feedback.current_pos)
+        feedback.distance_to_goal = navigate_to_goal_feedback.distance_remaining
+        feedback.warning_type = 0
+        feedback.warning_message = "no warning"
+
+        if self.goal_handle_cs.is_cancel_requested:
+            self.goal_handle_cs.canceled()
+
+            response_result = NAVReachGoal.Result()
+            response_result.result = "action canceled successfully"
+            response_result.error_type = 1
+            response_result.error_message = "no error on cancellation"
+            self.status = None
+            return response_result
+
+        self.goal_handle_cs.publish(feedback)
+
 
     def cancel_goal(self, goal):
         print("cancel goal nav")
         return CancelResponse.ACCEPT
+    
+    def create_nav_goal(self, pose_stamped):
+        nav_goal = NavigateToPose().Goal()
+        nav_goal.pose = pose_stamped
+        nav_goal.behaviour_tree = ''
+
+        return pose_stamped
+
+    def create_pose_stamped(self, point_x, point_y, orientation):
+        pose_stamped = PoseStamped()
+        pose_stamped.header.frame_id = 'map'
+        pose_stamped.pose.position.x = point_x
+        pose_stamped.pose.position.y = point_y
+        pose_stamped.pose.orientation.w = orientation
+
+        return pose_stamped

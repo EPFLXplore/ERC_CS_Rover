@@ -33,7 +33,7 @@ class Drill:
         # SEND ACTION TO DRILL
 
         self.rover_node.drill_action_client.wait_for_server()
-        future_c = self.rover_node.drill_action_client.send_goal_async(goal_handle_cs.request, 
+        future_c = self.rover_node.drill_action_client.send_goal_async(self.goal_handle_cs.request, 
                                 self.feedback_callback)
         
         future_c.add_done_callback(self.drill_response_callback)
