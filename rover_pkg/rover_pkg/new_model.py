@@ -1,147 +1,170 @@
-from custom_msg.msg import Wheelstatus, Motorcmds
-import numpy as np
+from std_msgs.msg import String
+from std_srvs.srv import SetBool
+from custom_msg.srv import HDMode, DrillMode
+from rover_pkg.drill_model import Drill
+from rover_pkg.navigation_model import Navigation
+from rover_pkg.handling_device_model import HandlingDevice
+from rover_pkg.elec_model import Elec
+import json
 
 class NewModel:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 
-        # self.drill = Drill(rover_node)
+
+        # FOR NOW WILL BE CHANGED
+        self.systems_to_name = {
+            0: "nav",
+            1: "hd",
+            2: "camera",
+            3: "drill"
+        }
+
+        self.name_system = {
+            "nav": 0,
+            "hd": 1,
+            "drill": 2
+        }
+
+        self.nav_to_name = {
+            0: "Off",
+            1: "Manual",
+            2: "Auto"
+        }
+
+        self.hd_to_name = {
+            0: "Off",
+            1: "Manual Direct",
+            2: "Auto",
+            3: "Manual Inverse"
+        }
+
+        self.drill_to_name = {
+            0: "Off",
+            1: "On"
+        }
+
+        self.Drill = Drill(rover_node)
         self.HD = HandlingDevice(rover_node)
         self.Nav = Navigation(rover_node)
-        # self.Cams = Cameras(rover_node)
-        self.Elec = Elec(rover_node)
+        self.Elec = Elec(rover_node, self)
 
-    def jetson_callback(self):
-        self.rover_state_json['rover']['hardware']['json'] = self.rover_node.jetson.json()
+    def update_metrics(self, metrics):
+        self.rover_node.rover_state_json['rover']['hardware'] = json.loads(metrics.data)
 
+    def change_mode_system_service(self, request, response):
 
-class HandlingDevice:
-    def __init__(self, rover_node):
-        self.rover_node = rover_node
+        system = request.system
+        mode = request.mode
 
-        # info related to handling device parameters
-        # self.joint_telemetry = [0,0,0,0,0,0]
-        # self.joint_command = [0,0,0,0,0,0]
-        # self.joint_state = [0,0,0,0,0,0]
+        # --------------------------------------------------------------------
+        # --------------------------------------------------------------------
+        # NAVIGATION SYSTEM
+        if system == 0:
+            mode_cmd = String()            
+            if mode == 1:
+                mode_cmd.data = "manual"
+            elif mode == 2 or mode == 0:
+                mode_cmd.data = "auto"
 
-        # HD --> Rover
-        #self.node.create_subscription(JointState, 'HD/motor_control/joint_telemetry', self.update_hd_joint_telemetry , 10)
+            # ADD LEDS WHEN SERVICE IS DONE ON NAV
 
-    def hd_joint_state(self, joint_state):
+            self.rover_node.nav_mode_pub.publish(mode_cmd)
+            self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
+            return response_service(self.rover_node, response, 0, "No errors")
 
-        self.joint_positions = joint_state.position
-        self.joint_velocities = joint_state.velocity
-        self.joint_current = joint_state.effort
+        # --------------------------------------------------------------------
+        # --------------------------------------------------------------------
+        # HD SYSTEM
+        elif system == 1:
+            request = HDMode.Request()
+            request.mode = mode
 
-        # update the rover status
-        for i in range(len(self.joint_positions)):
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = self.joint_positions[i]
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = self.joint_velocities[i]
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = self.joint_current[i]
+            future = self.rover_node.hd_mode_service.call_async(request)
+            future.add_done_callback(lambda f: service_callback(f))
+        
+            def service_callback(future):
+                try:
+                    response = future.result()
+                    
+                    if response.error_type == 0 and response.system_mode == mode:
+                        self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
+                        self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
+                        return response_service(self.rover_node, response, 0, "No errors")
+                    else:
+                        log_error(self.rover_node, "Error in hd service response callback: " + response.error_message)
+                        return response_service(self.rover_node, response, 1, "Error in hd service response callback: " + response.error_message)
+                except Exception as e:
+                    log_error(self.rover_node, "Error in hd service call: " + str(e))
+                    return response_service(self.rover_node, response, 1,  "Error in hd service call: " + str(e))
+            
+        # --------------------------------------------------------------------
+        # --------------------------------------------------------------------
+        # CAMERA SYSTEM
+        elif system == 2:
+            request = SetBool.Request()
+            request.data = True if (mode == 1) else False
 
-# class Drill:
+            future = self.rover_node.camera_service.call_async(request)
+            future.add_done_callback(lambda f: service_callback(f))
+        
+            def service_callback(future):
+                try:
+                    response = future.result()
+                    if response.success:
+                        self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Stream' if (mode == 1) else 'Off'
+                        return response_service(self.rover_node, response, 0, "No errors")
+                    else:
+                        #self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Off' if (mode == 1) else 'Stream'
+                        log_error(self.rover_node, "Error in camera service response callback: " + response.error_message)
+                        return response_service(self.rover_node, response, 1, "Error in camera service response callback: " + response.error_message)
 
-class Navigation:
-    def __init__(self, rover_node):
-        self.rover_node = rover_node
+                except Exception as e:
+                    log_error(self.rover_node, "Error in camera service call: " + str(e))
+                    return response_service(self.rover_node, response, 1,  "Error in camera service call: " + str(e))
 
-        # info related to navigation parameters
-        self.position = [0,0,0]
-        self.orientation = [0,0,0]
-        self.linVel = [0,0,0]
-        self.angVel = [0,0,0]
-        self.steering_wheel_ang = [0,0,0,0]
-        self.driving_wheel_ang = [0,0,0,0]
-        self.steering_wheel_state = [0,0,0,0]
-        self.driving_wheel_state = [0,0,0,0]
+        # --------------------------------------------------------------------
+        # --------------------------------------------------------------------
+        # DRILL SYSTEM
+        elif system == 3:
+            request = DrillMode.Request()
+            request.mode = mode
 
-        # NAV --> Rover
-        #self.node.create_subscription(PoseStamped,        '/lio_sam/current_pose'          , self.NAV_odometry_pub.publish , 10) # CS DIRECTLY SUBSCRIBED
+            future = self.rover_node.drill_service.call_async(request)
+            future.add_done_callback(lambda f: service_callback(f))
+        
+            def service_callback(future):
+                try:
+                    response = future.result()
+                    if response.error_type == 0 and response.system_mode == mode:
+                        self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
+                        self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
+                        return response_service(self.rover_node, response, 0, "No errors")
+                    else:
+                        log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
+                        return response_service(self.rover_node, response, 1, "Error in drill service response callback: " + response.error_message)
 
+                except Exception as e:
+                    log_error(self.rover_node, "Error in drill service call: " + str(e))
+                    return response_service(self.rover_node, response, 1,  "Error in drill service call: " + str(e))
 
-    # def update_hd_joint_telemetry(self, msg):
-    def nav_odometry(self, odometry):
-
-        self.position = [odometry.pose.pose.position.x, odometry.pose.pose.position.y, odometry.pose.pose.position.z]
-
-        self.orientation = [odometry.pose.pose.orientation.x, odometry.pose.pose.orientation.y, odometry.pose.pose.orientation.z, odometry.pose.pose.orientation.w]
-
-        self.linVel = [odometry.twist.twist.linear.x, odometry.twist.twist.linear.y, odometry.twist.twist.linear.z]
-        self.angVel = [odometry.twist.twist.angular.x, odometry.twist.twist.angular.y, odometry.twist.twist.angular.z]
-
-        # update the rover status
-        self.rover_node.rover_state_json['navigation']['localization']['position']["x"] = self.position[0]
-        self.rover_node.rover_state_json['navigation']['localization']['position']["y"] = self.position[1]
-        self.rover_node.rover_state_json['navigation']['localization']['position']["z"] = self.position[2]
-
-        self.rover_node.rover_state_json['navigation']['localization']['orientation']["x"] = self.orientation[0]
-        self.rover_node.rover_state_json['navigation']['localization']['orientation']["y"] = self.orientation[1]
-        self.rover_node.rover_state_json['navigation']['localization']['orientation']["z"] = self.orientation[2]
-        self.rover_node.rover_state_json['navigation']['localization']['orientation']["w"] = self.orientation[3]
-
-        self.rover_node.rover_state_json['navigation']['localization']['linear_velocity']["x"] = self.linVel[0]
-        self.rover_node.rover_state_json['navigation']['localization']['linear_velocity']["y"] = self.linVel[1]
-        self.rover_node.rover_state_json['navigation']['localization']['linear_velocity']["z"] = self.linVel[2]
-
-        self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["x"] = self.angVel[0]
-        self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["y"] = self.angVel[1]
-        self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["z"] = self.angVel[2]
-
-
-    def nav_wheel(self, msg):
-        """
-        FRONT_LEFT_DRIVE = 0
-        FRONT_RIGHT_DRIVE = 1
-        BACK_RIGHT_DRIVE = 2
-        BACK_LEFT_DRIVE = 3
-        FRONT_LEFT_STEER = 4
-        FRONT_RIGHT_STEER = 5
-        BACK_RIGHT_STEER = 6
-        BACK_LEFT_STEER = 7
-        """
-        # print(msg.state)
-        #self.navigation.wheels_ang = []
-        self.steering_wheel_ang = [float(i/65536 * 360) for i in msg.data[0:4]]
-        self.driving_wheel_ang = [float(i/65536 * 360) for i in msg.data[4:8]]
-        self.steering_wheel_state = msg.state[0:4]
-        self.driving_wheel_state = msg.state[4:8]
-
-        # self.... = msg.current # 8 elements in the array
-
-        # update the rover status
-
-        # front_left wheel
-        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = self.steering_wheel_ang[0]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_motor_state'] = self.steering_wheel_state[0]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_wheel_state'] = self.driving_wheel_state[0]
-        # front_right wheel
-        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = self.steering_wheel_ang[1]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_motor_state'] = self.steering_wheel_state[1]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_wheel_state'] = self.driving_wheel_state[1]
-
-        # back_right wheel
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = self.steering_wheel_ang[2]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_motor_state'] = self.steering_wheel_state[2]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_wheel_state'] = self.driving_wheel_state[2]
-
-        # back_left wheel
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = self.steering_wheel_ang[3]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = self.steering_wheel_state[3]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_wheel_state'] = self.driving_wheel_state[3]
     
+def log_error(node, error_message):
+    node.rover_state_json['rover']['status']['errors'] = node.rover_state_json['rover']['status']['errors'].append(error_message)
 
-    def nav_displacement(self, displacement):
-        self.displacement_mode = displacement.modedeplacement
-        self.info = displacement.info
+def log_warning(node, warning_message):
+    node.rover_state_json['rover']['status']['warnings'] = node.rover_state_json['rover']['status']['warnings'].append(warning_message)
 
-class Elec:
-    def __init__(self, rover_node):
-        self.rover_node = rover_node
+def response_service(node, response, error_type, error_message):
+        res_sub_systems = {}
+        sub_systems_status = node.rover_state_json['rover']['status']['systems']
+        res_sub_systems['navigation'] = sub_systems_status['navigation']['status']
+        res_sub_systems['handling_device'] = sub_systems_status['handling_device']['status']
+        res_sub_systems['drill'] = sub_systems_status['drill']['status']
+        res_sub_systems['cameras'] = sub_systems_status['cameras']['status']
 
-        # EL --> Rover
-        # self.node.create_subscription(Voltage, 'EL/voltage', self.update_battery_voltage , 10)
+        response.systems_state = json.dumps(res_sub_systems)
+        response.error_type = error_type
+        response.error_message = error_message
 
-    def update_mass_measurement(self, msg):
-        self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
-        # self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
-        # self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
+        return response

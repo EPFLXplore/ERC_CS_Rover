@@ -1,5 +1,3 @@
-cd /home/xplore/Desktop/ERC_CS_Rover/docker_humble_jetson
-
 # If not working, first do: sudo rm -rf /tmp/.docker.xauth
 # If still not working, try running the script as root.
 
@@ -33,5 +31,8 @@ current_dir=$(pwd)
 # Use dirname to get the parent directory and export variables
 export PARENT_DIR=$(dirname "$current_dir")
 export XAUTH=$XAUTH
+export JTOP_GID=$(getent group jtop | awk -F: '{print $3}')
 
-docker compose -f old_compose.yaml up
+/usr/bin/docker rm -f mongodb
+
+/usr/bin/docker compose -f compose.yaml up

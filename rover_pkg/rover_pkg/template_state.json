@@ -1,349 +1,344 @@
 {
-	"rover": {
-		"hardware": {
-			"json": "0.0"
-		},
-		"software": {
-			"os": "Ubuntu 20.04",
-			"ros_version": "Humble",
-			"main_processes": [
-				{
-					"name": "roscore",
-					"pid": "1234",
-					"cpu_usage": "0.0"
-				},
-				{
-					"name": "rosbridge",
-					"pid": "1235",
-					"cpu_usage": "0.0"
-				},
-				{
-					"name": "rviz",
-					"pid": "1236",
-					"cpu_usage": "0.0"
-				}
-			]
-		},
-		"network": {
-			"ipv4": "169.254.55.234",
-			"ipv6": "fe.fe.fe.fe.fe.fe.fe.fe",
-			"mac": "00:00:00:00:00:00",
-			"signal_strength": "0.0",
-			"frequency": "0.0",
-			"channel": "0",
-			"connected_devices": [
-				{
-					"name": "device1",
-					"mac": "00:00:00:00:00:00",
-					"ipv4": "169.254.55.234",
-					"ipv6": "fe.fe.fe.fe.fe.fe.fe.fe"
-				},
-				{
-					"name": "device2",
-					"mac": "00:00:00:00:00:00",
-					"ipv4": "169.254.55.234",
-					"ipv6": "fe.fe.fe.fe.fe.fe.fe.fe"
-				}
-			]
-		},
-		"status": {
-			"systems": {
-				"navigation": {
-					"status": "Off",
-					"message": "Navigation system is running"
-				},
-				"handling_device": {
-					"status": "Off",
-					"message": "Handling device is running"
-				},
-				"drill": {
-					"status": "Off",
-					"message": "Drill is running"
-				},
-				"electronics": {
-					"status": "Off",
-					"message": "Electronics are running"
-				},
-				"cameras": {
-					"status": "Off",
-					"message": "Camera is running"
-				}
-			},
-			"uptime": "0.0",
-			"errors": ["Error 1", "Error 2"],
-			"warnings": ["Warning 1", "Warning 2"]
-		}
-	},
-	"navigation": {
-		"localization": {
-			"position": {
-				"x": "0.0",
-				"y": "0.0",
-				"z": "0.0"
-			},
-			"orientation": {
-				"x": "0.0",
-				"y": "0.0",
-				"z": "0.0",
-				"w": "0.0"
-			},
-			"gps_coordinates": {
-				"latitude": "0.0",
-				"longitude": "0.0",
-				"altitude": "0.0"
-			},
-			"linear_velocity": {
-				"x": "0.0",
-				"y": "0.0",
-				"z": "0.0"
-			},
-			"angular_velocity": {
-				"x": "0.0",
-				"y": "0.0",
-				"z": "0.0"
-			}
-		},
-		"wheels": {
-			"front_left": {
-				"steering_angle": "0.0",
-				"speed": "0.0",
-				"current": "0.0",
-				"steering_motor_state": true,
-				"driving_motor_state": true
-			},
-			"front_right": {
-				"steering_angle": "0.0",
-				"speed": "0.0",
-				"current": "0.0",
-				"steering_motor_state": true,
-				"driving_motor_state": true
-			},
-			"rear_left": {
-				"steering_angle": "0.0",
-				"speed": "0.0",
-				"current": "0.0",
-				"steering_motor_state": true,
-				"driving_motor_state": true
-			},
-			"rear_right": {
-				"steering_angle": "0.0",
-				"speed": "0.0",
-				"current": "0.0",
-				"steering_motor_state": true,
-				"driving_motor_state": true
-			},
-			"pivot": {
-				"angle": "0.0"
-			}
-		},
-		"obstacle_detection": {
-			"obstacles": [
-				{
-					"position": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					},
-					"size": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					},
-					"rotation": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					}
-				},
-				{
-					"position": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					},
-					"size": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					},
-					"rotation": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					}
-				},
-				{
-					"position": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					},
-					"size": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					},
-					"rotation": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					}
-				}
-			],
-			"is_blocked": false
-		},
-		"state": {
-			"mode": "Off",
-			"control_mode": "Direct",
-			"current_step": "Idle",
-			"next_step": "Idle",
-			"current_goal": {
-				"position": {
-					"x": "0.0",
-					"y": "0.0",
-					"z": "0.0"
-				},
-				"orientation": {
-					"x": "0.0",
-					"y": "0.0",
-					"z": "0.0",
-					"w": "0.0"
-				}
-			}
-		}
-	},
-	"handling_device": {
-		"joints": {
-			"joint_1": {
-				"angle": "90",
-				"current": "0.0",
-				"state": true
-			},
-			"joint_2": {
-				"angle": "0.0",
-				"current": "0.0",
-				"state": true
-			},
-			"joint_3": {
-				"angle": "0.0",
-				"current": "0.0",
-				"state": true
-			},
-			"joint_4": {
-				"angle": "0.0",
-				"current": "0.0",
-				"state": true
-			},
-			"joint_5": {
-				"angle": "0.0",
-				"current": "0.0",
-				"state": true
-			},
-			"joint_6": {
-				"angle": "0.0",
-				"current": "0.0",
-				"state": true
-			}
-		},
-		"gripper": {
-			"position": {
-				"x": "0.0",
-				"y": "0.0",
-				"z": "0.0"
-			},
-			"tool": "None",
-			"angle": "0.0",
-			"current": "0.0",
-			"torque": "0.0",
-			"state": true
-		},
-		"vision": {
-			"objects": [
-				{
-					"name": "panel",
-					"position": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					},
-					"rotation": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					}
-				},
-				{
-					"name": "bar",
-					"position": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					},
-					"rotation": {
-						"x": "0.0",
-						"y": "0.0",
-						"z": "0.0"
-					}
-				}
-			]
-		},
-		"state": {
-			"mode": "Off",
-			"control_mode": "Direct",
-			"current_step": "Idle",
-			"next_step": "Idle",
-			"current_task": "Button1"
-		},
-		"drill": {
-			"motors": {
-				"motor_module": {
-					"speed": "0.0",
-					"current": "0.0",
-					"state": true
-				},
-				"motor_drill": {
-					"speed": "0.0",
-					"current": "0.0",
-					"state": true
-				}
-			},
-			"state": {
-				"mode": "Off",
-				"current_step": "Idle",
-				"next_step": "Idle"
-			}
-		}
-	},
-	"electronics": {
-		"power": {
-			"voltage": "0.0",
-			"current": "0.0",
-			"power": "0.0"
-		},
-		"sensors": {
-			"npk_sensor": {
-				"temperature": "0.0",
-				"humidity": "0.0",
-				"ph": "0.0",
-				"ec": "0.0"
-			},
-			"mass_sensor": {
-				"mass": "0.0"
-			},
-			"potentiometer": {
-				"position": "0.0"
-			}
-		},
-		"state_nodes": {
-			"node1": {
-				"state": true
-			},
-			"node2": {
-				"state": true
-			},
-			"node3": {
-				"state": true
-			}
-		}
-	}
+  "rover": {
+    "hardware": {
+      "json": "0.0"
+    },
+    "software": {
+      "os": "Ubuntu 20.04",
+      "ros_version": "Humble",
+      "main_processes": [
+        {
+          "name": "roscore",
+          "pid": "1234",
+          "cpu_usage": "0.0"
+        },
+        {
+          "name": "rosbridge",
+          "pid": "1235",
+          "cpu_usage": "0.0"
+        },
+        {
+          "name": "rviz",
+          "pid": "1236",
+          "cpu_usage": "0.0"
+        }
+      ]
+    },
+    "network": {
+      "ipv4": "169.254.55.1",
+      "mac": "D4:01:C3:DC:B9:B5",
+      "signal_strength": "0.0",
+      "connected_devices": []
+    },
+    "status": {
+      "systems": {
+        "navigation": {
+          "status": "Off",
+          "message": "Navigation system is running"
+        },
+        "handling_device": {
+          "status": "Off",
+          "message": "Handling device is running"
+        },
+        "drill": {
+          "status": "Off",
+          "message": "Drill is running"
+        },
+        "electronics": {
+          "status": "Off",
+          "message": "Electronics are running"
+        },
+        "cameras": {
+          "status": "Off",
+          "message": "Camera is running"
+        }
+      },
+      "uptime": "0.0",
+      "errors": [],
+      "warnings": ["Warning 1", "Warning 2"]
+    }
+  },
+  "navigation": {
+    "localization": {
+      "position": {
+        "x": "0.0",
+        "y": "0.0",
+        "z": "0.0"
+      },
+      "orientation": {
+        "x": "0.0",
+        "y": "0.0",
+        "z": "0.0",
+        "w": "0.0"
+      },
+      "gps_coordinates": {
+        "latitude": "0.0",
+        "longitude": "0.0",
+        "altitude": "0.0"
+      },
+      "linear_velocity": {
+        "x": "0.0",
+        "y": "0.0",
+        "z": "0.0"
+      },
+      "angular_velocity": {
+        "x": "0.0",
+        "y": "0.0",
+        "z": "0.0"
+      }
+    },
+    "wheels": {
+      "front_left": {
+        "steering_angle": "0.0",
+        "speed": "1.0",
+        "current": "0.0",
+        "steering_motor_state": true,
+        "driving_motor_state": true
+      },
+      "front_right": {
+        "steering_angle": "0.0",
+        "speed": "1.0",
+        "current": "0.0",
+        "steering_motor_state": true,
+        "driving_motor_state": true
+      },
+      "rear_left": {
+        "steering_angle": "0.0",
+        "speed": "1.0",
+        "current": "0.0",
+        "steering_motor_state": true,
+        "driving_motor_state": true
+      },
+      "rear_right": {
+        "steering_angle": "0.0",
+        "speed": "1.0",
+        "current": "0.0",
+        "steering_motor_state": true,
+        "driving_motor_state": true
+      },
+      "pivot": {
+        "angle": "0.0"
+      }
+    },
+    "obstacle_detection": {
+      "obstacles": [
+        {
+          "position": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          },
+          "size": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          },
+          "rotation": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          }
+        },
+        {
+          "position": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          },
+          "size": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          },
+          "rotation": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          }
+        },
+        {
+          "position": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          },
+          "size": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          },
+          "rotation": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          }
+        }
+      ],
+      "is_blocked": false
+    },
+    "state": {
+      "points": [],
+      "control_mode": "Direct",
+      "current_step": "Idle",
+      "next_step": "Idle",
+      "current_goal": {
+        "position": {
+          "x": "0.0",
+          "y": "0.0",
+          "z": "0.0"
+        },
+        "orientation": {
+          "x": "0.0",
+          "y": "0.0",
+          "z": "0.0",
+          "w": "0.0"
+        }
+      },
+      "goal": false,
+      "distance_to_goal": "0.0",
+      "warning_type": "0",
+      "warning_message": "No Warning"
+    }
+  },
+  "handling_device": {
+    "joints": {
+      "joint_1": {
+        "angle": "90",
+        "current": "0.0",
+        "state": true
+      },
+      "joint_2": {
+        "angle": "0.0",
+        "current": "0.0",
+        "state": true
+      },
+      "joint_3": {
+        "angle": "0.0",
+        "current": "0.0",
+        "state": true
+      },
+      "joint_4": {
+        "angle": "0.0",
+        "current": "0.0",
+        "state": true
+      },
+      "joint_5": {
+        "angle": "0.0",
+        "current": "0.0",
+        "state": true
+      },
+      "joint_6": {
+        "angle": "0.0",
+        "current": "0.0",
+        "state": true
+      },
+      "joint_7": {
+        "angle": "0.0",
+        "current": "0.0",
+        "state": true
+      }
+    },
+    "gripper": {
+      "position": {
+        "x": "0.0",
+        "y": "0.0",
+        "z": "0.0"
+      },
+      "tool": "None",
+      "angle": "0.0",
+      "current": "0.0",
+      "torque": "0.0",
+      "state": true
+    },
+    "vision": {
+      "objects": [
+        {
+          "name": "panel",
+          "position": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          },
+          "rotation": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          }
+        },
+        {
+          "name": "bar",
+          "position": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          },
+          "rotation": {
+            "x": "0.0",
+            "y": "0.0",
+            "z": "0.0"
+          }
+        }
+      ]
+    },
+    "state": {
+      "control_mode": "Direct",
+      "current_step": "Idle",
+      "next_step": "Idle",
+      "current_task": "Button1",
+      "warning_type": "0",
+      "warning_message": "No Warning"
+    }
+  },
+    "drill": {
+      "motors": {
+        "motor_module": {
+          "position": "0.0",
+          "current": "0.0",
+          "state": true
+        },
+        "motor_drill": {
+          "speed": "0.0",
+          "current": "0.0",
+          "state": true
+        }
+      },
+      "state": {
+        "current_step": "Idle",
+        "next_step": "Idle",
+        "warning_type": "0",
+        "warning_message": "No Warning"
+      }
+    },
+  "electronics": {
+    "power": {
+      "voltage": "0.0",
+      "current": "0.0",
+      "power": "0.0"
+    },
+    "sensors": {
+      "npk_sensor": {
+        "temperature": "0.0",
+        "humidity": "0.0",
+        "ph": "0.0",
+        "ec": "0.0"
+      },
+      "mass_sensor": {
+        "mass": "0.0"
+      },
+      "potentiometer": {
+        "position": "0.0"
+      }
+    },
+    "state_nodes": {
+      "node1": {
+        "state": true
+      },
+      "node2": {
+        "state": true
+      },
+      "node3": {
+        "state": true
+      }
+    }
+  }
 }

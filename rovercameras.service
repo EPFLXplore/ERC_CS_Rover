@@ -1,0 +1,15 @@
+# Service to launch the rover node. Copy this file: sudo cp ~/Desktop/ERC_CS_Rover/rovernode.service /etc/systemd/system/rovernode.service and run sudo systemctl enable rovernode.service to enable the service.
+
+
+[Unit]
+Description=Camera Node Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStart=/bin/bash "/home/xplore/ERC_CS_Rover/docker_humble_desktop/run_cameras.sh"
+ExecStop=/usr/bin/docker stop rover_humble_desktop
+
+[Install]
+WantedBy=default.target
