@@ -7,8 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install Rover packages
 RUN apt-get update && apt-get upgrade -y
-RUN apt install -y curl \
-    ros-${ROS_DISTRO}-navigation2
+RUN apt install -y curl
 RUN pip install -U jetson-stats
 
 RUN apt-get install -y libgstreamer1.0-dev \
