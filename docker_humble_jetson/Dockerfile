@@ -10,22 +10,7 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt install -y curl
 RUN pip install -U jetson-stats
 
-RUN apt-get install -y libgstreamer1.0-dev \
-    libgstreamer-plugins-base1.0-dev \
-    libgstreamer-plugins-bad1.0-dev \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-ugly \
-    gstreamer1.0-libav \
-    gstreamer1.0-tools \
-    gstreamer1.0-x \
-    gstreamer1.0-alsa \
-    gstreamer1.0-gl \
-    gstreamer1.0-gtk3 \
-    gstreamer1.0-qt5 \
-    gstreamer1.0-pulseaudio \
-    python3-opencv
+RUN apt-get install -y python3-opencv
 
 RUN ACCEPT_EULA=Y apt install -y ubuntu-restricted-extras
 RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
@@ -34,7 +19,16 @@ RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /etc/udev/rules.d/80-movidius.rules
 RUN /etc/init.d/udev restart
 
+WORKDIR /home/$USERNAME/nav2_ws/src
+WORKDIR /home/$USERNAME/nav2_ws
+
+RUN git clone https://github.com/ros-planning/navigation2.git --branch 1.1.14 ./src/navigation2
+RUN rosdep update && rosdep install -y --from-paths ./src --ignore-src
+RUN colcon build --symlink-install
+
 USER $USERNAME
+
+WORKDIR /home/$USERNAME
 
 RUN python3 -m pip install numpy
 RUN pip install aiohttp aiortc aiohttp_cors
