@@ -72,42 +72,42 @@ class RoverNode():
         # ===== PUBLISHERS =====
 
         self.rover_state_pub = self.node.create_publisher(String, 
-                                                          self.rover_names["ros__parameters"]["rover_pubsub_state"], 1)
+                                                          self.rover_names["/**"]["ros__parameters"]["rover_pubsub_state"], 1)
         self.timer = self.node.create_timer(0.1, self.timer_callback)
 
         # -- NAV messages --
-        self.nav_cmd_pub = self.node.create_publisher(Joy, self.cs_names["ros__parameters"]["cs_pubsub_nav_gamepad"], 1)
+        self.nav_cmd_pub = self.node.create_publisher(Joy, self.cs_names["/**"]["ros__parameters"]["cs_pubsub_nav_gamepad"], 1)
 
         # WILL BE CONVERTED TO SERVICE
         self.nav_mode_pub = self.node.create_publisher(String, 
-                                                       self.rover_names["ros__parameters"]["rover_pubsub_nav_mode"], 1)
+                                                       self.rover_names["/**"]["ros__parameters"]["rover_pubsub_nav_mode"], 1)
 
         # -- HD messages --
         self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, 
-                                                             self.rover_names["ros__parameters"]["rover_hd_man_inv_topic"], 1)
+                                                             self.rover_names["/**"]["ros__parameters"]["rover_hd_man_inv_topic"], 1)
         self.hd_cmd_direct_pub = self.node.create_publisher(Float32MultiArray, 
-                                                            self.rover_names["ros__parameters"]["rover_hd_man_dir_topic"], 1)
+                                                            self.rover_names["/**"]["ros__parameters"]["rover_hd_man_dir_topic"], 1)
         
         # ===== SUBSCRIBERS =====
         
-        self.node.create_subscription(Joy, self.cs_names["ros__parameters"]["cs_action_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
+        self.node.create_subscription(Joy, self.cs_names["/**"]["ros__parameters"]["cs_action_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
         
-        self.node.create_subscription(Joy, self.cs_names["ros__parameters"]["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
+        self.node.create_subscription(Joy, self.cs_names["/**"]["ros__parameters"]["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
 
-        self.node.create_subscription(String, self.rover_names["ros__parameters"]["rover_pubsub_perf"], self.model.update_metrics, 10)
+        self.node.create_subscription(String, self.rover_names["/**"]["ros__parameters"]["rover_pubsub_perf"], self.model.update_metrics, 10)
 
         # -- SC messages --
         self.node.create_subscription(ScMotorStatus, 
-                                      self.science_names["ros__parameters"]["science_pubsub_motor_status"], self.model.Drill.update_motor_status, 10)
+                                      self.science_names["/**"]["ros__parameters"]["science_pubsub_motor_status"], self.model.Drill.update_motor_status, 10)
         self.node.create_subscription(String, 
-                                      self.science_names["ros__parameters"]["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
+                                      self.science_names["/**"]["ros__parameters"]["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
       
         self.node.create_subscription(MassArray, 
-                                      self.el_names["ros__parameters"]["science_pubsub_drill_mass"], self.model.Elec.update_mass_measurement, 10)
+                                      self.el_names["/**"]["ros__parameters"]["science_pubsub_drill_mass"], self.model.Elec.update_mass_measurement, 10)
 
         # -- HD messages --
         self.node.create_subscription(
-            JointState, self.hd_names["ros__parameters"]["hd_motor_telemetry"], self.model.HD.hd_joint_state, 10)
+            JointState, self.hd_names["/**"]["ros__parameters"]["hd_motor_telemetry"], self.model.HD.hd_joint_state, 10)
 
         # -- NAV messages --
         self.node.create_subscription(Odometry,         '/lio_sam/odom',                self.model.Nav.nav_odometry  , 10)
@@ -117,38 +117,38 @@ class RoverNode():
         # ===== SERVICES =====
 
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, 
-                                                          self.rover_names["ros__parameters"]["rover_service_change_subsystem"], self.model.change_mode_system_service, callback_group=reentrant_callback_group)
+                                                          self.rover_names["/**"]["ros__parameters"]["rover_service_change_subsystem"], self.model.change_mode_system_service, callback_group=reentrant_callback_group)
 
         self.camera_service = self.node.create_client(SetBool, 
-                                                      self.rover_names["ros__parameters"]["rover_service_cameras_start"], callback_group=reentrant_callback_group)
+                                                      self.rover_names["/**"]["ros__parameters"]["rover_service_cameras_start"], callback_group=reentrant_callback_group)
                 
         self.hd_mode_service = self.node.create_client(HDMode, 
-                                                       self.hd_names["ros__parameters"]["hd_fsm_mode_srv"], callback_group=reentrant_callback_group)
+                                                       self.hd_names["/**"]["ros__parameters"]["hd_fsm_mode_srv"], callback_group=reentrant_callback_group)
 
         self.drill_service = self.node.create_client(DrillMode, 
-                                                       self.science_names["ros__parameters"]["drill_mode_srv"], callback_group=reentrant_callback_group)
+                                                       self.science_names["/**"]["ros__parameters"]["drill_mode_srv"], callback_group=reentrant_callback_group)
 
 
         # ===== ACTIONS =====
 
         self.hd_manipulation_action = ActionServer(self.node, HDManipulation, 
-                                                   self.rover_names["ros__parameters"]["rover_hd_action_manipulation"], self.model.HD.make_action,
+                                                   self.rover_names["/**"]["ros__parameters"]["rover_hd_action_manipulation"], self.model.HD.make_action,
                                                 goal_callback=self.model.HD.action_status, cancel_callback=self.model.HD.cancel_goal)
 
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
-                                                  self.rover_names["ros__parameters"]["rover_action_nav_goal"], self.model.Nav.make_action,
+                                                  self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"], self.model.Nav.make_action,
                                                   goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
 
         self.drill_action = ActionServer(self.node, DrillCmd, 
-                                          self.rover_names["ros__parameters"]["rover_action_drill"], self.model.Drill.make_action, 
+                                          self.rover_names["/**"]["ros__parameters"]["rover_action_drill"], self.model.Drill.make_action, 
                                           goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal_from_cs)
         
-        self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["ros__parameters"]["rover_hd_action_manipulation"])
+        self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["/**"]["ros__parameters"]["rover_hd_action_manipulation"])
 
         # TO BE CHANGED WITH NAV2 TOPIC
-        self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["ros__parameters"]["rover_action_nav_goal"])
+        self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"])
 
-        self.drill_action_client = ActionClient(self.node, DrillCmd, self.rover_names["ros__parameters"]["rover_action_drill"])
+        self.drill_action_client = ActionClient(self.node, DrillCmd, self.rover_names["/**"]["ros__parameters"]["rover_action_drill"])
 
 
         self.node.get_logger().info("Rover Node Started")
