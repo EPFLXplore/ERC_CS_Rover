@@ -6,6 +6,7 @@ from rover_pkg.navigation_model import Navigation
 from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
 import json, rclpy, threading
+import json, rclpy, threading
 
 class NewModel:
     def __init__(self, rover_node):
@@ -52,6 +53,7 @@ class NewModel:
     def update_metrics(self, metrics):
         self.rover_node.rover_state_json['rover']['hardware'] = json.loads(metrics.data)
 
+    async def change_mode_system_service(self, request, response):
     async def change_mode_system_service(self, request, response):
 
         system = request.system
@@ -132,6 +134,11 @@ class NewModel:
             request.rotation_speed = 1.1
             request.distance_ratio = 2.2
             
+
+            request.send_parameter = True
+            request.rotation_speed = 1.1
+            request.distance_ratio = 2.2
+            
             future = self.rover_node.drill_service.call_async(request)
             future.add_done_callback(lambda f: self.service_callback_drill(f, mode, response))
 
@@ -190,6 +197,12 @@ class NewModel:
 
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
+        except Exception as e:
+            log_error(self.rover_node, "Error in drill service call: " + str(e))    
+    
+
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
     
 def log_error(node, error_message):
     node.rover_state_json['rover']['status']['errors'] = node.rover_state_json['rover']['status']['errors'].append(error_message)
@@ -197,6 +210,7 @@ def log_error(node, error_message):
 def log_warning(node, warning_message):
     node.rover_state_json['rover']['status']['warnings'] = node.rover_state_json['rover']['status']['warnings'].append(warning_message)
 
+'''
 '''
 def response_service(node, response, error_type, error_message):
         res_sub_systems = {}
@@ -211,4 +225,5 @@ def response_service(node, response, error_type, error_message):
         response.error_message = error_message
 
         return response
+'''
 '''
