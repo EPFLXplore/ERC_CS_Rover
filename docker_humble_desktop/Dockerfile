@@ -18,6 +18,7 @@ RUN pip3 install -U jetson-stats
 RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /etc/udev/rules.d/80-movidius.rules
 RUN /etc/init.d/udev restart
 
+# Install rosidl to fix issue with compilation of custom actions (error rosidl_generator)
 WORKDIR /home/$USERNAME/rosidl_ws/src
 WORKDIR /home/$USERNAME/rosidl_ws
 RUN git clone https://github.com/ros2/rosidl.git --branch 3.1.5 ./src/rosidl
