@@ -13,7 +13,7 @@ import sys
 # from actionlib_msgs.msg import GoalID
 from sensor_msgs.msg import JointState, Joy
 from nav_msgs.msg import Odometry
-from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
 from custom_msg.action import HDManipulation, DrillTerrain, DrillCmd # NAVReachGoal
@@ -117,7 +117,7 @@ class RoverNode():
         # ===== SERVICES =====
 
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, 
-                                                          self.rover_names["/**"]["ros__parameters"]["rover_service_change_subsystem"], self.model.change_mode_system_service, callback_group=reentrant_callback_group)
+                                                          self.rover_names["/**"]["ros__parameters"]["rover_service_change_subsystem"], self.model.change_mode_system_service, callback_group=MutuallyExclusiveCallbackGroup())
 
         self.camera_service = self.node.create_client(SetBool, 
                                                       self.rover_names["/**"]["ros__parameters"]["rover_service_cameras_start"], callback_group=reentrant_callback_group)
@@ -126,7 +126,7 @@ class RoverNode():
                                                        self.hd_names["/**"]["ros__parameters"]["hd_fsm_mode_srv"], callback_group=reentrant_callback_group)
 
         self.drill_service = self.node.create_client(DrillMode, 
-                                                       self.science_names["/**"]["ros__parameters"]["drill_cmd_srv"], callback_group=reentrant_callback_group)
+                                                       self.science_names["/**"]["ros__parameters"]["drill_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
 
         # ===== ACTIONS =====

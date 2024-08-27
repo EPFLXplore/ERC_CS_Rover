@@ -5,7 +5,7 @@ from rover_pkg.drill_model import Drill
 from rover_pkg.navigation_model import Navigation
 from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
-import json
+import json, rclpy, threading
 
 class NewModel:
     def __init__(self, rover_node):
@@ -52,7 +52,7 @@ class NewModel:
     def update_metrics(self, metrics):
         self.rover_node.rover_state_json['rover']['hardware'] = json.loads(metrics.data)
 
-    def change_mode_system_service(self, request, response):
+    async def change_mode_system_service(self, request, response):
 
         system = request.system
         mode = request.mode
@@ -71,8 +71,9 @@ class NewModel:
 
             self.rover_node.nav_mode_pub.publish(mode_cmd)
             self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
-            return response_service(self.rover_node, response, 0, "No errors")
 
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
         # HD SYSTEM
@@ -81,23 +82,18 @@ class NewModel:
             request.mode = mode
 
             future = self.rover_node.hd_mode_service.call_async(request)
-            future.add_done_callback(lambda f: service_callback(f))
+            future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
         
-            def service_callback(future):
-                try:
-                    response = future.result()
-                    
-                    if response.error_type == 0 and response.system_mode == mode:
-                        self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
-                        self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
-                        return response_service(self.rover_node, response, 0, "No errors")
-                    else:
-                        log_error(self.rover_node, "Error in hd service response callback: " + response.error_message)
-                        return response_service(self.rover_node, response, 1, "Error in hd service response callback: " + response.error_message)
-                except Exception as e:
-                    log_error(self.rover_node, "Error in hd service call: " + str(e))
-                    return response_service(self.rover_node, response, 1,  "Error in hd service call: " + str(e))
-            
+            '''
+            We abandon the idea to wait the answer from the subsystem. We need more time and understanding how
+            ros works with callback groups and asynchronous things. For now, we accept that no response is sent
+            back to the node cs. The error is propagated by the inner callback of the node rover and from the outer
+            one.
+            '''
+            return response
+        
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
         # CAMERA SYSTEM
@@ -106,23 +102,18 @@ class NewModel:
             request.data = True if (mode == 1) else False
 
             future = self.rover_node.camera_service.call_async(request)
-            future.add_done_callback(lambda f: service_callback(f))
-        
-            def service_callback(future):
-                try:
-                    response = future.result()
-                    if response.success:
-                        self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Stream' if (mode == 1) else 'Off'
-                        return response_service(self.rover_node, response, 0, "No errors")
-                    else:
-                        #self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Off' if (mode == 1) else 'Stream'
-                        log_error(self.rover_node, "Error in camera service response callback: " + response.error_message)
-                        return response_service(self.rover_node, response, 1, "Error in camera service response callback: " + response.error_message)
+            future.add_done_callback(lambda f: self.service_callback_cam(f, mode))
 
-                except Exception as e:
-                    log_error(self.rover_node, "Error in camera service call: " + str(e))
-                    return response_service(self.rover_node, response, 1,  "Error in camera service call: " + str(e))
+            '''
+            We abandon the idea to wait the answer from the subsystem. We need more time and understanding how
+            ros works with callback groups and asynchronous things. For now, we accept that no response is sent
+            back to the node cs. The error is propagated by the inner callback of the node rover and from the outer
+            one.
+            '''
+            return response
 
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
         # DRILL SYSTEM
@@ -130,24 +121,60 @@ class NewModel:
             request = DrillMode.Request()
             request.mode = mode
 
+            request.send_parameter = True
+            request.rotation_speed = 1.1
+            request.distance_ratio = 2.2
+            
             future = self.rover_node.drill_service.call_async(request)
-            future.add_done_callback(lambda f: service_callback(f))
+            future.add_done_callback(lambda f: self.service_callback_drill(f, mode, response))
+
+            '''
+            We abandon the idea to wait the answer from the subsystem. We need more time and understanding how
+            ros works with callback groups and asynchronous things. For now, we accept that no response is sent
+            back to the node cs. The error is propagated by the inner callback of the node rover and from the outer
+            one.
+            '''
+            return response
         
-            def service_callback(future):
-                try:
-                    response = future.result()
-                    if response.error_type == 0 and response.system_mode == mode:
-                        self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                        self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
-                        return response_service(self.rover_node, response, 0, "No errors")
-                    else:
-                        log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
-                        return response_service(self.rover_node, response, 1, "Error in drill service response callback: " + response.error_message)
+    def service_callback_hd(self, future, mode):
+        try:
+            response = future.result()
+            
+            if response.error_type == 0 and response.system_mode == mode:
+                self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
+                #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
+            else:
+                log_error(self.rover_node, "Error in hd service response callback: " + response.error_message)
+        except Exception as e:
+            log_error(self.rover_node, "Error in hd service call: " + str(e))
+        
+    def service_callback_cam(self, future, mode):
+        try:
+            response = future.result()
+            if response.success:
+                self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Stream' if (mode == 1) else 'Off'
+            else:
+                self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Off' if (mode == 1) else 'Stream'
+                log_error(self.rover_node, "Error in camera service response callback: " + response.error_message)
 
-                except Exception as e:
-                    log_error(self.rover_node, "Error in drill service call: " + str(e))
-                    return response_service(self.rover_node, response, 1,  "Error in drill service call: " + str(e))
+        except Exception as e:
+            log_error(self.rover_node, "Error in camera service call: " + str(e))
+            
+    def service_callback_drill(self, future, mode, response):
+        try:
+            response_drill = future.result()
+            if response_drill.error_type == 0 and response_drill.system_mode == mode:
+                self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
+                #self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
+            else:
+                log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 
+        except Exception as e:
+            log_error(self.rover_node, "Error in drill service call: " + str(e))    
+    
+
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
     
 def log_error(node, error_message):
     node.rover_state_json['rover']['status']['errors'] = node.rover_state_json['rover']['status']['errors'].append(error_message)
@@ -155,6 +182,7 @@ def log_error(node, error_message):
 def log_warning(node, warning_message):
     node.rover_state_json['rover']['status']['warnings'] = node.rover_state_json['rover']['status']['warnings'].append(warning_message)
 
+'''
 def response_service(node, response, error_type, error_message):
         res_sub_systems = {}
         sub_systems_status = node.rover_state_json['rover']['status']['systems']
@@ -168,3 +196,4 @@ def response_service(node, response, error_type, error_message):
         response.error_message = error_message
 
         return response
+'''
