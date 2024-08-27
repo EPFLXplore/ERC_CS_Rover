@@ -16,7 +16,7 @@ from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
-from custom_msg.action import HDManipulation, DrillTerrain, DrillCmd # NAVReachGoal
+from custom_msg.action import HDManipulation, DrillTerrain, DrillCmd, NAVReachGoal
 from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode
 #from nav2_msgs.action import NavigateToPose
 
@@ -135,9 +135,9 @@ class RoverNode():
                                                    self.rover_names["/**"]["ros__parameters"]["rover_hd_action_manipulation"], self.model.HD.make_action,
                                                 goal_callback=self.model.HD.action_status, cancel_callback=self.model.HD.cancel_goal)
 
-        #self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
-        #                                          self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"], self.model.Nav.make_action,
-        #                                          goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
+        self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
+                                                 self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"], self.model.Nav.make_action,
+                                                 goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
 
         self.drill_action = ActionServer(self.node, DrillCmd, 
                                           self.rover_names["/**"]["ros__parameters"]["rover_action_drill"], self.model.Drill.make_action, 
