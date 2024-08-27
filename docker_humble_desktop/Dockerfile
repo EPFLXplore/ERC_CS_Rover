@@ -9,7 +9,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y
 RUN apt install -y curl 
 RUN apt-get install -y python3-opencv
-RUN apt-get install -y ros-humble-rosidl-generator-py
+RUN apt-get install -y ros-humble-rosidl-adapter
 
 RUN ACCEPT_EULA=Y apt install -y ubuntu-restricted-extras
 RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
