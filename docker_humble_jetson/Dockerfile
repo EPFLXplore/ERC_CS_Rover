@@ -14,7 +14,7 @@ RUN apt-get install -y python3-opencv
 
 RUN ACCEPT_EULA=Y apt install -y ubuntu-restricted-extras
 RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-RUN apt-get install -y ros-humble-rosidl-generator-py
+RUN apt-get install -y ros-humble-rosidl-adapter
 
 
 # Add USB rules
