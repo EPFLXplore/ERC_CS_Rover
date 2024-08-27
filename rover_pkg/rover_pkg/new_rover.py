@@ -18,7 +18,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallb
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
 from custom_msg.action import HDManipulation, DrillTerrain, DrillCmd, NAVReachGoal
 from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode
-#from nav2_msgs.action import NavigateToPose
+from nav2_msgs.action import NavigateToPose
 
 
 from rover_pkg.db_logger import MongoDBLogger
@@ -68,6 +68,7 @@ class RoverNode():
         # ==========================================================
 
         reentrant_callback_group = ReentrantCallbackGroup()
+        mut = MutuallyExclusiveCallbackGroup()
 
         # ===== PUBLISHERS =====
 
@@ -120,10 +121,10 @@ class RoverNode():
                                                           self.rover_names["/**"]["ros__parameters"]["rover_service_change_subsystem"], self.model.change_mode_system_service, callback_group=MutuallyExclusiveCallbackGroup())
 
         self.camera_service = self.node.create_client(SetBool, 
-                                                      self.rover_names["/**"]["ros__parameters"]["rover_service_cameras_start"], callback_group=reentrant_callback_group)
+                                                      self.rover_names["/**"]["ros__parameters"]["rover_service_cameras_start"], callback_group=MutuallyExclusiveCallbackGroup())
                 
         self.hd_mode_service = self.node.create_client(HDMode, 
-                                                       self.hd_names["/**"]["ros__parameters"]["hd_fsm_mode_srv"], callback_group=reentrant_callback_group)
+                                                       self.hd_names["/**"]["ros__parameters"]["hd_fsm_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
         self.drill_service = self.node.create_client(DrillMode, 
                                                        self.science_names["/**"]["ros__parameters"]["drill_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
@@ -132,23 +133,16 @@ class RoverNode():
         # ===== ACTIONS =====
 
         self.hd_manipulation_action = ActionServer(self.node, HDManipulation, 
-                                                   self.rover_names["/**"]["ros__parameters"]["rover_hd_action_manipulation"], self.model.HD.make_action,
+                                                   self.rover_names["/**"]["ros__parameters"]["rover_hd_action_manipulation_cs"], self.model.HD.make_action,
                                                 goal_callback=self.model.HD.action_status, cancel_callback=self.model.HD.cancel_goal)
 
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
-                                                 self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"], self.model.Nav.make_action,
+                                                 self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal_cs"], self.model.Nav.make_action,
                                                  goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
-
-        self.drill_action = ActionServer(self.node, DrillCmd, 
-                                          self.rover_names["/**"]["ros__parameters"]["rover_action_drill"], self.model.Drill.make_action, 
-                                          goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal_from_cs)
         
         self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["/**"]["ros__parameters"]["rover_hd_action_manipulation"])
 
-        #self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"])
-
-        self.drill_action_client = ActionClient(self.node, DrillCmd, self.rover_names["/**"]["ros__parameters"]["rover_action_drill"])
-
+        self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"])
 
         self.node.get_logger().info("Rover Node Started")
         
