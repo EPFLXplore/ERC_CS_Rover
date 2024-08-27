@@ -21,7 +21,7 @@ RUN /etc/init.d/udev restart
 WORKDIR /home/$USERNAME/nav2_ws/src
 WORKDIR /home/$USERNAME/nav2_ws
 RUN git clone https://github.com/ros-planning/navigation2.git --branch 1.1.14 ./src/navigation2
-RUN rosdep install -y --from-paths ./src --ignore-src
+RUN rosdep update && rosdep install -y --from-paths ./src --ignore-src
 RUN colcon build --symlink-install
 
 USER $USERNAME
