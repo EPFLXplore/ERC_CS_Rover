@@ -104,7 +104,7 @@ class Drill:
             self.get_logger().info('Goal successfully canceled')
             return CancelResponse.ACCEPT
         else:
-            self.get_logger().info('Goal failed to cancel')
+            self.get_logger().warning('Goal failed to cancel')
             return CancelResponse.REJECT
         
     

@@ -1,7 +1,7 @@
 from rclpy.action import GoalResponse, CancelResponse
 from nav_msgs.msg import Odometry
 from custom_msg.action import NAVReachGoal
-from nav2_msgs.action import NavigateToPose
+# from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
 import time
 
