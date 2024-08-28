@@ -1,112 +1,136 @@
-from rclpy.action import GoalResponse, CancelResponse
-from std_msgs.msg import String
-from custom_msg.action import DrillCmd
-
 class Drill:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 
-        self.feedback = None
-        self.result = None
-        self.status = None
-    
-    '''
-    Function pre-handling the request from CS. Accept or Reject
-    '''
-    def action_status(self, goal_handle_cs):
-        if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
-            return GoalResponse.REJECT
-        
-        return GoalResponse.ACCEPT
+        # WE WILL PUT THE TOPICS HERE FOR EACH SUBSYSTEM
+
+    def get_state(self, msg):
+        self.rover_node.rover_state_json['drill']['state']['current_step'] = msg.data
 
     '''
     Function handling the request from CS.
-    '''
+    
     def make_action(self, goal_handle_cs):
         self.goal_handle_cs = goal_handle_cs
-        print("Drill action starting... " + str(self.goal_handle_cs.request.action))
+        print("Drill action starting... " + str(self.goal_handle_cs.request))
+
+        drill = DrillTerrain.Goal()
+        drill.extend_to_percentage = goal_handle_cs.request.extend_to_percentage
 
         self.result = None
-        self.status = None
         self.feedback = None
+        self.action = True
+        self.canceled = False
 
-        # SEND ACTION TO DRILL
+        self.goal_handle_drill = None
 
         self.rover_node.drill_action_client.wait_for_server()
-        future_c = self.rover_node.drill_action_client.send_goal_async(self.goal_handle_cs.request, 
+        print("OKOKOK")
+        future_c = self.rover_node.drill_action_client.send_goal_async(drill, 
                                 self.feedback_callback)
-        
+        print("B")
         future_c.add_done_callback(self.drill_response_callback)
-
-    '''
+        
+        while self.action:
+            continue
+        
+        if not self.canceled:
+            response_result = DrillTerrain.Result()
+            response_result.result = "action finished"
+            response_result.error_type = 0
+            response_result.error_message = "no error"
+            return response_result
+    
+        else:
+            print("bbbbbbbb")
+            response_result = DrillTerrain.Result()
+            response_result.result = "action canceled successfully"
+            response_result.error_type = 1
+            response_result.error_message = "no error on cancellation"
+            return response_result
+    
+    
     Function handling the response of the request to the Drill.
-    '''
+    
     def drill_response_callback(self, future):
         self.goal_handle_drill = future.result()
 
         # GOAL REJECTED FROM DRILL - FORWARD TO CS (return is sufficient? need to test)
 
         if not self.goal_handle_drill.accepted:
-            self.get_logger().info('Goal rejected')
+            self.rover_node.node.get_logger().info('Goal rejected')
             return
 
-        self.get_logger().info('Goal accepted')
+        self.rover_node.node.get_logger().info('Goal accepted')
         
         get_result_future = self.goal_handle_drill.get_result_async()
         get_result_future.add_done_callback(self.result_callback)
        
-    '''
+    
     Function handling the result of the action to the Drill. Return the result and the status to the CS as an object
-    '''
+    
     def result_callback(self, future):
-        self.result = future.result().result # should be exactly the same format (DrillCmd)
-        self.status = future.result().status
-        self.feedback = None
-
         # EVERYTHING WENT FINE - ACCEPT
 
-        self.goal_handle_cs.succeed()
-        return self.result, self.status
+        if future.result().error_type == 1:
+            self.goal_handle_cs.canceled()
+            print("C")
+            return
 
-    '''
+        self.goal_handle_cs.succeed()
+        self.result = future.result().result
+        self.feedback = None
+        self.action = False
+        print("FINISH")
+
+    
     Function forwarding the feedback from Drill to CS. Handle also the cancellation from CS
-    '''
+    
     def feedback_callback(self, feedback):
         self.feedback = feedback.feedback
-        self.goal_handle_cs.publish_feedback(self.feedback)
 
+        if self.feedback != None:
+            self.goal_handle_cs.publish_feedback(self.feedback)
+
+        
         # CANCELED THE ACTION
-        if self.goal_handle_cs.is_cancel_requested:
+        #if self.goal_handle_cs.is_cancel_requested:
 
             # CANCELATION IN DRILL ACCEPTED FROM THE DRILL - FORWARD TO CS
-
             self.goal_handle_cs.canceled()
-            response_result = DrillCmd.Result()
+            response_result = DrillTerrain.Result()
             response_result.result = "action canceled successfully"
             response_result.error_type = 1
             response_result.error_message = "no error on cancellation"
-            self.status = None
             return response_result
+        
+            
 
-    '''
-    Cancel action from CS. Need to send cancellation to DRILL and forward cancellation
-    '''
-    def cancel_goal_from_cs(self, goal_handle_cs):
-        future_drill = self.goal_handle_drill.cancel_goal_async()
-        future_drill.add_done_callback(self.cancel_drill_action)
     
-    '''
+    Cel action from CS. Need to send cancellation to DRILL and forward cancellation
+    
+    def cancel_goal_from_cs(self, goal_handle_cs):
+        self.rover_node.node.get_logger().info("canceling goal in rover")
+        tt = String()
+        tt.data = "cancel"
+        self.test.publish(tt)
+        self.canceled = True
+        #future_drill = self.goal_handle_drill.cancel_goal_async()
+        #future_drill.add_done_callback(self.cancel_drill_action)
+        
+    
     Cancel action from ROVER. DONT KNOW IF IT WILL WORK BECAUSE OF CALLBACK RETURN
-    '''
+    
     def cancel_drill_action(self, future):
         cancel_response = future.result()
+        print(cancel_response)
         if len(cancel_response.goals_canceling) > 0:
-            self.get_logger().info('Goal successfully canceled')
-            return CancelResponse.ACCEPT
+            self.rover_node.node.get_logger().info('Goal successfully canceled')
+            self.result_future.set_result(DrillTerrain.Result(result="action canceled successfully", error_type=1, error_message="no error on cancellation"))
         else:
-            self.get_logger().warning('Goal failed to cancel')
-            return CancelResponse.REJECT
-        
+            self.rover_node.node.get_logger().info('Goal failed to cancel')
+            self.result_future.set_result(DrillTerrain.Result(result="action failed to cancel", error_type=2, error_message="error on cancellation"))
+    '''
     
     # ------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------

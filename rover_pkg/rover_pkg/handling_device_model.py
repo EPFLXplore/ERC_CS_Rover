@@ -14,6 +14,9 @@ class HandlingDevice:
         # HD --> Rover
         #self.node.create_subscription(JointState, 'HD/motor_control/joint_telemetry', self.update_hd_joint_telemetry , 10)
 
+    def test(self, msg):
+        pass
+
     def hd_joint_state(self, joint_state):
 
         self.joint_positions = joint_state.position

@@ -23,6 +23,9 @@ class Navigation:
         #self.node.create_subscription(PoseStamped,        '/lio_sam/current_pose'          , self.NAV_odometry_pub.publish , 10) # CS DIRECTLY SUBSCRIBED
 
 
+    def test(self, msg):
+        pass
+
     # def update_hd_joint_telemetry(self, msg):
     def nav_odometry(self, odometry):
 
@@ -162,7 +165,7 @@ class Navigation:
     
 
     def feedback_nav_to_cs(self, navigate_to_goal_feedback):
-        feedback = NAVReachGoal.Feedback()
+        #feedback = NAVReachGoal.Feedback()
         feedback.current_status = "ok"
         feedback.current_pos = self.feedback_odometry(navigate_to_goal_feedback.current_pos)
         feedback.distance_to_goal = navigate_to_goal_feedback.distance_remaining
@@ -172,7 +175,7 @@ class Navigation:
         if self.goal_handle_cs.is_cancel_requested:
             self.goal_handle_cs.canceled()
 
-            response_result = NAVReachGoal.Result()
+            #response_result = NAVReachGoal.Result()
             response_result.result = "action canceled successfully"
             response_result.error_type = 1
             response_result.error_message = "no error on cancellation"
@@ -187,7 +190,7 @@ class Navigation:
         return CancelResponse.ACCEPT
     
     def create_nav_goal(self, pose_stamped):
-        nav_goal = NavigateToPose().Goal()
+        #nav_goal = NavigateToPose().Goal()
         nav_goal.pose = pose_stamped
         nav_goal.behaviour_tree = ''
 

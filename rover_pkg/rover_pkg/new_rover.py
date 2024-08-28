@@ -2,10 +2,8 @@
 
 import time, yaml
 import rclpy
-from rclpy.action import ActionServer, ActionClient
-#from config import NAME_ROVER_NODE, NAME_ROVER_2025, TEMPLATE_STATE_PATH, INTERFACE_NAMES_PATH
 
-from std_msgs.msg       import Int8, String, Float32MultiArray
+from std_msgs.msg       import String, Float32MultiArray
 from std_srvs.srv       import SetBool
 import sys
 
@@ -13,13 +11,10 @@ import sys
 # from actionlib_msgs.msg import GoalID
 from sensor_msgs.msg import JointState, Joy
 from nav_msgs.msg import Odometry
-from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
-from custom_msg.action import HDManipulation, NAVReachGoal, DrillTerrain, DrillCmd
 from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode
-from nav2_msgs.action import NavigateToPose
-
 
 from rover_pkg.db_logger import MongoDBLogger
 from bson import json_util
@@ -45,19 +40,19 @@ class RoverNode():
             self.rover_state_json = dict(json.load(json_file))
         
         with open('/home/xplore/dev_ws/src/custom_msg/config/cs_interface_names.yaml', 'r') as file:
-            self.cs_names = yaml.safe_load(file)
+            self.cs_names = yaml.safe_load(file)["/**"]["ros__parameters"]
             
         with open('/home/xplore/dev_ws/src/custom_msg/config/hd_interface_names.yaml', 'r') as file:
-            self.hd_names = yaml.safe_load(file)
+            self.hd_names = yaml.safe_load(file)["/**"]["ros__parameters"]
         
         with open('/home/xplore/dev_ws/src/custom_msg/config/rover_interface_names.yaml', 'r') as file:
-            self.rover_names = yaml.safe_load(file)
+            self.rover_names = yaml.safe_load(file)["/**"]["ros__parameters"]
             
         with open('/home/xplore/dev_ws/src/custom_msg/config/science_interface_names.yaml', 'r') as file:
-            self.science_names = yaml.safe_load(file)
+            self.science_names = yaml.safe_load(file)["/**"]["ros__parameters"]
 
         with open('/home/xplore/dev_ws/src/custom_msg/config/el_interface_names.yaml', 'r') as file:
-            self.el_names = yaml.safe_load(file)
+            self.el_names = yaml.safe_load(file)["/**"]["ros__parameters"]
 
         self.model = NewModel(self)
         self.logger = MongoDBLogger("Onyx", "rover_state")
@@ -67,47 +62,50 @@ class RoverNode():
         #              MESSAGES BETWEEN ROVER AND CS
         # ==========================================================
 
-        reentrant_callback_group = ReentrantCallbackGroup()
-
-        # ===== PUBLISHERS =====
-
         self.rover_state_pub = self.node.create_publisher(String, 
-                                                          self.rover_names["ros__parameters"]["rover_pubsub_state"], 1)
+                                                          self.rover_names["rover_pubsub_state"], 1)
         self.timer = self.node.create_timer(0.1, self.timer_callback)
 
         # -- NAV messages --
-        self.nav_cmd_pub = self.node.create_publisher(Joy, self.cs_names["ros__parameters"]["cs_pubsub_nav_gamepad"], 1)
+        self.nav_cmd_pub = self.node.create_publisher(Joy, self.cs_names["cs_pubsub_nav_gamepad"], 1)
 
-        # WILL BE CONVERTED TO SERVICE
-        self.nav_mode_pub = self.node.create_publisher(String, 
-                                                       self.rover_names["ros__parameters"]["rover_pubsub_nav_mode"], 1)
+        self.nav_action_state = self.node.create_subscription(String, self.rover_names["rover_action_nav_state"], 
+                                                             self.model.Nav.test, 10)
 
         # -- HD messages --
         self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, 
-                                                             self.rover_names["ros__parameters"]["rover_hd_man_inv_topic"], 1)
+                                                             self.rover_names["rover_hd_man_inv_topic"], 1)
         self.hd_cmd_direct_pub = self.node.create_publisher(Float32MultiArray, 
-                                                            self.rover_names["ros__parameters"]["rover_hd_man_dir_topic"], 1)
+                                                            self.rover_names["rover_hd_man_dir_topic"], 1)
         
-        # ===== SUBSCRIBERS =====
-        
-        self.node.create_subscription(Joy, self.cs_names["ros__parameters"]["cs_action_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
-        
-        self.node.create_subscription(Joy, self.cs_names["ros__parameters"]["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
+        self.hd_action_state = self.node.create_subscription(String, self.rover_names["rover_hd_action_state"], 
+                                                              self.model.HD.test, 10)
 
-        self.node.create_subscription(String, self.rover_names["ros__parameters"]["rover_pubsub_perf"], self.model.update_metrics, 10)
+
+        # -- Drill messages --
+
+        self.drill_action_state = self.node.create_subscription(String, self.rover_names["rover_action_drill_state"],
+                                                                self.model.Drill.get_state, 10)
+
+        
+        self.node.create_subscription(Joy, self.cs_names["cs_action_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
+        
+        self.node.create_subscription(Joy, self.cs_names["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
+
+        self.node.create_subscription(String, self.rover_names["rover_pubsub_perf"], self.model.update_metrics, 10)
 
         # -- SC messages --
         self.node.create_subscription(ScMotorStatus, 
-                                      self.science_names["ros__parameters"]["science_pubsub_motor_status"], self.model.Drill.update_motor_status, 10)
+                                      self.science_names["science_pubsub_motor_status"], self.model.Drill.update_motor_status, 10)
         self.node.create_subscription(String, 
-                                      self.science_names["ros__parameters"]["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
+                                      self.science_names["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
       
         self.node.create_subscription(MassArray, 
-                                      self.el_names["ros__parameters"]["science_pubsub_drill_mass"], self.model.Elec.update_mass_measurement, 10)
+                                      self.el_names["science_pubsub_drill_mass"], self.model.Elec.update_mass_measurement, 10)
 
         # -- HD messages --
         self.node.create_subscription(
-            JointState, self.hd_names["ros__parameters"]["hd_motor_telemetry"], self.model.HD.hd_joint_state, 10)
+            JointState, self.hd_names["hd_motor_telemetry"], self.model.HD.hd_joint_state, 10)
 
         # -- NAV messages --
         self.node.create_subscription(Odometry,         '/lio_sam/odom',                self.model.Nav.nav_odometry  , 10)
@@ -117,40 +115,33 @@ class RoverNode():
         # ===== SERVICES =====
 
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, 
-                                                          self.rover_names["ros__parameters"]["rover_service_change_subsystem"], self.model.change_mode_system_service, callback_group=reentrant_callback_group)
+                                                          self.rover_names["rover_service_change_subsystem"], self.model.change_mode_system_service, callback_group=MutuallyExclusiveCallbackGroup())
+
+        self.nav_service = self.node.create_client(ChangeModeSystem, 
+                                                       self.rover_names["rover_pubsub_nav_mode"], callback_group=MutuallyExclusiveCallbackGroup())
 
         self.camera_service = self.node.create_client(SetBool, 
-                                                      self.rover_names["ros__parameters"]["rover_service_cameras_start"], callback_group=reentrant_callback_group)
+                                                      self.rover_names["rover_service_cameras_start"], callback_group=MutuallyExclusiveCallbackGroup())
                 
         self.hd_mode_service = self.node.create_client(HDMode, 
-                                                       self.hd_names["ros__parameters"]["hd_fsm_mode_srv"], callback_group=reentrant_callback_group)
+                                                       self.hd_names["hd_fsm_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
         self.drill_service = self.node.create_client(DrillMode, 
-                                                       self.science_names["ros__parameters"]["drill_mode_srv"], callback_group=reentrant_callback_group)
+                                                       self.science_names["drill_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
-
-        # ===== ACTIONS =====
-
+        '''
         self.hd_manipulation_action = ActionServer(self.node, HDManipulation, 
-                                                   self.rover_names["ros__parameters"]["rover_hd_action_manipulation"], self.model.HD.make_action,
+                                                   self.rover_names["rover_hd_action_manipulation_cs"], self.model.HD.make_action,
                                                 goal_callback=self.model.HD.action_status, cancel_callback=self.model.HD.cancel_goal)
 
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
-                                                  self.rover_names["ros__parameters"]["rover_action_nav_goal"], self.model.Nav.make_action,
-                                                  goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
-
-        self.drill_action = ActionServer(self.node, DrillCmd, 
-                                          self.rover_names["ros__parameters"]["rover_action_drill"], self.model.Drill.make_action, 
-                                          goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal_from_cs)
+                                                 self.rover_names["rover_action_nav_goal_cs"], self.model.Nav.make_action,
+                                                 goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
         
-        self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["ros__parameters"]["rover_hd_action_manipulation"])
+        self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["rover_hd_action_manipulation"])
 
-        # TO BE CHANGED WITH NAV2 TOPIC
-        self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["ros__parameters"]["rover_action_nav_goal"])
-
-        self.drill_action_client = ActionClient(self.node, DrillCmd, self.rover_names["ros__parameters"]["rover_action_drill"])
-
-
+        self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["rover_action_nav_goal"])
+        '''
         self.node.get_logger().info("Rover Node Started")
         
         if len(sys.argv) > 1 and sys.argv[1] == 'true':
