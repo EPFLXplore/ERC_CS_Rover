@@ -57,21 +57,38 @@ class NewModel:
         system = request.system
         mode = request.mode
 
+        # test leds
+
+        print(f"system: " + system)
+        print(f"mode: " + mode)
+
+        if system == 0:
+            self.Elec.send_led_commands(self.systems_to_name[system], self.nav_to_name[mode])
+        
+        elif system == 1:
+            self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
+        
+        elif system == 2:
+            self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
+        
+        return response
+
+        '''
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
         # NAVIGATION SYSTEM
         if system == 0:
-            mode_cmd = String()            
-            if mode == 1:
-                mode_cmd.data = "manual"
-            elif mode == 2 or mode == 0:
-                mode_cmd.data = "auto"
-
             # ADD LEDS WHEN SERVICE IS DONE ON NAV
-
-            self.rover_node.nav_mode_pub.publish(mode_cmd)
-            self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
-
+            future = self.rover_node.nav_service.call_async(request)
+            future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
+            
+            
+            We abandon the idea to wait the answer from the subsystem. We need more time and understanding how
+            ros works with callback groups and asynchronous things. For now, we accept that no response is sent
+            back to the node cs. The error is propagated by the inner callback of the node rover and from the outer
+            one.
+            
+            return response
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
         # --------------------------------------------------------------------
@@ -84,12 +101,7 @@ class NewModel:
             future = self.rover_node.hd_mode_service.call_async(request)
             future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
         
-            '''
-            We abandon the idea to wait the answer from the subsystem. We need more time and understanding how
-            ros works with callback groups and asynchronous things. For now, we accept that no response is sent
-            back to the node cs. The error is propagated by the inner callback of the node rover and from the outer
-            one.
-            '''
+            
             return response
         
 # ----------------------------------------------------------------------------------------------
@@ -104,12 +116,7 @@ class NewModel:
             future = self.rover_node.camera_service.call_async(request)
             future.add_done_callback(lambda f: self.service_callback_cam(f, mode))
 
-            '''
-            We abandon the idea to wait the answer from the subsystem. We need more time and understanding how
-            ros works with callback groups and asynchronous things. For now, we accept that no response is sent
-            back to the node cs. The error is propagated by the inner callback of the node rover and from the outer
-            one.
-            '''
+            
             return response
 
 # ----------------------------------------------------------------------------------------------
@@ -128,14 +135,22 @@ class NewModel:
             future = self.rover_node.drill_service.call_async(request)
             future.add_done_callback(lambda f: self.service_callback_drill(f, mode, response))
 
-            '''
-            We abandon the idea to wait the answer from the subsystem. We need more time and understanding how
-            ros works with callback groups and asynchronous things. For now, we accept that no response is sent
-            back to the node cs. The error is propagated by the inner callback of the node rover and from the outer
-            one.
-            '''
+            
             return response
-        
+        '''
+
+    def service_callback_nav(self, future, mode):
+        try:
+            response = future.result()
+            
+            if response.error_type == 0 and response.system_mode == mode:
+                self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
+                #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
+            else:
+                log_error(self.rover_node, "Error in nav service response callback: " + response.error_message)
+        except Exception as e:
+            log_error(self.rover_node, "Error in nav service call: " + str(e))
+       
     def service_callback_hd(self, future, mode):
         try:
             response = future.result()

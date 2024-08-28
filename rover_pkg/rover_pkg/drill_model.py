@@ -1,9 +1,11 @@
-from std_msgs.msg import String
-from concurrent.futures import Future
-
 class Drill:
     def __init__(self, rover_node):
         self.rover_node = rover_node
+
+        # WE WILL PUT THE TOPICS HERE FOR EACH SUBSYSTEM
+
+    def get_state(self, msg):
+        self.rover_node.rover_state_json['drill']['state']['current_step'] = msg.data
 
     '''
     Function handling the request from CS.

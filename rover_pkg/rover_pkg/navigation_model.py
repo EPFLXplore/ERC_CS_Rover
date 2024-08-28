@@ -23,6 +23,9 @@ class Navigation:
         #self.node.create_subscription(PoseStamped,        '/lio_sam/current_pose'          , self.NAV_odometry_pub.publish , 10) # CS DIRECTLY SUBSCRIBED
 
 
+    def test(self, msg):
+        pass
+
     # def update_hd_joint_telemetry(self, msg):
     def nav_odometry(self, odometry):
 

@@ -7,7 +7,7 @@ class Elec:
         # 0 -> nav, 1 -> hd, 2 -> drill
 
         self.leds = self.rover_node.node.create_publisher(LedsCommand, 
-                                                             self.rover_node.el_names["/**"]["ros__parameters"]["el_pubsub_led_commands"], 1)
+                                                             self.rover_node.el_names["el_pubsub_led_commands"], 1)
 
     def send_led_commands(self, subsystem, mode):
 
