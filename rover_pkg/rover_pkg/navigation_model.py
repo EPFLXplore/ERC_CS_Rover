@@ -1,7 +1,7 @@
 from rclpy.action import GoalResponse, CancelResponse
 from nav_msgs.msg import Odometry
-#from custom_msg.action import NAVReachGoal
-#from nav2_msgs.action import NavigateToPose
+from custom_msg.action import NAVReachGoal
+# from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
 import time
 
@@ -22,6 +22,9 @@ class Navigation:
         # NAV --> Rover
         #self.node.create_subscription(PoseStamped,        '/lio_sam/current_pose'          , self.NAV_odometry_pub.publish , 10) # CS DIRECTLY SUBSCRIBED
 
+
+    def test(self, msg):
+        pass
 
     # def update_hd_joint_telemetry(self, msg):
     def nav_odometry(self, odometry):

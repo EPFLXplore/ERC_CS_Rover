@@ -9,6 +9,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y
 RUN apt install -y curl 
 RUN apt-get install -y python3-opencv
+RUN apt install ros-humble-rmw-cyclonedds-cpp -y
 
 RUN ACCEPT_EULA=Y apt install -y ubuntu-restricted-extras
 RUN apt install -y ros-${ROS_DISTRO}-navigation2 ros-${ROS_DISTRO}-nav2-bringup
@@ -17,6 +18,8 @@ RUN pip3 install -U jetson-stats
 # Add USB rules
 RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /etc/udev/rules.d/80-movidius.rules
 RUN /etc/init.d/udev restart
+
+# Install rosidl to fix issue with compilation of custom actions (error rosidl_generator)
 
 WORKDIR /home/$USERNAME/rosidl_ws/src
 WORKDIR /home/$USERNAME/rosidl_ws

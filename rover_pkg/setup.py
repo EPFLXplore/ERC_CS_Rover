@@ -32,7 +32,8 @@ setup(
             'hd_test_node = rover_pkg.hd_test_node:main',
 	        'new_camera_cs = rover_pkg.new_camera_cs:main',
             'webrtc_camera_cs = rover_pkg.new_camera_webrtc:main',
-            'test_cams = rover_pkg.test_cam:main'
+            'test_cams = rover_pkg.test_cam:main',
+            'test_nav2 = rover_pkg.test:main'
         ],
     },
 )

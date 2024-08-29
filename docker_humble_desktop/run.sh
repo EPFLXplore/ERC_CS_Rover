@@ -46,4 +46,5 @@ docker run -it \
     -v /dev:/dev \
     -v $parent_dir:/home/xplore/dev_ws/src \
     -v rover_humble_desktop_home_volume:/home/xplore \
-    ghcr.io/epflxplore/rover:humble-desktop
+    ghcr.io/epflxplore/rover:humble-desktop \
+    /bin/bash -c "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp; /bin/bash"
