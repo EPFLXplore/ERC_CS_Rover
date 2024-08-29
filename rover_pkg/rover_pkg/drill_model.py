@@ -17,7 +17,6 @@ class Drill:
         if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
             return GoalResponse.REJECT
         
-        self.rover_node.node.get_logger().info("infooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
         return GoalResponse.ACCEPT
 
     '''

@@ -9,6 +9,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y
 RUN apt install -y curl 
 RUN apt-get install -y python3-opencv
+RUN apt install ros-humble-rmw-cyclonedds-cpp -y
 
 RUN ACCEPT_EULA=Y apt install -y ubuntu-restricted-extras
 RUN apt install -y ros-${ROS_DISTRO}-navigation2 ros-${ROS_DISTRO}-nav2-bringup
