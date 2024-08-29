@@ -54,7 +54,6 @@ class NewModel:
         self.rover_node.rover_state_json['rover']['hardware'] = json.loads(metrics.data)
 
     async def change_mode_system_service(self, request, response):
-    async def change_mode_system_service(self, request, response):
 
         system = request.system
         mode = request.mode
@@ -192,12 +191,6 @@ class NewModel:
             else:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 
-        except Exception as e:
-            log_error(self.rover_node, "Error in drill service call: " + str(e))    
-    
-
-# ----------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------
         except Exception as e:
             log_error(self.rover_node, "Error in drill service call: " + str(e))    
     
