@@ -57,7 +57,8 @@ class NewModel:
 
         system = request.system
         mode = request.mode
-        print("fefef")
+        print(f"system: {system}")
+        print(f"mode: {mode}")
 
         # test leds
         '''
@@ -82,7 +83,7 @@ class NewModel:
         if system == 0:
             # ADD LEDS WHEN SERVICE IS DONE ON NAV
             '''
-            future = self.rover_node.nav_service.call_async(request)
+            future = self.rover_node.nav_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
             '''
             
@@ -96,10 +97,10 @@ class NewModel:
         # --------------------------------------------------------------------
         # HD SYSTEM
         elif system == 1:
-            request = HDMode.Request()
-            request.mode = mode
+            req = HDMode.Request()
+            req.mode = mode
 
-            future = self.rover_node.hd_mode_service.call_async(request)
+            future = self.rover_node.hd_mode_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
         
             
@@ -111,10 +112,10 @@ class NewModel:
         # --------------------------------------------------------------------
         # CAMERA SYSTEM
         elif system == 2:
-            request = SetBool.Request()
-            request.data = True if (mode == 1) else False
+            req = SetBool.Request()
+            req.data = True if (mode == 1) else False
 
-            future = self.rover_node.camera_service.call_async(request)
+            future = self.rover_node.camera_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_cam(f, mode))
 
             
@@ -126,21 +127,10 @@ class NewModel:
         # --------------------------------------------------------------------
         # DRILL SYSTEM
         elif system == 3:
-            request = DrillMode.Request()
-            request.mode = mode
-
-            request.send_parameter = True
-            request.rotation_speed = 1.1
-            request.distance_ratio = 2.2
-            
-
-            request.send_parameter = True
-            request.rotation_speed = 1.1
-            request.distance_ratio = 2.2
-            
-            future = self.rover_node.drill_service.call_async(request)
+            req = DrillMode.Request()
+            req.mode = mode
+            future = self.rover_node.drill_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_drill(f, mode, response))
-
             
             return response
         

@@ -17,6 +17,7 @@ class Drill:
         if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
             return GoalResponse.REJECT
         
+        self.rover_node.node.get_logger().info("infooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
         return GoalResponse.ACCEPT
 
     '''
@@ -24,7 +25,7 @@ class Drill:
     '''
     def make_action(self, goal_handle_cs):
         self.goal_handle_cs = goal_handle_cs
-        print("Drill action starting... " + str(self.goal_handle_cs.request.action))
+        self.rover_node.node.get_logger().info("Drill action starting... " + str(self.goal_handle_cs.request.action))
 
         self.running = True
         self.feedback = None
