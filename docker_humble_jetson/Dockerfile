@@ -16,7 +16,7 @@ WORKDIR /home/$USERNAME/nav2_ws/src
 WORKDIR /home/$USERNAME/nav2_ws
 
 RUN git clone https://github.com/ros-planning/navigation2.git --branch 1.1.14 ./src/navigation2
-RUN colcon build --symlink-install --packages-select nav2_msgs
+RUN colcon build --symlink-install --packages-select nav2_msgs nav2_common
 
 # Add USB rules
 RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /etc/udev/rules.d/80-movidius.rules
