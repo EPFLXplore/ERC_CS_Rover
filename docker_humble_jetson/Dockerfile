@@ -11,11 +11,14 @@ RUN apt install -y curl
 RUN apt-get install -y python3-opencv
 RUN pip install -U jetson-stats
 RUN apt install ros-humble-rmw-cyclonedds-cpp -y
+# RUN apt-get install ros-${ROS_DISTRO}-nav-msgs -y
+
 
 WORKDIR /home/$USERNAME/nav2_ws/src
 WORKDIR /home/$USERNAME/nav2_ws
 
 RUN git clone https://github.com/ros-planning/navigation2.git --branch 1.1.14 ./src/navigation2
+RUN rosdep update && rosdep install -y --from-paths ./src --ignore-src
 RUN colcon build --symlink-install --packages-select nav2_msgs nav2_common
 
 # Add USB rules
