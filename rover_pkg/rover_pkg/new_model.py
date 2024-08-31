@@ -1,12 +1,11 @@
 from std_msgs.msg import String
 from std_srvs.srv import SetBool
-from custom_msg.srv import HDMode, DrillMode
+from custom_msg.srv import HDMode, DrillMode, ChangeModeSystem
 from rover_pkg.drill_model import Drill
 from rover_pkg.navigation_model import Navigation
 from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
-import json, rclpy, threading
-import json, rclpy, threading
+import json
 
 class NewModel:
     def __init__(self, rover_node):
@@ -82,10 +81,14 @@ class NewModel:
         # NAVIGATION SYSTEM
         if system == 0:
             # ADD LEDS WHEN SERVICE IS DONE ON NAV
-            '''
+            
+            req = ChangeModeSystem.Request()
+            req.system = system
+            req.mode = mode
+
             future = self.rover_node.nav_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
-            '''
+            
             
             response.systems_state = ""
             response.error_type = 0

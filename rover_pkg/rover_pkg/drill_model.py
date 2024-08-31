@@ -9,6 +9,8 @@ class Drill:
         self.feedback = None
         self.running = False
         self.cancel_drill = False
+        self.result = None
+        self.counter_cancel = 0
     
     '''
     Function pre-handling the request from CS. Accept or Reject
@@ -17,6 +19,11 @@ class Drill:
         if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
             return GoalResponse.REJECT
         
+        self.result = None
+        self.running = True
+        self.feedback = None
+        self.cancel_drill = False
+        self.counter_cancel = 0
         return GoalResponse.ACCEPT
 
     '''
@@ -24,11 +31,7 @@ class Drill:
     '''
     def make_action(self, goal_handle_cs):
         self.goal_handle_cs = goal_handle_cs
-        self.rover_node.node.get_logger().info("Drill action starting... " + str(self.goal_handle_cs.request.action))
-
-        self.running = True
-        self.feedback = None
-        self.cancel_drill = False
+        self.rover_node.node.get_logger().info("Drill action starting... ")
 
         # SEND ACTION TO DRILL
 
@@ -46,7 +49,7 @@ class Drill:
             return self.result_drill_action("Drill Goal finished successfully", 0, "no errors")
         else:
             self.rover_node.node.get_logger().info("Canceled goal drill successfull")
-            return self.result_drill_action("Canceled goal drill successfull", 0, "no errors")
+            return self.result_drill_action(self.result.result, self.result.error_type, self.result.error_message)
 
     '''
     Function handling the response of the request to the Drill.
@@ -71,26 +74,27 @@ class Drill:
     Function handling the result of the action to the Drill. Return the result and the status to the CS as an object
     '''
     def result_callback(self, future):
-        if self.cancel_drill: return
-
         self.result = future.result().result
         self.feedback = None
-        self.running = False
 
-        self.goal_handle_cs.succeed()
+        if not self.cancel_drill:
+            self.goal_handle_cs.succeed()
+
+        self.running = False
 
     '''
     Function forwarding the feedback from Drill to CS. Handle also the cancellation from CS
     '''
     def feedback_callback(self, feedback):
-        self.feedback = feedback.feedback
-        self.goal_handle_cs.publish_feedback(self.feedback)
 
-        if self.cancel_drill:
+        if self.cancel_drill and self.counter_cancel == 0:
+            self.counter_cancel = self.counter_cancel + 1
             future_drill = self.goal_handle_drill.cancel_goal_async()
             future_drill.add_done_callback(self.cancel_drill_action)
-            self.rover_node.node.get_logger().info("Canceled goal drill successfull")
-            return
+        
+        else:
+            self.feedback = feedback.feedback
+            self.goal_handle_cs.publish_feedback(self.feedback)
 
     '''
     Cancel action from CS. Need to send cancellation to DRILL and forward cancellation
@@ -106,10 +110,8 @@ class Drill:
         cancel_response = future.result()
         if len(cancel_response.goals_canceling) > 0:
             self.rover_node.node.get_logger().info('Drill Goal successfully canceled')
-            return CancelResponse.ACCEPT
         else:
             self.rover_node.node.get_logger().error('Drill Goal failed to cancel...')
-            return CancelResponse.REJECT
         
     
     # ------------------------------------------------------------------------------------------

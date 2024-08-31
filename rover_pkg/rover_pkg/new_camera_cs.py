@@ -46,6 +46,7 @@ class NewCameras(Node):
         #    thread.start()
 
     def start_cameras_callback(self, request, response):
+        self.get_logger().info("REQUEST")
         global stop_threads
         if request.data:
             stop_threads = False
