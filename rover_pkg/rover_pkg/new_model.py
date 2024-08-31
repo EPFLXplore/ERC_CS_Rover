@@ -60,7 +60,7 @@ class NewModel:
         print(f"mode: {mode}")
 
         # test leds
-        '''
+        
         print(f"system: {system}")
         print(f"mode: {mode}")
 
@@ -70,12 +70,12 @@ class NewModel:
         elif system == 1:
             self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
         
-        elif system == 2:
+        elif system == 3:
             self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
         
         return response
-        '''
         
+        '''
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
         # NAVIGATION SYSTEM
@@ -137,7 +137,7 @@ class NewModel:
             
             return response
         
-        
+        '''
 
     def service_callback_nav(self, future, mode):
         try:
@@ -180,7 +180,7 @@ class NewModel:
             response_drill = future.result()
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                #self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
+                self.Elec.send_led_commands(self.systems_to_name[3], self.drill_to_name[mode])
             else:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 

@@ -28,16 +28,19 @@ class Elec:
 
         match mode:
             case 'Manual':
-                led.mode = 0
-            case 'Manual Direct':
                 led.mode = 1
-            case 'Manual Inverse':
+            case 'Manual Direct':
                 led.mode = 2
-            case 'Auto':
+            case 'Manual Inverse':
                 led.mode = 3
-            case 'Off':
+            case 'Auto':
                 led.mode = 4
+            case 'Off':
+                led.mode = 5
+            case 'On':
+                led.mode = 0
             
+        self.rover_node.node.get_logger().info("SENT LED")
         command = LedsCommand()
         command.leds = [led]
         self.leds.publish(command)
