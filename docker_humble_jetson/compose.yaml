@@ -25,7 +25,7 @@ services:
             - rover_humble_jetson_home_volume:/home/xplore
         image: ghcr.io/epflxplore/rover:humble-jetson
         command: /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon
-            build && unset RMW_IMPLEMENTATION && source install/setup.bash && ros2 run rover_pkg new_rover"
+            build && tail -f /dev/null"
 volumes:
     rover_humble_jetson_home_volume:
         external: true

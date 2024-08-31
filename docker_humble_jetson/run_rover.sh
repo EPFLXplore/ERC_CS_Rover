@@ -25,6 +25,8 @@ ls -FAlh $XAUTH
 echo ""
 echo "Running docker..."
 
+USERNAME=xplore
+
 # Get the current working directory
 current_dir=$(pwd)
 
@@ -35,4 +37,6 @@ export JTOP_GID=$(getent group jtop | awk -F: '{print $3}')
 
 /usr/bin/docker rm -f mongodb
 
-/usr/bin/docker compose -f compose.yaml up
+/usr/bin/docker compose -f compose.yaml up -d
+
+/usr/bin/docker exec rover_humble_jetson /bin/bash -c "ros2 run rover_pkg new_rover" 

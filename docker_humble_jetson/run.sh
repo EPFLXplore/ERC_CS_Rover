@@ -33,6 +33,8 @@ parent_dir=$(dirname "$current_dir")
 
 JTOP_GID=$(getent group jtop | awk -F: '{print $3}')
 
+USERNAME=xplore
+
 docker run -it \
     --name rover_humble_jetson \
     --rm \
@@ -50,4 +52,4 @@ docker run -it \
     -v $parent_dir:/home/xplore/dev_ws/src \
     -v rover_humble_jetson_home_volume:/home/xplore \
     ghcr.io/epflxplore/rover:humble-jetson \
-    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp; /bin/bash"
+    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; /bin/bash"
