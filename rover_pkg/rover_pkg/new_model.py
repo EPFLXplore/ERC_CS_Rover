@@ -60,7 +60,7 @@ class NewModel:
         print(f"mode: {mode}")
 
         # test leds
-        
+        '''
         print(f"system: {system}")
         print(f"mode: {mode}")
 
@@ -137,7 +137,7 @@ class NewModel:
             
             return response
         
-        '''
+        
 
     def service_callback_nav(self, future, mode):
         try:
