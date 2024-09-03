@@ -1,16 +1,12 @@
 from rclpy.action import GoalResponse, CancelResponse
-from custom_msg.action import HDManipulation, RequestHDGoal
+from custom_msg.action import HDManipulation
+from custom_msg.srv import RequestHDGoal
 import math, time
 from custom_msg.msg import HDGoal
 
 class HandlingDevice:
     def __init__(self, rover_node):
         self.rover_node = rover_node
-
-        # info related to handling device parameters
-        # self.joint_telemetry = [0,0,0,0,0,0]
-        # self.joint_command = [0,0,0,0,0,0]
-        # self.joint_state = [0,0,0,0,0,0]
 
         self.running = False
     
@@ -36,7 +32,6 @@ class HandlingDevice:
             return GoalResponse.REJECT
         
         self.running = True
-        self.cancel_drill = False
         return GoalResponse.ACCEPT
     
     '''
@@ -53,23 +48,6 @@ class HandlingDevice:
                 pass
         except Exception as e:
             pass
-
-    def feedback_callback(self, feedback):
-
-        if self.cancel_drill and self.counter_cancel == 0:
-            self.counter_cancel = self.counter_cancel + 1
-            future_drill = self.goal_handle_drill.cancel_goal_async()
-            future_drill.add_done_callback(self.cancel_drill_action)
-        
-        else:
-            self.feedback = feedback.feedback
-
-            # update rover state
-            encoder_value = self.feedback.current_status
-            self.rover_node.rover_state_json["drill"]["motors"]["motor_module"]["position"] = encoder_value
-
-            self.goal_handle_cs.publish_feedback(self.feedback)
-
     
     def createHdGoal(self, action):
         goal = HDGoal()

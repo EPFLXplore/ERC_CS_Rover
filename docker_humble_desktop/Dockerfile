@@ -22,7 +22,7 @@ USER $USERNAME
 
 WORKDIR /home/$USERNAME
 
-RUN pip install jetson-stats
+#RUN pip install jetson-stats
 RUN pip install numpy 
 RUN pip install aiohttp aiortc aiohttp_cors
 
