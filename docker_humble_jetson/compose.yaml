@@ -24,8 +24,8 @@ services:
             - ${PARENT_DIR}:/home/xplore/dev_ws/src
             - rover_humble_jetson_home_volume:/home/xplore
         image: ghcr.io/epflxplore/rover:humble-jetson
-        command: /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon
-            build && tail -f /dev/null"
+        command: /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; export PYTHONPATH=/home/xplore/dev_ws/install/rover_pkg/lib/python3.10/site-packages:/home/xplore/dev_ws/install/custom_msg/local/lib/python3.10/dist-packages:/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages; colcon
+            build; source install/setup.bash; ros2 run rover_pkg new_rover"
 volumes:
     rover_humble_jetson_home_volume:
         external: true
