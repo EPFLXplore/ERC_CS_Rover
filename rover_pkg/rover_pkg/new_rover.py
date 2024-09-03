@@ -144,7 +144,7 @@ class RoverNode():
         
         self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["/**"]["ros__parameters"]["rover_hd_action_manipulation"])
 
-        self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"])
+        #self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"])
 
         self.drill_action_client = ActionClient(self.node, DrillCmd, '/Rover/DrillTerrain')
 

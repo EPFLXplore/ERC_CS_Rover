@@ -94,6 +94,11 @@ class Drill:
         
         else:
             self.feedback = feedback.feedback
+
+            # update rover state
+            encoder_value = self.feedback.current_status
+            self.rover_node.rover_state_json["drill"]["motors"]["motor_module"]["position"] = encoder_value
+
             self.goal_handle_cs.publish_feedback(self.feedback)
 
     '''

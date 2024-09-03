@@ -60,7 +60,7 @@ class NewModel:
         print(f"mode: {mode}")
 
         # test leds
-        
+        '''
         print(f"system: {system}")
         print(f"mode: {mode}")
 
@@ -74,8 +74,8 @@ class NewModel:
             self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
         
         return response
-        
         '''
+        
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
         # NAVIGATION SYSTEM
@@ -137,7 +137,7 @@ class NewModel:
             
             return response
         
-        '''
+        
 
     def service_callback_nav(self, future, mode):
         try:
