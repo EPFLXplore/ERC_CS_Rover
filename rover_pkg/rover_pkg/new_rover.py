@@ -14,7 +14,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallb
 
 from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
-from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode
+from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal
 from nav2_msgs.action import NavigateToPose
 
 
@@ -126,13 +126,16 @@ class RoverNode():
                                                        self.science_names["/**"]["ros__parameters"]["drill_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
 
-        # ===== ACTIONS =====
+        # ===== ACTIONS + SERVICES =====
 
-        self.hd_manipulation_action = ActionServer(self.node, HDManipulation, 
+        self.hd_manipulation_action = ActionServer(HDManipulation, 
                                                    self.rover_names["/**"]["ros__parameters"]["rover_hd_action_manipulation"], self.model.HD.make_action,
                                                 
-                                                goal_callback=self.model.HD.action_status, cancel_callback=self.model.HD.cancel_goal)
+                                                goal_callback=self.model.HD.action_status)
 
+        self.hd_manipulation_service = self.node.create_client(RequestHDGoal, 
+                                                   self.hd_names["/**"]["ros__parameters"]["hd_fsm_goal_srv"], callback_group=MutuallyExclusiveCallbackGroup())
+                                                
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
                                                   self.rover_names["/**"]["ros__parameters"]["rover_action_nav_goal"], self.model.Nav.make_action,
                                                   goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
