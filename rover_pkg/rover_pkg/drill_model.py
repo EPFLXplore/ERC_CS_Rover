@@ -66,6 +66,8 @@ class Drill:
             return self.result_drill_action("Drill Goal rejected from drill", 1, 'no errors')
 
         self.rover_node.node.get_logger().info('Drill Goal accepted from drill')
+
+        self.rover_node.model.Elec.send_led_commands("drill", "action")
         
         get_result_future = self.goal_handle_drill.get_result_async()
         get_result_future.add_done_callback(self.result_callback)
@@ -81,6 +83,7 @@ class Drill:
             self.goal_handle_cs.succeed()
 
         self.running = False
+        self.rover_node.model.Elec.send_led_commands("drill", "On")        
 
     '''
     Function forwarding the feedback from Drill to CS. Handle also the cancellation from CS
@@ -107,6 +110,11 @@ class Drill:
     def cancel_goal_from_cs(self, goal_handle_cs):
         self.rover_node.node.get_logger().info("Drill goal cancelation requested...")
         self.cancel_drill = True
+
+        while self.running:
+            continue
+
+
     
     '''
     Cancel action from ROVER. DONT KNOW IF IT WILL WORK BECAUSE OF CALLBACK RETURN

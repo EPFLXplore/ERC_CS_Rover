@@ -39,7 +39,10 @@ class Elec:
                 led.mode = 5
             case 'On':
                 led.mode = 0
-            
+            case 'action':
+                led.mode = 6
+
+        #self.rover_node.node.get_logger().info()            
         self.rover_node.node.get_logger().info("SENT LED")
         command = LedsCommand()
         command.leds = [led]

@@ -58,12 +58,8 @@ class NewModel:
         mode = request.mode
         print(f"system: {system}")
         print(f"mode: {mode}")
-
-        # test leds
         '''
-        print(f"system: {system}")
-        print(f"mode: {mode}")
-
+        # test leds
         if system == 0:
             self.Elec.send_led_commands(self.systems_to_name[system], self.nav_to_name[mode])
         
@@ -137,7 +133,7 @@ class NewModel:
             
             return response
         
-        
+    
 
     def service_callback_nav(self, future, mode):
         try:
