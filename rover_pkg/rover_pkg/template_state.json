@@ -289,26 +289,26 @@
       "warning_message": "No Warning"
     }
   },
-    "drill": {
-      "motors": {
-        "motor_module": {
-          "position": "0.0",
-          "current": "0.0",
-          "state": true
-        },
-        "motor_drill": {
-          "speed": "0.0",
-          "current": "0.0",
-          "state": true
-        }
+  "drill": {
+    "motors": {
+      "motor_module": {
+        "position": "0.0",
+        "current": "0.0",
+        "state": true
       },
-      "state": {
-        "current_step": "Idle",
-        "next_step": "Idle",
-        "warning_type": "0",
-        "warning_message": "No Warning"
+      "motor_drill": {
+        "speed": "0.0",
+        "current": "0.0",
+        "state": true
       }
     },
+    "state": {
+      "current_step": "Idle",
+      "next_step": "Idle",
+      "warning_type": "0",
+      "warning_message": "No Warning"
+    }
+  },
   "electronics": {
     "power": {
       "voltage": "0.0",
@@ -316,17 +316,21 @@
       "power": "0.0"
     },
     "sensors": {
-      "npk_sensor": {
+      "four_in_one": {
         "temperature": "0.0",
-        "humidity": "0.0",
-        "ph": "0.0",
-        "ec": "0.0"
+        "moisture": "0.0",
+        "conductivity": "0.0",
+        "ph": "0.0"
       },
-      "mass_sensor": {
-        "mass": "0.0"
+      "mass_sensors": {
+        "mass_container": "0.0",
+        "mass_drill": "0.0"
       },
       "potentiometer": {
         "position": "0.0"
+      },
+      "voltmeter": {
+        "voltage": "0.0"
       }
     },
     "state_nodes": {
