@@ -25,6 +25,8 @@ ls -FAlh $XAUTH
 echo ""
 echo "Running docker..."
 
+USERNAME=xplore
+
 # Get the current working directory
 current_dir=$(pwd)
 

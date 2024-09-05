@@ -31,6 +31,8 @@ current_dir=$(pwd)
 # Use dirname to get the parent directory
 parent_dir=$(dirname "$current_dir")
 
+USERNAME=xplore
+
 docker run -it \
     --name rover_humble_desktop \
     --rm \
@@ -47,4 +49,4 @@ docker run -it \
     -v $parent_dir:/home/xplore/dev_ws/src \
     -v rover_humble_desktop_home_volume:/home/xplore \
     ghcr.io/epflxplore/rover:humble-desktop \
-    /bin/bash -c "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp; /bin/bash"
+    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; /bin/bash"

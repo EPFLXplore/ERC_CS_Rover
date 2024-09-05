@@ -21,15 +21,18 @@ class NetworkMonitoring(Node):
         with open("/home/xplore/dev_ws/src/rover_pkg/rover_pkg/ip_names.json") as json_file:
             self.ip_names = dict(json.load(json_file))
 
-        self.wireless_devices_timer = self.create_timer(2.0, self.get_wireless_devices)
+        #self.wireless_devices_timer = self.create_timer(2.0, self.get_wireless_devices)
         self.ping_cs_timer = self.create_timer(2.0, self.ping_cs)
-        self.check_static_devices_timer = self.create_timer(5.0, self.check_static_devices)
+        #self.check_static_devices_timer = self.create_timer(5.0, self.check_static_devices)
         
         self.get_logger().info("Networking Node ready")
+        
     
-
+    
     def ping_cs(self):
-        responses = [ping(f"{self.subnet}.{2}", timeout=1) for _ in range(2)]
+        ping("192.168.0.115", timeout=10)
+        '''
+        responses = [ping(f"{self.subn§et}.{2}", timeout=1) for _ in range(2)]
         cs = False
         success_responses = [r for r in responses if r is not None]
         if len(success_responses) >= 1 and self.wireless_connection is not None:
@@ -41,7 +44,7 @@ class NetworkMonitoring(Node):
             
             if not cs:
                 self.rover_state['rover']['network']['signal_strength'] = '0.0' # mean that the cs is not in the wireless tab
-
+        '''
     def ping_static_address(self, ip):
         responses = [ping(ip, timeout=1) for _ in range(2)]
         success_responses = [r for r in responses if r is not None]
@@ -74,5 +77,4 @@ class NetworkMonitoring(Node):
             self.wireless_connection = response.json()
             
         else:
-            self.wireless_connection = None
-        
+            self.wireless_connection = None 

@@ -1,6 +1,6 @@
 from std_msgs.msg import String
 from std_srvs.srv import SetBool
-from custom_msg.srv import HDMode, DrillMode
+from custom_msg.srv import HDMode, DrillMode, ChangeModeSystem
 from rover_pkg.drill_model import Drill
 from rover_pkg.navigation_model import Navigation
 from rover_pkg.handling_device_model import HandlingDevice
@@ -71,7 +71,7 @@ class NewModel:
         elif system == 1:
             self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
         
-        elif system == 2:
+        elif system == 3:
             self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
         
         return response
@@ -82,10 +82,14 @@ class NewModel:
         # NAVIGATION SYSTEM
         if system == 0:
             # ADD LEDS WHEN SERVICE IS DONE ON NAV
-            '''
+            
+            req = ChangeModeSystem.Request()
+            req.system = system
+            req.mode = mode
+
             future = self.rover_node.nav_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
-            '''
+            
             
             response.systems_state = ""
             response.error_type = 0
@@ -134,7 +138,7 @@ class NewModel:
             
             return response
         
-        
+    
 
     def service_callback_nav(self, future, mode):
         try:
@@ -177,7 +181,7 @@ class NewModel:
             response_drill = future.result()
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                #self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
+                self.Elec.send_led_commands("drill", self.drill_to_name[mode])
             else:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 
