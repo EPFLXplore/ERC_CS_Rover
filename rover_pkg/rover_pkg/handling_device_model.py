@@ -89,7 +89,7 @@ class HandlingDevice:
         self.joint_current = joint_state.effort
 
         # update the rover status
-        for i in range(6):
+        for i in range(7):
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = math.degrees(self.joint_positions[i])
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = self.joint_velocities[i]
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = self.joint_current[i]

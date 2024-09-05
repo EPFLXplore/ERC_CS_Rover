@@ -9,6 +9,17 @@ class Elec:
         self.leds = self.rover_node.node.create_publisher(LedsCommand, 
                                                              self.rover_node.el_names["/**"]["ros__parameters"]["el_pubsub_led_commands"], 1)
 
+        self.rover_node.node.create_subscription(MassArray, 
+                                                  self.rover_node.el_names["/**"]["ros__parameters"]["elec_drill_mass"], self.drill_mass_callback, 1)
+
+        self.rover_node.node.create_subscription(MassArray,
+                                                    self.rover_node.el_names["/**"]["ros__parameters"]["elec_container_mass"], self.container_mass_callback, 1)
+
+        self.rover_node.node.create_subscription(FourInOne,
+                                                    self.rover_node.el_names["/**"]["ros__parameters"]["elec_fourinone_sensor"], self.four_in_one_callback, 1)
+
+        self.rover_node.node.create_subscription(Voltage, self.rover_node.el_names["/**"]["ros__parameters"]["elec_voltage_sensor"], self.voltage_callback, 1)
+
     def send_led_commands(self, subsystem, mode):
 
         match subsystem:
@@ -42,8 +53,6 @@ class Elec:
             case 'action':
                 led.mode = 6
 
-        #self.rover_node.node.get_logger().info()            
-        self.rover_node.node.get_logger().info("SENT LED")
         command = LedsCommand()
         command.leds = [led]
         self.leds.publish(command)
