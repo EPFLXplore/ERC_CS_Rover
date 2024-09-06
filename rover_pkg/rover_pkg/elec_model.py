@@ -18,7 +18,7 @@ class Elec:
         self.rover_node.node.create_subscription(FourInOne,
                                                     self.rover_node.el_names["/**"]["ros__parameters"]["elec_fourinone_sensor"], self.four_in_one_callback, 1)
 
-        self.rover_node.node.create_subscription(Voltage, self.rover_node.el_names["/**"]["ros__parameters"]["elec_voltage_sensor"], self.voltage_callback, 1)
+        self.rover_node.node.create_subscription(Voltage, self.rover_node.el_names["/**"]["ros__parameters"]["elec_voltmeter_pubsub"], self.voltage_callback, 1)
 
     def send_led_commands(self, subsystem, mode):
 
