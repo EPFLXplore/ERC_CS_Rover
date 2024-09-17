@@ -50,3 +50,4 @@ docker run -it \
     -v rover_humble_desktop_home_volume:/home/xplore \
     ghcr.io/epflxplore/rover:humble-desktop \
     /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; /bin/bash"
+

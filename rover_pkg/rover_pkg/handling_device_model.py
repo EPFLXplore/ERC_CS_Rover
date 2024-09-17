@@ -14,15 +14,24 @@ class HandlingDevice:
         self.goal_handle_cs = goal_handle_cs
         self.rover_node.node.get_logger().info("HD action starting... ")
 
+        # HD --> Rover
+        #self.node.create_subscription(JointState, 'HD/motor_control/joint_telemetry', self.update_hd_joint_telemetry , 10)
+        self.running = False
+    
+    def make_action(self, goal_handle_cs):
+        self.goal_handle_cs = goal_handle_cs
+        self.rover_node.node.get_logger().info("HD action starting... ")
+
         # SEND SERVICE TO HD
         goal = self.createHdGoal(goal_handle_cs.request.action)
 
         future = self.rover_node.hd_manipulation_service.call_async(goal)
-        future.add_done_callback(self.hd_response_callback)
+        future.add_done_callback(lambda f: self.hd_response_callback)
         
         while self.running:
             continue
 
+        self.rover_node.node.get_logger().info("Canceled goal hd successfull")
         return self.result_hd_action("", 0, "no errors")
 
     
@@ -37,7 +46,6 @@ class HandlingDevice:
     Function handling the response of the request to the Drill.
     '''
     def hd_response_callback(self, future):
-        self.rover_node.node.get_logger().info("drvbgmjetgrtàghghéàtr")
         try:
             response = future.result()
             if response.success:
@@ -59,7 +67,7 @@ class HandlingDevice:
         else:
             goal.target = action
         
-        sent_action = RequestHDGoal.Request()
+        sent_action = RequestHDGoal.Goal()
         sent_action.goal = goal
 
         return sent_action

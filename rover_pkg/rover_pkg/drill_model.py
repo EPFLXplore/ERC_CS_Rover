@@ -1,5 +1,5 @@
-from rclpy.action import GoalResponse, CancelResponse
-from std_msgs.msg import String
+from rclpy.action import GoalResponse
+from std_msgs.msg import Bool
 from custom_msg.action import DrillCmd
 
 class Drill:
@@ -11,7 +11,16 @@ class Drill:
         self.cancel_drill = False
         self.result = None
         self.counter_cancel = 0
+
+        self.rover_node.node.create_subscription(Bool, self.rover_node.science_names["/**"]["ros__parameters"]['status_system'], self.handle_state, 10)
     
+    def handle_state(self, msg):
+        if msg.data:
+            self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On'
+        else:
+            self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'Off'
+            self.rover_node.model.Elec.send_led_commands("drill", "Off")
+
     '''
     Function pre-handling the request from CS. Accept or Reject
     '''
@@ -97,11 +106,6 @@ class Drill:
         
         else:
             self.feedback = feedback.feedback
-
-            # update rover state
-            encoder_value = self.feedback.current_status
-            self.rover_node.rover_state_json["drill"]["motors"]["motor_module"]["position"] = encoder_value
-
             self.goal_handle_cs.publish_feedback(self.feedback)
 
     '''
@@ -110,9 +114,6 @@ class Drill:
     def cancel_goal_from_cs(self, goal_handle_cs):
         self.rover_node.node.get_logger().info("Drill goal cancelation requested...")
         self.cancel_drill = True
-
-        while self.running:
-            continue
 
 
     
@@ -125,6 +126,7 @@ class Drill:
             self.rover_node.node.get_logger().info('Drill Goal successfully canceled')
         else:
             self.rover_node.node.get_logger().error('Drill Goal failed to cancel...')
+            # if enter here.. bad for us
         
     
     # ------------------------------------------------------------------------------------------

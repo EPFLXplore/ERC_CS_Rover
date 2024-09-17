@@ -1,4 +1,4 @@
-from custom_msg.msg import LedsCommand, Led
+from custom_msg.msg import LedsCommand, Led, MassArray, FourInOne, Voltage
 class Elec:
     def __init__(self, rover_node, model):
         self.rover_node = rover_node
@@ -48,7 +48,21 @@ class Elec:
         command.leds = [led]
         self.leds.publish(command)
 
-    def update_mass_measurement(self, msg):
-        self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
-        # self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
-        # self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["drill"] = msg.mass[1]
+    def drill_mass_callback(self, msg):
+        self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["mass_drill"] = msg.mass[1]
+    
+    def container_mass_callback(self, msg):
+        self.rover_node.rover_state_json['electronics']['sensors']['mass_sensor']["mass_container"] = msg.mass[0]
+    
+    def four_in_one_callback(self, msg):
+        self.rover_node.rover_state_json['electronics']['sensors']['four_in_one'] = {
+            "temperature": msg.temperature,
+            "moisture": msg.moisture,
+            "conductivity": msg.conductivity,
+            "ph": msg.ph
+        }
+    
+    def voltage_callback(self, msg):
+        self.rover_node.rover_state_json['electronics']['sensors']['voltmeter'] = {
+            "voltage": msg.voltage
+        }

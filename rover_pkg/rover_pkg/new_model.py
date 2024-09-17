@@ -176,7 +176,7 @@ class NewModel:
             response_drill = future.result()
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                self.Elec.send_led_commands(self.systems_to_name[3], self.drill_to_name[mode])
+                self.Elec.send_led_commands("drill", self.drill_to_name[mode])
             else:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 
