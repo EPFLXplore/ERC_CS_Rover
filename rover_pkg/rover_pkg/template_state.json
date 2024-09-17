@@ -33,7 +33,7 @@
     "status": {
       "systems": {
         "navigation": {
-          "status": "Off",
+          "status": "Manual",
           "message": "Navigation system is running"
         },
         "handling_device": {

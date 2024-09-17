@@ -97,8 +97,8 @@ class RoverNode():
         self.node.create_subscription(String, 
                                       self.science_names["/**"]["ros__parameters"]["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
       
-        self.node.create_subscription(MassArray, 
-                                      self.el_names["/**"]["ros__parameters"]["science_pubsub_drill_mass"], self.model.Elec.update_mass_measurement, 10)
+        #self.node.create_subscription(MassArray, 
+        #                              self.el_names["/**"]["ros__parameters"]["elec_drill_mass"], self.model.Elec.update_mass_measurement, 10)
 
         # -- HD messages --
         self.node.create_subscription(
@@ -130,7 +130,6 @@ class RoverNode():
 
         self.hd_manipulation_action = ActionServer(self.node, HDManipulation, 
                                                    self.rover_names["/**"]["ros__parameters"]["rover_hd_action_manipulation"], execute_callback=self.model.HD.make_action,
-                                                
                                                 goal_callback=self.model.HD.action_status)
 
         self.hd_manipulation_service = self.node.create_client(RequestHDGoal, 

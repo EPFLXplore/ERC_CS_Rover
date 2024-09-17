@@ -18,12 +18,11 @@ class HandlingDevice:
         goal = self.createHdGoal(goal_handle_cs.request.action)
 
         future = self.rover_node.hd_manipulation_service.call_async(goal)
-        future.add_done_callback(lambda f: self.hd_response_callback)
+        future.add_done_callback(self.hd_response_callback)
         
         while self.running:
             continue
 
-        self.rover_node.node.get_logger().info("Canceled goal hd successfull")
         return self.result_hd_action("", 0, "no errors")
 
     
@@ -38,6 +37,7 @@ class HandlingDevice:
     Function handling the response of the request to the Drill.
     '''
     def hd_response_callback(self, future):
+        self.rover_node.node.get_logger().info("drvbgmjetgrtàghghéàtr")
         try:
             response = future.result()
             if response.success:
@@ -59,7 +59,7 @@ class HandlingDevice:
         else:
             goal.target = action
         
-        sent_action = RequestHDGoal.Goal()
+        sent_action = RequestHDGoal.Request()
         sent_action.goal = goal
 
         return sent_action
@@ -82,7 +82,7 @@ class HandlingDevice:
         self.joint_current = joint_state.effort
 
         # update the rover status
-        for i in range(7):
+        for i in range(6):
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = math.degrees(self.joint_positions[i])
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = self.joint_velocities[i]
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = self.joint_current[i]

@@ -4,6 +4,7 @@ from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Int8MultiArray
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 from std_srvs.srv import SetBool
+from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
 import cv2
 from cv_bridge import CvBridge
@@ -11,6 +12,8 @@ import threading
 
 import time
 from time import sleep
+
+#self.camera_service = self.node.create_client(SetBool, '/ROVER/start_cameras', callback_group=MutuallyExclusiveCallbackGroup())
 
 
 global stop_threads
