@@ -4,7 +4,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import json
 from ping3 import ping
-
+from std_msgs.msg import String
 
 class NetworkMonitoring(Node):
     def __init__(self, rover_state):
@@ -22,10 +22,14 @@ class NetworkMonitoring(Node):
             self.ip_names = dict(json.load(json_file))
 
         #self.wireless_devices_timer = self.create_timer(2.0, self.get_wireless_devices)
-        self.ping_cs_timer = self.create_timer(2.0, self.ping_cs)
+        #self.ping_cs_timer = self.create_timer(2.0, self.ping_cs)
         #self.check_static_devices_timer = self.create_timer(5.0, self.check_static_devices)
         
         self.get_logger().info("Networking Node ready")
+        
+        self.logs = None
+        self.logs_pub = self.node.create_publisher(String, "/networklogs", 1)
+        self.timer = self.node.create_timer(2.0, self.get_logs)
         
     
     
@@ -78,3 +82,14 @@ class NetworkMonitoring(Node):
             
         else:
             self.wireless_connection = None 
+    
+    def get_logs(self):
+        #if self.ping_static_address(f"{self.subnet}.{1}"):
+        response = requests.get(f"http://{self.subnet}.1/rest/log",
+                                    auth=self.auth, verify=False) 
+
+        if response.status_code == 200:
+            self.logs = response.json()
+
+
+            #self.logs_pub.publish(logs)

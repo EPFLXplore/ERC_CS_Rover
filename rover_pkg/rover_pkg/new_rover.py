@@ -1,10 +1,17 @@
-# ===============Node for interfacing between Rover and CS=================
+'''
+=============== Node for interfacing between Rover and CS =================
+Authors: Ugo Balducci, Giovanni Ranieri
+Updated: 2024
+
+The main purpose of this class is to act as an orchestrator for the software of the rover.
+The Rover node manages what is sent using ROS across the different subsystems. 
+'''
 
 import time, yaml
 import rclpy
 from rclpy.action import ActionServer, ActionClient
 
-from std_msgs.msg       import Int8, String, Float32MultiArray
+from std_msgs.msg       import String, Float32MultiArray
 from std_srvs.srv       import SetBool
 import sys
 
@@ -12,7 +19,7 @@ from sensor_msgs.msg import JointState, Joy
 from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
-from custom_msg.msg import Wheelstatus, Motorcmds, MassArray, ScMotorStatus
+from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
 from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal
 from nav2_msgs.action import NavigateToPose
@@ -40,19 +47,19 @@ class RoverNode():
             self.rover_state_json = dict(json.load(json_file))
         
         with open('/home/xplore/dev_ws/src/custom_msg/config/cs_interface_names.yaml', 'r') as file:
-            self.cs_names = yaml.safe_load(file)
+            self.cs_names = yaml.safe_load(file)["/**"]["ros__parameters"]
             
         with open('/home/xplore/dev_ws/src/custom_msg/config/hd_interface_names.yaml', 'r') as file:
-            self.hd_names = yaml.safe_load(file)
+            self.hd_names = yaml.safe_load(file)["/**"]["ros__parameters"]
         
         with open('/home/xplore/dev_ws/src/custom_msg/config/rover_interface_names.yaml', 'r') as file:
-            self.rover_names = yaml.safe_load(file)
+            self.rover_names = yaml.safe_load(file)["/**"]["ros__parameters"]
             
         with open('/home/xplore/dev_ws/src/custom_msg/config/science_interface_names.yaml', 'r') as file:
-            self.science_names = yaml.safe_load(file)
+            self.science_names = yaml.safe_load(file)["/**"]["ros__parameters"]
 
         with open('/home/xplore/dev_ws/src/custom_msg/config/el_interface_names.yaml', 'r') as file:
-            self.el_names = yaml.safe_load(file)
+            self.el_names = yaml.safe_load(file)["/**"]["ros__parameters"]
 
         self.model = NewModel(self)
         self.logger = MongoDBLogger("Onyx", "rover_state")
@@ -114,7 +121,7 @@ class RoverNode():
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, 
                                                           self.rover_names["/**"]["ros__parameters"]["rover_service_change_subsystem"], self.model.change_mode_system_service, callback_group=MutuallyExclusiveCallbackGroup())
 
-        self.nav_service = self.node.create_client(ChangeModeSystem, '/ROVER/NAV_mode', callback_group=MutuallyExclusiveCallbackGroup())
+        self.nav_service = self.node.create_client(ChangeModeSystem, '/ROVER/change_NAV_mode', callback_group=MutuallyExclusiveCallbackGroup())
 
         self.camera_service = self.node.create_client(SetBool, 
                                                       self.rover_names["/**"]["ros__parameters"]["rover_service_cameras_start"], callback_group=MutuallyExclusiveCallbackGroup())

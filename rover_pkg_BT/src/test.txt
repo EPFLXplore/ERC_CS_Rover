@@ -1,0 +1,87 @@
+ set dependencies
+set(dependencies
+custom_msg
+rclcpp
+rclcpp_action
+rclcpp_components
+)
+
+add_executable(action_server src/action_server.cpp)
+ament_target_dependencies(action_server ${dependencies})
+
+add_executable(action_client src/action_client.cpp)
+ament_target_dependencies(action_server ${dependencies})
+
+add_executable(bt_action src/BTAction.cpp)
+ament_target_dependencies(bt_action ${dependencies} "behaviortree_cpp_v3")
+
+# Register nodes with rclcpp components
+#rclcpp_components_register_nodes(action_server PLUGIN "rover_pkg_BT::FibonacciActionServer" EXECUTABLE fib_action_server)
+#rclcpp_components_register_nodes(action_client PLUGIN "rover_pkg_BT::FibonacciActionClient" EXECUTABLE fib_action_client)
+#rclcpp_components_register_nodes(bt_action PLUGIN "rover_pkg_BT::SendAction" EXECUTABLE bt)
+
+# Install targets
+install(TARGETS
+  action_server
+  action_client
+  bt_action
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install launch files (if any)
+install(DIRECTORY launch/
+  DESTINATION share/${PROJECT_NAME}/launch
+)
+
+ament_package()
+
+
+
+
+
+
+
+
+
+ Action server node
+add_library(action_server SHARED src/action_server.cpp)
+target_include_directories(action_server PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_compile_definitions(action_server
+  PRIVATE "ACTION_TUTORIALS_CPP_BUILDING_DLL")
+ament_target_dependencies(action_server
+  "custom_msg"
+  "rclcpp"
+  "rclcpp_action"
+  "rclcpp_components"
+)
+
+# Action client node
+add_library(action_client SHARED src/action_client.cpp)
+target_include_directories(action_client PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_compile_definitions(action_client
+  PRIVATE "ACTION_TUTORIALS_CPP_BUILDING_DLL")
+ament_target_dependencies(action_client
+  "custom_msg"
+  "rclcpp"
+  "rclcpp_action"
+  "rclcpp_components"
+)
+
+# Behavior tree action node
+add_library(bt_action SHARED src/BTAction.cpp)
+target_include_directories(bt_action PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_compile_definitions(bt_action
+  PRIVATE "ACTION_TUTORIALS_CPP_BUILDING_DLL")
+ament_target_dependencies(bt_action
+  "custom_msg"
+  "rclcpp"
+  "rclcpp_action"
+  "behaviortree_cpp_v3"
+  "rclcpp_components"
+)

@@ -1,0 +1,9 @@
+<root main_tree_to_execute="MainTree">
+    <BehaviorTree ID="MainTree">
+        <Sequence name="action_sequence">
+            <!-- Custom action node -->
+            <SendAction goal="{extend_to_percentage}" />
+            <!-- You can add more actions or conditions here -->
+        </Sequence>
+    </BehaviorTree>
+</root>
