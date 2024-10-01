@@ -231,6 +231,11 @@
         "angle": "0.0",
         "current": "0.0",
         "state": true
+      },
+      "joint_7": {
+        "angle": "0.0",
+        "current": "0.0",
+        "state": true
       }
     },
     "gripper": {

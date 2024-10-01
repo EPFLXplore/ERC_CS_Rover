@@ -104,9 +104,6 @@ class RoverNode():
         self.node.create_subscription(String, 
                                       self.science_names["/**"]["ros__parameters"]["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
       
-        #self.node.create_subscription(MassArray, 
-        #                              self.el_names["/**"]["ros__parameters"]["elec_drill_mass"], self.model.Elec.update_mass_measurement, 10)
-
         # -- HD messages --
         self.node.create_subscription(
             JointState, self.hd_names["/**"]["ros__parameters"]["hd_motor_telemetry"], self.model.HD.hd_joint_state, 10)
