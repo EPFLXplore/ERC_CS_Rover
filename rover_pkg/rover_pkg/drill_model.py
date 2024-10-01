@@ -12,7 +12,7 @@ class Drill:
         self.result = None
         self.counter_cancel = 0
 
-        self.rover_node.node.create_subscription(Bool, self.rover_node.science_names["/**"]["ros__parameters"]['status_system'], self.handle_state, 10)
+        self.rover_node.node.create_subscription(Bool, self.rover_node.science_names['status_system'], self.handle_state, 10)
     
     def handle_state(self, msg):
         if msg.data:
