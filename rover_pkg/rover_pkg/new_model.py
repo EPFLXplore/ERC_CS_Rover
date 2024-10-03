@@ -49,9 +49,6 @@ class NewModel:
         self.Nav = Navigation(rover_node)
         self.Elec = Elec(rover_node, self)
 
-    def update_metrics(self, metrics):
-        self.rover_node.rover_state_json['rover']['hardware'] = json.loads(metrics.data)
-
     async def change_mode_system_service(self, request, response):
 
         system = request.system

@@ -4,8 +4,6 @@
       "json": "0.0"
     },
     "software": {
-      "os": "Ubuntu 20.04",
-      "ros_version": "Humble",
       "main_processes": [
         {
           "name": "roscore",
@@ -25,8 +23,8 @@
       ]
     },
     "network": {
-      "ipv4": "169.254.55.1",
-      "mac": "D4:01:C3:DC:B9:B5",
+      "ipv4": "",
+      "mac": "",
       "signal_strength": "0.0",
       "connected_devices": []
     },
@@ -53,9 +51,8 @@
           "message": "Camera is running"
         }
       },
-      "uptime": "0.0",
       "errors": [],
-      "warnings": ["Warning 1", "Warning 2"]
+      "warnings": []
     }
   },
   "navigation": {
@@ -90,31 +87,27 @@
     "wheels": {
       "front_left": {
         "steering_angle": "0.0",
-        "speed": "1.0",
-        "current": "0.0",
-        "steering_motor_state": true,
-        "driving_motor_state": true
+        "speed": "0.0",
+        "steering_motor_state": false,
+        "driving_motor_state": false
       },
       "front_right": {
         "steering_angle": "0.0",
-        "speed": "1.0",
-        "current": "0.0",
-        "steering_motor_state": true,
-        "driving_motor_state": true
+        "speed": "0.0",
+        "steering_motor_state": false,
+        "driving_motor_state": false
       },
       "rear_left": {
         "steering_angle": "0.0",
-        "speed": "1.0",
-        "current": "0.0",
-        "steering_motor_state": true,
-        "driving_motor_state": true
+        "speed": "0.0",
+        "steering_motor_state": false,
+        "driving_motor_state": false
       },
       "rear_right": {
         "steering_angle": "0.0",
-        "speed": "1.0",
-        "current": "0.0",
-        "steering_motor_state": true,
-        "driving_motor_state": true
+        "speed": "0.0",
+        "steering_motor_state": false,
+        "driving_motor_state": false
       },
       "pivot": {
         "angle": "0.0"
@@ -138,49 +131,12 @@
             "y": "0.0",
             "z": "0.0"
           }
-        },
-        {
-          "position": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          },
-          "size": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          },
-          "rotation": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          }
-        },
-        {
-          "position": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          },
-          "size": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          },
-          "rotation": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          }
         }
       ],
       "is_blocked": false
     },
     "state": {
       "points": [],
-      "control_mode": "Direct",
-      "current_step": "Idle",
-      "next_step": "Idle",
       "current_goal": {
         "position": {
           "x": "0.0",
@@ -194,10 +150,7 @@
           "w": "0.0"
         }
       },
-      "goal": false,
-      "distance_to_goal": "0.0",
-      "warning_type": "0",
-      "warning_message": "No Warning"
+      "distance_to_goal": "0.0"
     }
   },
   "handling_device": {
@@ -205,37 +158,37 @@
       "joint_1": {
         "angle": "90",
         "current": "0.0",
-        "state": true
+        "state": false
       },
       "joint_2": {
         "angle": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       },
       "joint_3": {
         "angle": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       },
       "joint_4": {
         "angle": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       },
       "joint_5": {
         "angle": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       },
       "joint_6": {
         "angle": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       },
       "joint_7": {
         "angle": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       }
     },
     "gripper": {
@@ -246,9 +199,7 @@
       },
       "tool": "None",
       "angle": "0.0",
-      "current": "0.0",
-      "torque": "0.0",
-      "state": true
+      "torque": "0.0"
     },
     "vision": {
       "objects": [
@@ -281,12 +232,6 @@
       ]
     },
     "state": {
-      "control_mode": "Direct",
-      "current_step": "Idle",
-      "next_step": "Idle",
-      "current_task": "Button1",
-      "warning_type": "0",
-      "warning_message": "No Warning"
     }
   },
   "drill": {
@@ -303,17 +248,12 @@
       }
     },
     "state": {
-      "current_step": "Idle",
-      "next_step": "Idle",
-      "warning_type": "0",
-      "warning_message": "No Warning"
     }
   },
   "electronics": {
     "power": {
       "voltage": "0.0",
-      "current": "0.0",
-      "power": "0.0"
+      "current": "0.0"
     },
     "sensors": {
       "four_in_one": {
@@ -331,17 +271,6 @@
       },
       "voltmeter": {
         "voltage": "0.0"
-      }
-    },
-    "state_nodes": {
-      "node1": {
-        "state": true
-      },
-      "node2": {
-        "state": true
-      },
-      "node3": {
-        "state": true
       }
     }
   }

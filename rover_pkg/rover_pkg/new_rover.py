@@ -96,8 +96,6 @@ class RoverNode():
         
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
 
-        self.node.create_subscription(String, self.rover_names["rover_pubsub_perf"], self.model.update_metrics, 10)
-
         # -- SC messages --
         self.node.create_subscription(ScMotorStatus, 
                                       self.science_names["science_pubsub_motor_status"], self.model.Drill.update_motor_status, 10)
@@ -116,7 +114,7 @@ class RoverNode():
         # ===== SERVICES =====
 
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, 
-                                                          self.rover_names["rover_service_change_subsystem"], self.model.change_mode_system_service, callback_group=MutuallyExclusiveCallbackGroup())
+                                                          self.cs_names["cs_service_change_subsystem"], self.model.change_mode_system_service, callback_group=MutuallyExclusiveCallbackGroup())
 
         self.nav_service = self.node.create_client(ChangeModeSystem, '/ROVER/change_NAV_mode', callback_group=MutuallyExclusiveCallbackGroup())
 
@@ -133,7 +131,7 @@ class RoverNode():
         # ===== ACTIONS + SERVICES =====
 
         self.hd_manipulation_action = ActionServer(self.node, HDManipulation, 
-                                                   self.rover_names["rover_hd_action_manipulation"], execute_callback=self.model.HD.make_action,
+                                                   self.cs_names["cs_hd_action_manipulation"], execute_callback=self.model.HD.make_action,
                                                 
                                                 goal_callback=self.model.HD.action_status)
 
@@ -141,11 +139,11 @@ class RoverNode():
                                                    self.hd_names["hd_fsm_goal_srv"], callback_group=MutuallyExclusiveCallbackGroup())
                                                 
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
-                                                  self.rover_names["rover_action_nav_goal"], self.model.Nav.make_action,
+                                                  self.cs_names["cs_action_nav_goal"], self.model.Nav.make_action,
                                                   goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
 
         self.drill_action = ActionServer(self.node, DrillCmd, 
-                                          self.rover_names["rover_action_drill"], execute_callback=self.model.Drill.make_action, 
+                                          self.cs_names["cs_action_drill"], execute_callback=self.model.Drill.make_action, 
                                           callback_group=reentrant_callback_group,
                                           goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal_from_cs)
         
@@ -153,7 +151,7 @@ class RoverNode():
 
         #self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["rover_action_nav_goal"])
 
-        self.drill_action_client = ActionClient(self.node, DrillCmd, '/Rover/DrillTerrain')
+        self.drill_action_client = ActionClient(self.node, DrillCmd, self.rover_names['rover_action_drill_state'])
 
 
         self.node.get_logger().info("Rover Node Started")
