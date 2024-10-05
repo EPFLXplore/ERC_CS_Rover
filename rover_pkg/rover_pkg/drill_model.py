@@ -15,6 +15,8 @@ class Drill:
         self.rover_node.node.create_subscription(Bool, self.rover_node.science_names['status_system'], self.handle_state, 10)
     
     def handle_state(self, msg):
+
+        
         if msg.data:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On'
         else:
