@@ -12,6 +12,7 @@ import threading
 
 import time
 from time import sleep
+import yaml
 
 #self.camera_service = self.node.create_client(SetBool, '/ROVER/start_cameras', callback_group=MutuallyExclusiveCallbackGroup())
 
@@ -23,6 +24,9 @@ class NewCameras(Node):
 
         super().__init__('new_cameras_cs')
 
+        with open('/home/xplore/dev_ws/src/custom_msg/config/rover_interface_names.yaml', 'r') as file:
+            self.rover_names = yaml.safe_load(file)["/**"]["ros__parameters"]
+
         self.camera_ids = ["/dev/video0", "/dev/video2", "/dev/video8", "/dev/video26"]
         qos_profile = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -32,24 +36,20 @@ class NewCameras(Node):
         )
 
         # publishers for the cameras
-        self.cam_pubs = [self.create_publisher(CompressedImage, 'camera_' + str(i), qos_profile) for i in range(len(self.camera_ids))]
+        self.cam_pubs = [self.create_publisher(CompressedImage, self.rover_names['rover_cameras_cs_prefix'] + str(i), qos_profile) for i in range(len(self.camera_ids))]
         self.bridge = CvBridge()
 
         global stop_threads
         stop_threads = False
         self.threads = []
 
-        self.service = self.create_service(SetBool, '/ROVER/start_cameras', self.start_cameras_callback)
+        self.service = self.create_service(SetBool, self.rover_names['rover_service_cameras_start_cs'], self.start_cameras_callback)
         
         self.threads = [threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)) for i in range(len(self.camera_ids))]
 
         self.get_logger().info("Cameras ready")
 
-        #for thread in self.threads:
-        #    thread.start()
-
     def start_cameras_callback(self, request, response):
-        self.get_logger().info("REQUEST")
         global stop_threads
         if request.data:
             stop_threads = False

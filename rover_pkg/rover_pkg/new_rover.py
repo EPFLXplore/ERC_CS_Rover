@@ -119,7 +119,7 @@ class RoverNode():
         self.nav_service = self.node.create_client(ChangeModeSystem, '/ROVER/change_NAV_mode', callback_group=MutuallyExclusiveCallbackGroup())
 
         self.camera_service = self.node.create_client(SetBool, 
-                                                      self.rover_names["rover_service_cameras_start"], callback_group=MutuallyExclusiveCallbackGroup())
+                                                      self.rover_names["rover_service_cameras_start_cs"], callback_group=MutuallyExclusiveCallbackGroup())
                 
         self.hd_mode_service = self.node.create_client(HDMode, 
                                                        self.hd_names["hd_fsm_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
