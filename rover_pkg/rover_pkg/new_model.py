@@ -101,21 +101,6 @@ class NewModel:
         
             
             return response
-        
-# ----------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------
-        # --------------------------------------------------------------------
-        # --------------------------------------------------------------------
-        # CAMERA SYSTEM
-        elif system == 2:
-            req = SetBool.Request()
-            req.data = True if (mode == 1) else False
-
-            future = self.rover_node.camera_service.call_async(req)
-            future.add_done_callback(lambda f: self.service_callback_cam(f, mode))
-
-            
-            return response
 
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
@@ -128,8 +113,7 @@ class NewModel:
             future = self.rover_node.drill_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_drill(f, mode, response))
             
-            return response
-        
+            return response    
     
 
     def service_callback_nav(self, future, mode):
@@ -155,18 +139,6 @@ class NewModel:
                 log_error(self.rover_node, "Error in hd service response callback: " + response.error_message)
         except Exception as e:
             log_error(self.rover_node, "Error in hd service call: " + str(e))
-        
-    def service_callback_cam(self, future, mode):
-        try:
-            response = future.result()
-            if response.success:
-                self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Stream' if (mode == 1) else 'Off'
-            else:
-                self.rover_node.rover_state_json['rover']['status']['systems']['cameras']['status'] = 'Off' if (mode == 1) else 'Stream'
-                log_error(self.rover_node, "Error in camera service response callback: " + response.error_message)
-
-        except Exception as e:
-            log_error(self.rover_node, "Error in camera service call: " + str(e))
             
     def service_callback_drill(self, future, mode, response):
         try:
@@ -178,8 +150,52 @@ class NewModel:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 
         except Exception as e:
-            log_error(self.rover_node, "Error in drill service call: " + str(e))    
+            log_error(self.rover_node, "Error in drill service call: " + str(e))  
+
+    def service_callback_camera(self, future, subsystem, index, activate):
+        try:
+            response_camera = future.result()
+            if response_camera.error_type == 0:
+                self.rover_node.rover_state_json['rover']['cameras'][subsystem][index]['status'] = True if (activate == 1) else False
+            else:
+                log_error(self.rover_node, "Error in camera service response callback: " + response_camera.error_message)
+
+        except Exception as e:
+            log_error(self.rover_node, "Error in camera service call: " + str(e)) 
     
+
+    def change_mode_camera_service(self, request, response):
+        system = request.subsystem
+        index = request.camera_index
+        activate = request.activate
+        
+        # CS
+        if(system == 0):
+            # we have 4 cameras
+            req = SetBool.Request()
+            req.data = True if activate else False
+
+            match index:
+                case 0:
+                    future = self.rover_node.camera_cs_service_0.call_async(req)
+                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
+                
+                case 1:
+                    future = self.rover_node.camera_cs_service_1.call_async(req)
+                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
+
+                case 2:
+                    future = self.rover_node.camera_cs_service_2.call_async(req)
+                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
+
+                case 3:
+                    future = self.rover_node.camera_cs_service_3.call_async(req)
+                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
+            
+            
+            response.error_type = 0
+            response.error_message = "error_message"
+            return response
 
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------

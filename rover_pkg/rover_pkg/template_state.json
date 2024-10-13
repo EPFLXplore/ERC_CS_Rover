@@ -4,6 +4,12 @@
       "json": "0.0"
     },
     "software": {
+      "nodes": [
+        {
+          "name": "Rover",
+          "status": true
+        }
+      ],
       "main_processes": [
         {
           "name": "roscore",
@@ -41,19 +47,34 @@
         "drill": {
           "status": "Off",
           "message": "Drill is running"
-        },
-        "electronics": {
-          "status": "Off",
-          "message": "Electronics are running"
-        },
-        "cameras": {
-          "status": "Off",
-          "message": "Camera is running"
         }
       },
       "errors": [],
       "warnings": []
     }
+  },
+  "cameras": {
+    "control_station": {
+      "Front": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Left": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Right": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Behind": {
+        "status": false,
+        "data_rate": "0.0"
+      }
+    },
+    "handling_device": {},
+    "navigation": {},
+    "science": {}
   },
   "navigation": {
     "localization": {
