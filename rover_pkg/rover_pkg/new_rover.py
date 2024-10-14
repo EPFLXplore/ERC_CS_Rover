@@ -135,7 +135,28 @@ class RoverNode():
     
         self.camera_cs_service_3 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_cs_3', callback_group=MutuallyExclusiveCallbackGroup())
+
+        self.camera_nav_service_0 = self.node.create_client(SetBool, 
+                                                      '/ROVER/req_camera_nav_0', callback_group=MutuallyExclusiveCallbackGroup())
+
+        self.camera_nav_service_1 = self.node.create_client(SetBool, 
+                                                      '/ROVER/req_camera_nav_1', callback_group=MutuallyExclusiveCallbackGroup())
+    
+        self.camera_nav_service_2 = self.node.create_client(SetBool, 
+                                                      '/ROVER/req_camera_nav_2', callback_group=MutuallyExclusiveCallbackGroup())
+    
+        self.camera_nav_service_3 = self.node.create_client(SetBool, 
+                                                      '/ROVER/req_camera_nav_3', callback_group=MutuallyExclusiveCallbackGroup())
             
+        self.camera_hd_service_0 = self.node.create_client(SetBool, 
+                                                      '/ROVER/req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
+
+        self.camera_hd_service_1 = self.node.create_client(SetBool, 
+                                                      '/ROVER/req_camera_hd_1', callback_group=MutuallyExclusiveCallbackGroup())
+        
+        self.camera_sc_service_0 = self.node.create_client(SetBool, 
+                                                      '/ROVER/req_camera_sc_0', callback_group=MutuallyExclusiveCallbackGroup())
+        
         self.hd_mode_service = self.node.create_client(HDMode, 
                                                        self.hd_names["hd_fsm_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
