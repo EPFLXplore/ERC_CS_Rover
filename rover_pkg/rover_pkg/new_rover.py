@@ -19,7 +19,7 @@ from sensor_msgs.msg import JointState, Joy
 from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
-from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus
+from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorNavStatus
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
 from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera
 from nav2_msgs.action import NavigateToPose
@@ -60,6 +60,9 @@ class RoverNode():
 
         with open('/home/xplore/dev_ws/src/custom_msg/config/el_interface_names.yaml', 'r') as file:
             self.el_names = yaml.safe_load(file)["/**"]["ros__parameters"]
+
+        with open('/home/xplore/dev_ws/src/custom_msg/config/nav_interface_names.yaml', 'r') as file:
+            self.nav_names = yaml.safe_load(file)["/**"]["ros__parameters"]
 
         self.model = NewModel(self)
         self.logger = MongoDBLogger("Onyx", "rover_state")
@@ -108,7 +111,7 @@ class RoverNode():
 
         # -- NAV messages --
         self.node.create_subscription(Odometry,         '/lio_sam/odom',                self.model.Nav.nav_odometry  , 10)
-        self.node.create_subscription(Wheelstatus,      '/NAV/absolute_encoders',       self.model.Nav.nav_wheel, 10)
+        self.node.create_subscription(MotorNavStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
         self.node.create_subscription(Motorcmds,        '/NAV/displacement',            self.model.Nav.nav_displacement, 10)
 
         # ===== SERVICES =====
