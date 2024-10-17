@@ -7,24 +7,19 @@
       "nodes": [
         {
           "name": "Rover",
-          "status": true
-        }
-      ],
-      "main_processes": [
-        {
-          "name": "roscore",
-          "pid": "1234",
-          "cpu_usage": "0.0"
+          "status": false
         },
         {
-          "name": "rosbridge",
-          "pid": "1235",
-          "cpu_usage": "0.0"
+          "name": "Wheels",
+          "status": false
         },
         {
-          "name": "rviz",
-          "pid": "1236",
-          "cpu_usage": "0.0"
+          "name": "Drill",
+          "status": false
+        },
+        {
+          "name": "Network",
+          "status": false
         }
       ]
     },
@@ -72,9 +67,40 @@
         "data_rate": "0.0"
       }
     },
-    "handling_device": {},
-    "navigation": {},
-    "science": {}
+    "handling_device": {
+      "Gripper": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Other": {
+        "status": false,
+        "data_rate": "0.0"
+      }
+    },
+    "navigation": {
+      "Up1": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Up2": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Front": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Around360": {
+        "status": false,
+        "data_rate": "0.0"
+      }
+    },
+    "science": {
+      "Main": {
+        "status": false,
+        "data_rate": "0.0"
+      }
+    }
   },
   "navigation": {
     "localization": {
@@ -268,15 +294,17 @@
       "motor_module": {
         "position": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       },
       "motor_drill": {
         "speed": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       }
     },
     "state": {
+      "state_fsm": "IDLE",
+      "container": "CLOSE"
     }
   },
   "electronics": {
