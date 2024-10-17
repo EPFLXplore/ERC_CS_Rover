@@ -113,9 +113,7 @@ def publish_feeds(camera_id, publisher, bridge):
         camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('m','j','p','g'))
         camera.set(cv2.CAP_PROP_FPS, 15)
         sleep(1)
-
-
-
+        
 
 
 def main(args=None):
@@ -134,6 +132,7 @@ def main(args=None):
     cameras_publisher.destroy_node()
 
     rclpy.shutdown()
+
 
 
 if __name__ == '__main__':

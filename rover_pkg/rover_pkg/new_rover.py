@@ -30,6 +30,7 @@ from bson import json_util
 import json
 from .new_model import NewModel
 from .network_monitoring import NetworkMonitoring
+from .active_node_checker import ActiveNodeChecker
 
 
 class RoverNode():
@@ -196,6 +197,8 @@ class RoverNode():
             self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json)
         else:
             self.node.get_logger().info("No Networking")
+
+        self.health = ActiveNodeChecker(self.rover_state_json)
             
     # timer callback for sending rover state continuously
     def timer_callback(self):
@@ -235,6 +238,8 @@ class RoverNode():
         executor.add_node(self.node)
         if self.network_monitor != None:
             executor.add_node(self.network_monitor)
+        
+        executor.add_node(self.health)
         executor.spin()
         rclpy.shutdown()
 

@@ -7,18 +7,18 @@ class Elec:
         # 0 -> nav, 1 -> hd, 2 -> drill
 
         self.leds = self.rover_node.node.create_publisher(LedsCommand, 
-                                                             self.rover_node.el_names["el_pubsub_led_commands"], 1)
+                                                             self.rover_node.el_names["LED_COM_TOPIC"], 1)
 
         self.rover_node.node.create_subscription(MassArray, 
-                                                  self.rover_node.el_names["elec_drill_mass"], self.drill_mass_callback, 1)
+                                                  self.rover_node.el_names["DRILL_MASS_TOPIC"], self.drill_mass_callback, 1)
 
         self.rover_node.node.create_subscription(MassArray,
-                                                    self.rover_node.el_names["elec_container_mass"], self.container_mass_callback, 1)
+                                                    self.rover_node.el_names["CONTAINER_MASS_TOPIC"], self.container_mass_callback, 1)
 
         self.rover_node.node.create_subscription(FourInOne,
-                                                    self.rover_node.el_names["elec_fourinone_sensor"], self.four_in_one_callback, 1)
+                                                    self.rover_node.el_names["FOUR_IN_ONE_TOPIC"], self.four_in_one_callback, 1)
 
-        self.rover_node.node.create_subscription(Voltage, self.rover_node.el_names["elec_voltmeter_pubsub"], self.voltage_callback, 1)
+        self.rover_node.node.create_subscription(Voltage, self.rover_node.el_names["VOLTAGE_TOPIC"], self.voltage_callback, 1)
 
     def send_led_commands(self, subsystem, mode):
 
