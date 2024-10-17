@@ -21,24 +21,30 @@ global stop_threads
 class NewCameras(Node):
     def __init__(self):
 
+        # Create a node called 'new_cameras_cs'
         super().__init__('new_cameras_cs')
 
+        # Add the camera ids to the node
         self.camera_ids = ["/dev/video0", "/dev/video2", "/dev/video8", "/dev/video26"]
+        # QoSProfile allows one to specify the communication policies
         qos_profile = QoSProfile(
-            reliability=QoSReliabilityPolicy.BEST_EFFORT,
-            durability=QoSDurabilityPolicy.VOLATILE,
-            history=QoSHistoryPolicy.KEEP_LAST,
+            reliability=QoSReliabilityPolicy.BEST_EFFORT, # BEST_EFFORT: message will attempt to send message but if it fails it will not try again
+            durability=QoSDurabilityPolicy.VOLATILE, # VOLATILE: if no subscribers are listening, the message sent is not saved
+            history=QoSHistoryPolicy.KEEP_LAST, # KEEP_LAST: only the last n = depth messages are stored in the queue
             depth=1,
         )
 
         # publishers for the cameras
+        # Create the topics called 'camera_xxx' of type CompressedImage and specify the communication parameters with QoSProfile
         self.cam_pubs = [self.create_publisher(CompressedImage, 'camera_' + str(i), qos_profile) for i in range(len(self.camera_ids))]
+        # CvBridge() allows to easily convert from ROS2 images to CV images
         self.bridge = CvBridge()
 
         global stop_threads
         stop_threads = False
         self.threads = []
 
+        # Create a service which will 
         self.service = self.create_service(SetBool, '/ROVER/start_cameras', self.start_cameras_callback)
         
         self.threads = [threading.Thread(target=publish_feeds, args=(self.camera_ids[i], self.cam_pubs[i], self.bridge,)) for i in range(len(self.camera_ids))]

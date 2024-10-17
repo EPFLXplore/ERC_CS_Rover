@@ -34,7 +34,7 @@ setup(
             'webrtc_camera_cs = rover_pkg.new_camera_webrtc:main',
             'test_cams = rover_pkg.test_cam:main',
             'test_nav2 = rover_pkg.test:main',
-            'gamepad = rover_pkg.fake_gamepad:main'
+            'gamepad = rover_pkg.fake_gamepad:main',
         ],
     },
 )
