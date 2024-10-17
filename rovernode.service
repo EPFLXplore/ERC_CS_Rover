@@ -7,9 +7,8 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-Restart=always
-ExecStart=/bin/bash /home/xplore/ERC_CS_Rover/docker_humble_desktop/run_rover.sh
-ExecStop=/usr/bin/docker stop rover_humble_desktop
+ExecStart=/bin/bash /home/xplore/ERC_CS_Rover/docker_humble_jetson/run_rover.sh
+ExecStop=/usr/bin/docker stop rover_humble_jetson
 
 [Install]
 WantedBy=default.target
