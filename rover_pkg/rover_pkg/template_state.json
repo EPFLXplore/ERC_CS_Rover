@@ -4,21 +4,22 @@
       "json": "0.0"
     },
     "software": {
-      "main_processes": [
+      "nodes": [
         {
-          "name": "roscore",
-          "pid": "1234",
-          "cpu_usage": "0.0"
+          "name": "Rover",
+          "status": false
         },
         {
-          "name": "rosbridge",
-          "pid": "1235",
-          "cpu_usage": "0.0"
+          "name": "Wheels",
+          "status": false
         },
         {
-          "name": "rviz",
-          "pid": "1236",
-          "cpu_usage": "0.0"
+          "name": "Drill",
+          "status": false
+        },
+        {
+          "name": "Network",
+          "status": false
         }
       ]
     },
@@ -41,18 +42,64 @@
         "drill": {
           "status": "Off",
           "message": "Drill is running"
-        },
-        "electronics": {
-          "status": "Off",
-          "message": "Electronics are running"
-        },
-        "cameras": {
-          "status": "Off",
-          "message": "Camera is running"
         }
       },
       "errors": [],
       "warnings": []
+    }
+  },
+  "cameras": {
+    "control_station": {
+      "Front": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Left": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Right": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Behind": {
+        "status": false,
+        "data_rate": "0.0"
+      }
+    },
+    "handling_device": {
+      "Gripper": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Other": {
+        "status": false,
+        "data_rate": "0.0"
+      }
+    },
+    "navigation": {
+      "Up1": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Up2": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Front": {
+        "status": false,
+        "data_rate": "0.0"
+      },
+      "Around360": {
+        "status": false,
+        "data_rate": "0.0"
+      }
+    },
+    "science": {
+      "Main": {
+        "status": false,
+        "data_rate": "0.0"
+      }
     }
   },
   "navigation": {
@@ -86,24 +133,32 @@
     },
     "wheels": {
       "front_left": {
+        "current_steering": "0.0",
+        "current_driving": "0.0",
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
         "driving_motor_state": false
       },
       "front_right": {
+        "current_steering": "0.0",
+        "current_driving": "0.0",
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
         "driving_motor_state": false
       },
       "rear_left": {
+        "current_steering": "0.0",
+        "current_driving": "0.0",
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
         "driving_motor_state": false
       },
       "rear_right": {
+        "current_steering": "0.0",
+        "current_driving": "0.0",
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
@@ -239,15 +294,17 @@
       "motor_module": {
         "position": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       },
       "motor_drill": {
         "speed": "0.0",
         "current": "0.0",
-        "state": true
+        "state": false
       }
     },
     "state": {
+      "state_fsm": "IDLE",
+      "container": "CLOSE"
     }
   },
   "electronics": {

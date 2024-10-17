@@ -137,7 +137,7 @@ class Drill:
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = msg.vel
 
     def update_drill_status(self, msg):
-        self.rover_node.rover_state_json['drill']['state']['current_step'] = msg.data
+        self.rover_node.rover_state_json['drill']['state']['state_fsm'] = msg.data
 
     def result_drill_action(self, resultt, error_type, error_messsage):
         result = DrillCmd.Result()
