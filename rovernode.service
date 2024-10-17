@@ -8,8 +8,8 @@ Requires=docker.service
 
 [Service]
 Restart=always
-ExecStart=/bin/bash /home/brokkoly/Desktop/ERC_CS_Rover/start_rover.sh
-ExecStop=/bin/bash /home/brokkoly/Desktop/ERC_CS_Rover/stop_rover.sh
+ExecStart=/bin/bash /home/xplore/ERC_CS_Rover/docker_humble_desktop/run_rover.sh
+ExecStop=/usr/bin/docker stop rover_humble_desktop
 
 [Install]
 WantedBy=default.target
