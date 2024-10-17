@@ -16,8 +16,7 @@ class NewModel:
         self.systems_to_name = {
             0: "nav",
             1: "hd",
-            2: "camera",
-            3: "drill"
+            2: "drill"
         }
 
         self.name_system = {
@@ -63,7 +62,7 @@ class NewModel:
         elif system == 1:
             self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
         
-        elif system == 3:
+        elif system == 2:
             self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
         
         return response
@@ -107,7 +106,7 @@ class NewModel:
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
         # DRILL SYSTEM
-        elif system == 3:
+        elif system == 2:
             req = DrillMode.Request()
             req.mode = mode
             future = self.rover_node.drill_service.call_async(req)
@@ -156,7 +155,7 @@ class NewModel:
         try:
             response_camera = future.result()
             if response_camera.error_type == 0:
-                self.rover_node.rover_state_json['rover']['cameras'][subsystem][index]['status'] = True if (activate == 1) else False
+                self.rover_node.rover_state_json['cameras'][subsystem][index]['status'] = True if (activate == 1) else False
             else:
                 log_error(self.rover_node, "Error in camera service response callback: " + response_camera.error_message)
 
@@ -170,7 +169,7 @@ class NewModel:
         activate = request.activate
         
         # CS
-        if(system == 2):
+        if(system == "control_station"):
             # we have 4 cameras
             req = SetBool.Request()
             req.data = True if activate else False
@@ -198,7 +197,7 @@ class NewModel:
             return response
         
         # NAV
-        if(system == 0):
+        if(system == "navigation"):
             # we have 4 cameras
             req = SetBool.Request()
             req.data = True if activate else False
@@ -226,7 +225,7 @@ class NewModel:
             return response
 
         # HD
-        if(system == 1):
+        if(system == "handling_device"):
             # we have 2 cameras
             req = SetBool.Request()
             req.data = True if activate else False
@@ -245,7 +244,7 @@ class NewModel:
             return response
         
         # SC
-        if(system == 3):
+        if(system == "science"):
             # we have 2 cameras
             req = SetBool.Request()
             req.data = True if activate else False
@@ -276,7 +275,6 @@ def response_service(node, response, error_type, error_message):
         res_sub_systems['navigation'] = sub_systems_status['navigation']['status']
         res_sub_systems['handling_device'] = sub_systems_status['handling_device']['status']
         res_sub_systems['drill'] = sub_systems_status['drill']['status']
-        res_sub_systems['cameras'] = sub_systems_status['cameras']['status']
 
         response.systems_state = json.dumps(res_sub_systems)
         response.error_type = error_type
