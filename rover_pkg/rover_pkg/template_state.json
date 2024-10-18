@@ -319,6 +319,19 @@
         "conductivity": "0.0",
         "ph": "0.0"
       },
+      "imu": {
+        "xxzw": [],
+        "orientation_cov": [],
+        "ang_vel_cov": [],
+        "linear_accel_cov": [],
+        "ang_vel": [],
+        "linear_accel": []
+
+      },
+      "magnetic": {
+        "mag_field": [],
+        "mag_field_cov": []
+      },
       "mass_sensors": {
         "mass_container": "0.0",
         "mass_drill": "0.0"
