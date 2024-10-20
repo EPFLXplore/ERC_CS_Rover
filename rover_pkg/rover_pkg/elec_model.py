@@ -101,7 +101,7 @@ class Elec:
     
     def potentiometer_callback(self, msg):
         self.rover_node.rover_state_json['electronics']['sensors']['potentiometer'] = {
-            "position": 
+            
         }
     
 
