@@ -9,7 +9,7 @@ import subprocess
 # if a node is a camera, change the bandwidth value
 known_node_names = {
     "ROVER": (False, 0), # is not camera
-    "camera_cs_0": (True, 'control_station', 'Front'), # is camera
+    "ROVER/camera_cs_0": (True, 'control_station', 'Front'), # is camera
 }
 
 class ActiveNodeChecker(Node):
@@ -33,7 +33,7 @@ class ActiveNodeChecker(Node):
                 # if the node is found and is a camera find the node bandwidth and modify the value in the json file
                 if known_node_names[name][0]:
                     # Use subprocess to find the BW of the camera
-                    command = f"ros2 topic bw {name}"
+                    command = f"ros2 topic bw /{name}"
                     # subprocess.run runs the given command, it retains the output if capture_output = True, it converts the output to text ratehr then
                     # binary if text=True, and runs the command in shell if shell = True
                     result = subprocess.run(command, capture_output=True, text=True, shell=True)
