@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import String
 
 import subprocess
 
@@ -9,6 +10,14 @@ import subprocess
 # if a node is a camera, change the bandwidth value
 known_node_names = {
     "ROVER": (False, 0), # is not camera
+    "NAV_cmd_vel_manager": (False, 1),
+    "NAV_displacement_cmds": (False, 2),
+    "NAV_gamepad_interface": (False, 3),
+    "NavCSInterfacing": (False, 4),
+    "NAV_motor_cmds": (False, 5),
+    "SC_motor_cmds": (False, 6),
+    "DrillCSInterface": (False, 7),
+    "network_monitoring": (False, 8),
     "ROVER/camera_cs_0": (True, 'control_station', 'Front'), # is camera
 }
 
@@ -17,8 +26,10 @@ class ActiveNodeChecker(Node):
     def __init__(self, json):
         super().__init__('HealthNode')
         self.json = json
-        timer_period = 0.5  # seconds
+        timer_period = 5 # seconds (we leave ROS some time to search, it may happen that the discovery is broken)
         self.timer = self.create_timer(timer_period, self.timer_callback)
+
+        self.trigger_launch = self.create_subscription(String, "trigger_system", self.trigger_launch_file, 10)
 
     def timer_callback(self):
 

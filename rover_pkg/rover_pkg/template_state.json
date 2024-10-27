@@ -10,11 +10,31 @@
           "status": false
         },
         {
-          "name": "Wheels",
+          "name": "Wheels Velocity",
           "status": false
         },
         {
-          "name": "Drill",
+          "name": "Wheels Displacement",
+          "status": false
+        },
+        {
+          "name": "Wheels Gamepad",
+          "status": false
+        },
+        {
+          "name": "Wheels Commands",
+          "status": false
+        },
+        {
+          "name": "Nav Interfacing",
+          "status": false
+        },
+        {
+          "name": "Drill Commands",
+          "status": false
+        },
+        {
+          "name": "Drill Interface",
           "status": false
         },
         {
