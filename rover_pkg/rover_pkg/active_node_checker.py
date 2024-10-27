@@ -18,7 +18,7 @@ known_node_names = {
     "SC_motor_cmds": (False, 6),
     "DrillCSInterface": (False, 7),
     "network_monitoring": (False, 8),
-    "ROVER/camera_cs_0": (True, 'control_station', 'Front'), # is camera
+    "camera_cs_0": (True, 'control_station', 'Front'), # ITS A CAMERAC + NOT SHOWING NAMESPACE!
 }
 
 class ActiveNodeChecker(Node):
@@ -29,12 +29,12 @@ class ActiveNodeChecker(Node):
         timer_period = 5 # seconds (we leave ROS some time to search, it may happen that the discovery is broken)
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
-        self.trigger_launch = self.create_subscription(String, "trigger_system", self.trigger_launch_file, 10)
-
     def timer_callback(self):
 
         # get_node_names returns a vector of all the available nodes in the ROS graph
         node_list = self.get_node_names()
+
+        print(node_list)
 
         # For each name, pass it through a dictionary of known node name, 
         # if a match is found, modifiy the node status in the json 
@@ -43,13 +43,20 @@ class ActiveNodeChecker(Node):
             if name in node_list:
                 # if the node is found and is a camera find the node bandwidth and modify the value in the json file
                 if known_node_names[name][0]:
+                    self.get_logger().info("adéfjbnjerbgjiénk")
                     # Use subprocess to find the BW of the camera
-                    command = f"ros2 topic bw /{name}"
+                    command = ["/home/xplore/dev_ws/src/rover_pkg/rover_pkg/test.sh", f"/ROVER/{name}"]
+                    #command = ["echo", "hello work"]
                     # subprocess.run runs the given command, it retains the output if capture_output = True, it converts the output to text ratehr then
                     # binary if text=True, and runs the command in shell if shell = True
-                    result = subprocess.run(command, capture_output=True, text=True, shell=True)
-                    print(result)
-                    self.json['rover']['cameras'][known_node_names[name][1]][known_node_names[name][2]]['data_rate'] = result
+                    result = subprocess.run(command, capture_output=True, text=True)
+
+                    # Check the result
+                    if result.returncode == 0:
+                        print("Command Output:", result.stdout.strip())  # Print the output
+                        self.json['cameras'][known_node_names[name][1]][known_node_names[name][2]]['data_rate'] = result.stderr.strip()
+                    else:
+                        print("Error:", result.stderr.strip())
                 
                 # if node is active but is not a camera, chage its active status to true
                 else:
@@ -59,7 +66,7 @@ class ActiveNodeChecker(Node):
             else:
                 # if the node is not active and is a camera, set it's bandwidth to 0 in the json file
                 if known_node_names[name][0]:
-                    self.json['rover']['cameras'][known_node_names[name][1]][known_node_names[name][0][2]]['data_rate'] = 0
+                    self.json['cameras'][known_node_names[name][1]][known_node_names[name][0][2]]['data_rate'] = 0
 
                 # if the node is not active and is not a camera, set it's status to false in the json file
                 else:

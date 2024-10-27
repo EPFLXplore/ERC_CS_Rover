@@ -198,7 +198,7 @@ class RoverNode():
         else:
             self.node.get_logger().info("No Networking")
 
-        #self.health = ActiveNodeChecker(self.rover_state_json)
+        self.health = ActiveNodeChecker(self.rover_state_json)
             
     # timer callback for sending rover state continuously
     def timer_callback(self):
@@ -239,7 +239,7 @@ class RoverNode():
         if self.network_monitor != None:
             executor.add_node(self.network_monitor)
         
-        #executor.add_node(self.health)
+        executor.add_node(self.health)
         executor.spin()
         rclpy.shutdown()
 
