@@ -44,10 +44,12 @@ class ActiveNodeChecker(Node):
                 # if the node is found and is a camera find the node bandwidth and modify the value in the json file
                 if known_node_names[name][0]:
                     # Use subprocess to find the BW of the camera
-                    command = f"ros2 topic bw /{name}"
+                    command = f"ros2 topic bw {name} --once"
                     # subprocess.run runs the given command, it retains the output if capture_output = True, it converts the output to text ratehr then
-                    # binary if text=True, and runs the command in shell if shell = True
+                    # Binary if text=True, and runs the command in shell if shell = True
                     result = subprocess.run(command, capture_output=True, text=True, shell=True)
+                    # topic bw returns a mess of a message, we need to extract only the bw rate
+                    print(result.split(" "))
                     print(result)
                     self.json['rover']['cameras'][known_node_names[name][1]][known_node_names[name][2]]['data_rate'] = result
                 
