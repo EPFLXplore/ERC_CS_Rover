@@ -45,18 +45,14 @@ class ActiveNodeChecker(Node):
                 if known_node_names[name][0]:
                     self.get_logger().info("adéfjbnjerbgjiénk")
                     # Use subprocess to find the BW of the camera
-                    command = ["/home/xplore/dev_ws/src/rover_pkg/rover_pkg/test.sh", f"/ROVER/{name}"]
-                    #command = ["echo", "hello work"]
+                    command = f"ros2 topic bw {name} --once"
                     # subprocess.run runs the given command, it retains the output if capture_output = True, it converts the output to text ratehr then
-                    # binary if text=True, and runs the command in shell if shell = True
-                    result = subprocess.run(command, capture_output=True, text=True)
-
-                    # Check the result
-                    if result.returncode == 0:
-                        print("Command Output:", result.stdout.strip())  # Print the output
-                        self.json['cameras'][known_node_names[name][1]][known_node_names[name][2]]['data_rate'] = result.stderr.strip()
-                    else:
-                        print("Error:", result.stderr.strip())
+                    # Binary if text=True, and runs the command in shell if shell = True
+                    result = subprocess.run(command, capture_output=True, text=True, shell=True)
+                    # topic bw returns a mess of a message, we need to extract only the bw rate
+                    print(result.split(" "))
+                    print(result)
+                    self.json['rover']['cameras'][known_node_names[name][1]][known_node_names[name][2]]['data_rate'] = result
                 
                 # if node is active but is not a camera, chage its active status to true
                 else:
