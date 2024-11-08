@@ -22,7 +22,7 @@ WORKDIR /home/$USERNAME
 
 RUN pip install numpy
 RUN pip install aiohttp aiortc aiohttp_cors
-RUN pip install pymongo
+RUN pip install pymongo ping3 tornado requests
 #RUN pip install jetson-stats
 
 # Set a diretory to store the project
