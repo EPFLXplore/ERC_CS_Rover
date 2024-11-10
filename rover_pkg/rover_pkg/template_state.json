@@ -4,44 +4,52 @@
       "json": "0.0"
     },
     "software": {
-      "nodes": [
-        {
+      "nodes": {
+        "rover": {
           "name": "Rover",
           "status": false
         },
-        {
+        "wheels_control": {
           "name": "Wheels Velocity",
           "status": false
         },
-        {
+        "wheels_displacement": {
           "name": "Wheels Displacement",
           "status": false
         },
-        {
+        "wheels_gamepad": {
           "name": "Wheels Gamepad",
           "status": false
         },
-        {
+        "wheels_commands": {
           "name": "Wheels Commands",
           "status": false
         },
-        {
-          "name": "Nav Interfacing",
+        "navigation_interfe": {
+          "name": "Nav Interface",
           "status": false
         },
-        {
+        "drill_fms": {
+          "name": "Drill FSM",
+          "status": false
+        },
+        "drill_commands": {
           "name": "Drill Commands",
           "status": false
         },
-        {
+        "drill_interface": {
           "name": "Drill Interface",
           "status": false
         },
-        {
+        "network": {
           "name": "Network",
           "status": false
+        },
+        "rpi_cs": {
+          "name": "RPI CS",
+          "status": false
         }
-      ]
+      }
     },
     "network": {
       "ipv4": "",
@@ -52,7 +60,7 @@
     "status": {
       "systems": {
         "navigation": {
-          "status": "Manual",
+          "status": "Off",
           "message": "Navigation system is running"
         },
         "handling_device": {
@@ -70,10 +78,6 @@
   },
   "cameras": {
     "control_station": {
-      "Front": {
-        "status": false,
-        "data_rate": "0.0"
-      },
       "Left": {
         "status": false,
         "data_rate": "0.0"
@@ -91,32 +95,18 @@
       "Gripper": {
         "status": false,
         "data_rate": "0.0"
-      },
-      "Other": {
-        "status": false,
-        "data_rate": "0.0"
       }
     },
     "navigation": {
+      "Front": {
+        "status": false,
+        "data_rate": "0.0"
+      },
       "Up1": {
         "status": false,
         "data_rate": "0.0"
       },
       "Up2": {
-        "status": false,
-        "data_rate": "0.0"
-      },
-      "Front": {
-        "status": false,
-        "data_rate": "0.0"
-      },
-      "Around360": {
-        "status": false,
-        "data_rate": "0.0"
-      }
-    },
-    "science": {
-      "Main": {
         "status": false,
         "data_rate": "0.0"
       }
@@ -233,36 +223,50 @@
       "joint_1": {
         "angle": "90",
         "current": "0.0",
+        "velocity": "0.0",
+        "torque": "0.0",
         "state": false
       },
       "joint_2": {
         "angle": "0.0",
         "current": "0.0",
+        "velocity": "0.0",
+        "torque": "0.0",
         "state": false
       },
       "joint_3": {
         "angle": "0.0",
         "current": "0.0",
+        "velocity": "0.0",
+        "torque": "0.0",
         "state": false
       },
       "joint_4": {
         "angle": "0.0",
         "current": "0.0",
+        "velocity": "0.0",
+        "torque": "0.0",
         "state": false
       },
       "joint_5": {
         "angle": "0.0",
         "current": "0.0",
+        "velocity": "0.0",
+        "torque": "0.0",
         "state": false
       },
       "joint_6": {
         "angle": "0.0",
         "current": "0.0",
+        "velocity": "0.0",
+        "torque": "0.0",
         "state": false
       },
       "joint_7": {
         "angle": "0.0",
         "current": "0.0",
+        "velocity": "0.0",
+        "torque": "0.0",
         "state": false
       }
     },

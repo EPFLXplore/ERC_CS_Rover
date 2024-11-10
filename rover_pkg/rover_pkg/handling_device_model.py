@@ -1,7 +1,7 @@
-from rclpy.action import GoalResponse, CancelResponse
+from rclpy.action import GoalResponse
 from custom_msg.action import HDManipulation
 from custom_msg.srv import RequestHDGoal
-import math, time
+import math
 from custom_msg.msg import HDGoal
 
 class HandlingDevice:
@@ -14,8 +14,6 @@ class HandlingDevice:
         self.goal_handle_cs = goal_handle_cs
         self.rover_node.node.get_logger().info("HD action starting... ")
 
-        # HD --> Rover
-        #self.node.create_subscription(JointState, 'HD/motor_control/joint_telemetry', self.update_hd_joint_telemetry , 10)
         self.running = False
     
     def make_action(self, goal_handle_cs):
@@ -94,3 +92,22 @@ class HandlingDevice:
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = math.degrees(self.joint_positions[i])
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = self.joint_velocities[i]
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = self.joint_current[i]
+
+
+    def hd_motor_cmds(self, msg):
+        currents = msg.current
+        on_off = msg.motor_on
+        mode = msg.mode # ?
+        positions = msg.position
+        vel = msg.velocity
+        torque = msg.torque
+
+        # update the rover status
+        for i in range(7):
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = math.degrees(positions[i])
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = vel[i]
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = currents[i]
+
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = torque[i]
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['status'] = on_off[i]
+            #self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode'] = mode[i]
