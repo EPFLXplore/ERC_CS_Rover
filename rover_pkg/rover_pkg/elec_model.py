@@ -103,5 +103,4 @@ class Elec:
         self.rover_node.rover_state_json['electronics']['sensors']['potentiometer'] = {
             
         }
-    
 
