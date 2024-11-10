@@ -38,6 +38,7 @@ docker run -it \
     --rm \
     --privileged \
     --net=host \
+    -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
     -e DISPLAY=unix$DISPLAY \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=$XAUTH \

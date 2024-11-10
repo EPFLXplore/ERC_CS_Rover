@@ -19,7 +19,7 @@ from sensor_msgs.msg import JointState, Joy
 from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
-from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorNavStatus
+from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorNavStatus, MotorCommands
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
 from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera
 from nav2_msgs.action import NavigateToPose
@@ -107,8 +107,11 @@ class RoverNode():
                                       self.science_names["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
       
         # -- HD messages --
+        #self.node.create_subscription(
+            #JointState, self.hd_names["hd_motor_telemetry"], self.model.HD.hd_joint_state, 10)
         self.node.create_subscription(
-            JointState, self.hd_names["hd_motor_telemetry"], self.model.HD.hd_joint_state, 10)
+            MotorCommands, self.hd_names["hd_motor_status"], self.model.HD.hd_motor_cmds, 10)
+
 
         # -- NAV messages --
         self.node.create_subscription(Odometry,         '/lio_sam/odom',                self.model.Nav.nav_odometry  , 10)
@@ -134,9 +137,6 @@ class RoverNode():
         self.camera_cs_service_2 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_cs_2', callback_group=MutuallyExclusiveCallbackGroup())
     
-        self.camera_cs_service_3 = self.node.create_client(SetBool, 
-                                                      '/ROVER/req_camera_cs_3', callback_group=MutuallyExclusiveCallbackGroup())
-
         self.camera_nav_service_0 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_nav_0', callback_group=MutuallyExclusiveCallbackGroup())
 
@@ -145,19 +145,10 @@ class RoverNode():
     
         self.camera_nav_service_2 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_nav_2', callback_group=MutuallyExclusiveCallbackGroup())
-    
-        self.camera_nav_service_3 = self.node.create_client(SetBool, 
-                                                      '/ROVER/req_camera_nav_3', callback_group=MutuallyExclusiveCallbackGroup())
-            
+                
         self.camera_hd_service_0 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
-
-        self.camera_hd_service_1 = self.node.create_client(SetBool, 
-                                                      '/ROVER/req_camera_hd_1', callback_group=MutuallyExclusiveCallbackGroup())
-        
-        self.camera_sc_service_0 = self.node.create_client(SetBool, 
-                                                      '/ROVER/req_camera_sc_0', callback_group=MutuallyExclusiveCallbackGroup())
-        
+                
         self.hd_mode_service = self.node.create_client(HDMode, 
                                                        self.hd_names["hd_fsm_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
@@ -198,7 +189,7 @@ class RoverNode():
         else:
             self.node.get_logger().info("No Networking")
 
-        self.health = ActiveNodeChecker(self.rover_state_json)
+        #self.health = ActiveNodeChecker(self.rover_state_json)
             
     # timer callback for sending rover state continuously
     def timer_callback(self):
@@ -239,7 +230,7 @@ class RoverNode():
         if self.network_monitor != None:
             executor.add_node(self.network_monitor)
         
-        executor.add_node(self.health)
+        #executor.add_node(self.health)
         executor.spin()
         rclpy.shutdown()
 

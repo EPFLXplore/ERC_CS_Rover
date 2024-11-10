@@ -94,11 +94,9 @@ class NewModel:
         elif system == 1:
             req = HDMode.Request()
             req.mode = mode
-
             future = self.rover_node.hd_mode_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
         
-            
             return response
 
 # ----------------------------------------------------------------------------------------------
@@ -112,6 +110,9 @@ class NewModel:
             future = self.rover_node.drill_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_drill(f, mode, response))
             
+            response.systems_state = ""
+            response.error_type = 0
+            response.error_message = "error_message"
             return response    
     
 
@@ -140,6 +141,7 @@ class NewModel:
             log_error(self.rover_node, "Error in hd service call: " + str(e))
             
     def service_callback_drill(self, future, mode, response):
+        print("babab")
         try:
             response_drill = future.result()
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
