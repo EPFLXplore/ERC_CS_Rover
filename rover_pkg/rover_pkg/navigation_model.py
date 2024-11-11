@@ -3,7 +3,6 @@ from nav_msgs.msg import Odometry
 from custom_msg.action import NAVReachGoal
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
-import time
 
 class Navigation:
     def __init__(self, rover_node):
@@ -32,9 +31,7 @@ class Navigation:
     def nav_odometry(self, odometry):
 
         self.position = [odometry.pose.pose.position.x, odometry.pose.pose.position.y, odometry.pose.pose.position.z]
-
         self.orientation = [odometry.pose.pose.orientation.x, odometry.pose.pose.orientation.y, odometry.pose.pose.orientation.z, odometry.pose.pose.orientation.w]
-
         self.linVel = [odometry.twist.twist.linear.x, odometry.twist.twist.linear.y, odometry.twist.twist.linear.z]
         self.angVel = [odometry.twist.twist.angular.x, odometry.twist.twist.angular.y, odometry.twist.twist.angular.z]
 
@@ -68,6 +65,45 @@ class Navigation:
         BACK_RIGHT_STEER = 6
         BACK_LEFT_STEER = 7
         """
+
+        # Update status if we put the navigation off but without killing the nodes
+        if self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Off':
+            # front_left wheel
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_steering'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['speed'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_motor_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_wheel_state'] = False
+            
+
+            # front_right wheel
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_driving'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_steering'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['speed'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_motor_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_wheel_state'] = False
+
+            
+            # back_right wheel
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_driving'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_steering'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['speed'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_motor_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_wheel_state'] = False
+
+            
+            # back_left wheel
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_driving'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_steering'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['speed'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_wheel_state'] = False
+
+            return
 
         # states
         self.steering_wheel_state = msg.state[4:8]
@@ -119,12 +155,8 @@ class Navigation:
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = self.steering_wheel_ang[3]
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = self.steering_wheel_state[3]
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_wheel_state'] = self.driving_wheel_state[3]
-    
 
-    def nav_displacement(self, displacement):
-        self.displacement_mode = displacement.modedeplacement
-        self.info = displacement.info
-    
+
     def feedback_odometry(self, pose_stamped):
         msg = Odometry()
         msg.header.stamp = self.rover_node.node.get_clock().now().to_msg()
