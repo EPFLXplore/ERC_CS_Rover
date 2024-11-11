@@ -52,8 +52,6 @@ class NewModel:
 
         system = request.system
         mode = request.mode
-        print(f"system: {system}")
-        print(f"mode: {mode}")
         '''
         # test leds
         if system == 0:
@@ -141,12 +139,11 @@ class NewModel:
             log_error(self.rover_node, "Error in hd service call: " + str(e))
             
     def service_callback_drill(self, future, mode, response):
-        print("babab")
         try:
             response_drill = future.result()
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                self.Elec.send_led_commands("drill", self.drill_to_name[mode])
+                #self.Elec.send_led_commands("drill", self.drill_to_name[mode])
             else:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 
@@ -156,8 +153,9 @@ class NewModel:
     def service_callback_camera(self, future, subsystem, index, activate):
         try:
             response_camera = future.result()
-            if response_camera.error_type == 0:
-                self.rover_node.rover_state_json['cameras'][subsystem][index]['status'] = True if (activate == 1) else False
+            if response_camera.success == True:
+                self.rover_node.rover_state_json['cameras'][subsystem][index]['status'] = activate
+                print(self.rover_node.rover_state_json['cameras'][subsystem][index]['status'])
             else:
                 log_error(self.rover_node, "Error in camera service response callback: " + response_camera.error_message)
 
@@ -172,15 +170,10 @@ class NewModel:
         
         # CS
         if(system == "control_station"):
-            # we have 4 cameras
             req = SetBool.Request()
             req.data = True if activate else False
 
             match index:
-                case "Front":
-                    future = self.rover_node.camera_cs_service_0.call_async(req)
-                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
-                
                 case "Left":
                     future = self.rover_node.camera_cs_service_1.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
@@ -200,7 +193,6 @@ class NewModel:
         
         # NAV
         if(system == "navigation"):
-            # we have 4 cameras
             req = SetBool.Request()
             req.data = True if activate else False
 
@@ -216,10 +208,6 @@ class NewModel:
                 case "Front":
                     future = self.rover_node.camera_nav_service_2.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
-
-                case "Around360":
-                    future = self.rover_node.camera_nav_service_3.call_async(req)
-                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
             
             response.error_type = 0
@@ -228,32 +216,12 @@ class NewModel:
 
         # HD
         if(system == "handling_device"):
-            # we have 2 cameras
             req = SetBool.Request()
             req.data = True if activate else False
 
             match index:
                 case "Gripper":
                     future = self.rover_node.camera_hd_service_0.call_async(req)
-                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
-                
-                case "Other":
-                    future = self.rover_node.camera_hd_service_1.call_async(req)
-                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
-            
-            response.error_type = 0
-            response.error_message = "error_message"
-            return response
-        
-        # SC
-        if(system == "science"):
-            # we have 2 cameras
-            req = SetBool.Request()
-            req.data = True if activate else False
-
-            match index:
-                case "Main":
-                    future = self.rover_node.camera_sc_service_0.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
             response.error_type = 0

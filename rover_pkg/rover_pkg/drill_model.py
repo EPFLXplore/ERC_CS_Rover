@@ -1,10 +1,23 @@
 from rclpy.action import GoalResponse
 from std_msgs.msg import Bool
 from custom_msg.action import DrillCmd
+import math
 
 class Drill:
     def __init__(self, rover_node):
         self.rover_node = rover_node
+
+        self.modes = {
+            0: 'STOPPED',
+            1: 'IDLE', 
+            2: 'DRILLSTART',
+            3: 'EXTEND',
+            4: 'RETURN',
+            5: 'ABORT', 
+            6: 'RELEASE',
+            7: 'OPEN',
+            8: 'CLOSE'
+        }
 
         self.feedback = None
         self.running = False
@@ -133,11 +146,31 @@ class Drill:
     # ------------------------------------------------------------------------------------------
 
     def update_motor_status(self, msg):
-        self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = msg.encoder
+
+        if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
+            self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = "0.0"
+            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = "0.0"
+            self.rover_node.rover_state_json['drill']['motors']['motor_module']['current'] = "0.0"
+            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['current'] = "0.0"
+            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['state'] = False
+            self.rover_node.rover_state_json['drill']['motors']['motor_module']['state'] = False
+            return
+
+        self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = round(msg.distance)
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = msg.vel
+        self.rover_node.rover_state_json['drill']['motors']['motor_module']['current'] = msg.trans_current
+        self.rover_node.rover_state_json['drill']['motors']['motor_drill']['current'] = msg.screw_current
+        self.rover_node.rover_state_json['drill']['motors']['motor_drill']['state'] = msg.motor_screw
+        self.rover_node.rover_state_json['drill']['motors']['motor_module']['state'] = msg.motor_trans
+
 
     def update_drill_status(self, msg):
-        self.rover_node.rover_state_json['drill']['state']['state_fsm'] = msg.data
+        if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
+            self.rover_node.rover_state_json['drill']['state']['state_fsm'] = 'IDLE'
+            return
+
+        self.rover_node.rover_state_json['drill']['state']['state_fsm'] = self.modes[msg.mode]
+
 
     def result_drill_action(self, resultt, error_type, error_messsage):
         result = DrillCmd.Result()
