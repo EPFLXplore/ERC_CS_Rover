@@ -1,4 +1,4 @@
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32
 from std_srvs.srv import SetBool
 from custom_msg.srv import HDMode, DrillMode, ChangeModeSystem
 from rover_pkg.drill_model import Drill
@@ -47,6 +47,10 @@ class NewModel:
         self.HD = HandlingDevice(rover_node)
         self.Nav = Navigation(rover_node)
         self.Elec = Elec(rover_node, self)
+
+        self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_0", self.cs_data_rates_0, 10)
+        self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_1", self.cs_data_rates_1, 10)
+        self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_2", self.cs_data_rates_2, 10)
 
     async def change_mode_system_service(self, request, response):
 
@@ -175,15 +179,15 @@ class NewModel:
 
             match index:
                 case "Left":
-                    future = self.rover_node.camera_cs_service_1.call_async(req)
+                    future = self.rover_node.camera_cs_service_0.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
                 case "Right":
-                    future = self.rover_node.camera_cs_service_2.call_async(req)
+                    future = self.rover_node.camera_cs_service_1.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
                 case "Behind":
-                    future = self.rover_node.camera_cs_service_3.call_async(req)
+                    future = self.rover_node.camera_cs_service_2.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
             
@@ -231,14 +235,38 @@ class NewModel:
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
     
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
+# DATA RATES CAMERAS
+
+    def cs_data_rates_0(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['control_station']['Left']['status']:
+            self.rover_node.rover_state_json['cameras']['control_station']['Left']['data_rate'] = "0.0."  
+            return
+            
+        self.rover_node.rover_state_json['cameras']['control_station']['Left']['data_rate'] = msg.data 
+
+    def cs_data_rates_1(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['control_station']['Right']['status']:
+            self.rover_node.rover_state_json['cameras']['control_station']['Right']['data_rate'] = "0.0."  
+            return
+        
+        self.rover_node.rover_state_json['cameras']['control_station']['Right']['data_rate'] = msg.data 
+
+    def cs_data_rates_2(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['control_station']['Behind']['status']:
+            self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = "0.0."  
+            return
+        
+        self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = msg.data 
+
+
 def log_error(node, error_message):
     node.rover_state_json['rover']['status']['errors'] = node.rover_state_json['rover']['status']['errors'].append(error_message)
 
 def log_warning(node, warning_message):
     node.rover_state_json['rover']['status']['warnings'] = node.rover_state_json['rover']['status']['warnings'].append(warning_message)
 
-'''
-'''
 def response_service(node, response, error_type, error_message):
         res_sub_systems = {}
         sub_systems_status = node.rover_state_json['rover']['status']['systems']
@@ -251,5 +279,4 @@ def response_service(node, response, error_type, error_message):
         response.error_message = error_message
 
         return response
-'''
-'''
+
