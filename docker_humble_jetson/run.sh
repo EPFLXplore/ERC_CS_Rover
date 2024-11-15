@@ -49,6 +49,6 @@ docker run -it \
     -v /run/jtop.sock:/run/jtop.sock \
     -v /dev:/dev \
     -v $PARENT_DIR:/home/xplore/dev_ws/src \
-    -v rover_humble_desktop_home_volume:/home/xplore \
+    -v rover_humble_jetson_home_volume:/home/xplore \
     ghcr.io/epflxplore/rover:humble-jetson \
     /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; /bin/bash"
