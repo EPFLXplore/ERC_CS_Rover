@@ -28,8 +28,8 @@ class NetworkMonitoring(Node):
         self.get_logger().info("Networking Node ready")
         
         self.logs = None
-        self.logs_pub = self.node.create_publisher(String, "/networklogs", 1)
-        self.timer = self.node.create_timer(2.0, self.get_logs)
+        #self.logs_pub = self.node.create_publisher(String, "/networklogs", 1)
+        self.timer = self.create_timer(2.0, self.get_logs)
         
     
     
@@ -90,6 +90,6 @@ class NetworkMonitoring(Node):
 
         if response.status_code == 200:
             self.logs = response.json()
-
+            print(self.logs)
 
             #self.logs_pub.publish(logs)
