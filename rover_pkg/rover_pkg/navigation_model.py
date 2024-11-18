@@ -3,6 +3,7 @@ from nav_msgs.msg import Odometry
 from custom_msg.action import NAVReachGoal
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
+from std_msgs.msg import String
 
 class Navigation:
     def __init__(self, rover_node):
@@ -24,10 +25,19 @@ class Navigation:
         self.steering_wheel_state = [0,0,0,0]
         self.driving_wheel_state = [0,0,0,0]
 
+        self.rover_node.node.create_subscription(String, self.rover_node.nav_names['system_status'], self.handle_state, 10)
+
+
         # NAV --> Rover
         #self.node.create_subscription(PoseStamped,        '/lio_sam/current_pose'          , self.NAV_odometry_pub.publish , 10) # CS DIRECTLY SUBSCRIBED
 
-    # def update_hd_joint_telemetry(self, msg):
+
+    self.handle_state(self, msg):
+        self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = msg.data
+        
+        if msg.data == 'Off':
+            self.rover_node.model.Elec.send_led_commands("navigation", "Off")
+
     def nav_odometry(self, odometry):
 
         self.position = [odometry.pose.pose.position.x, odometry.pose.pose.position.y, odometry.pose.pose.position.z]

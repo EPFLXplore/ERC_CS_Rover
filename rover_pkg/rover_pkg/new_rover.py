@@ -19,7 +19,7 @@ from sensor_msgs.msg import JointState, Joy
 from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
-from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorNavStatus, MotorCommands, ScFSMStatusDrill
+from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorStatus, MotorCommands, ScFSMStatusDrill
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
 from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera
 from nav2_msgs.action import NavigateToPose
@@ -113,7 +113,7 @@ class RoverNode():
 
         # -- NAV messages --
         self.node.create_subscription(Odometry,         '/lio_sam/odom',                self.model.Nav.nav_odometry  , 10)
-        self.node.create_subscription(MotorNavStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
+        self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
 
         # ===== SERVICES =====
 

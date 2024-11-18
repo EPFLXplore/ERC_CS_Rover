@@ -4,6 +4,10 @@ from rclpy.node import Node
 known_node_names = {
     "ROVER": ("rover", "node_rover", True),
     "HealthNode": ("rover", "health_node", True),
+    "NAV_cmd_vel_manager": ("navigation", "wheels_control", True),
+    "NAV_displacement_cmds": ("navigation", "wheels_displacement", True),
+    "NAV_gamepad_interface": ("navigation", "wheels_gamepad", True),
+    "NAV_motor_cmds": ("navigation", "wheels_commands", True)
 }
 
 class ActiveNodeChecker(Node):

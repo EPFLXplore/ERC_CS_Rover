@@ -84,7 +84,7 @@ class NewModel:
             future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
             
             
-            response.systems_state = ""
+            response.new_mode = 0
             response.error_type = 0
             response.error_message = "error_message"
             return response
@@ -112,7 +112,7 @@ class NewModel:
             future = self.rover_node.drill_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_drill(f, mode, response))
             
-            response.systems_state = ""
+            response.new_mode = 0
             response.error_type = 0
             response.error_message = "error_message"
             return response    
@@ -121,8 +121,8 @@ class NewModel:
     def service_callback_nav(self, future, mode):
         try:
             response = future.result()
-            
-            if response.error_type == 0 and response.system_mode == mode:
+            print(response)
+            if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
                 #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
             else:
@@ -134,7 +134,7 @@ class NewModel:
         try:
             response = future.result()
             
-            if response.error_type == 0 and response.system_mode == mode:
+            if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
                 #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
             else:
@@ -145,7 +145,7 @@ class NewModel:
     def service_callback_drill(self, future, mode, response):
         try:
             response_drill = future.result()
-            if response_drill.error_type == 0 and response_drill.system_mode == mode:
+            if response_drill.error_type == 0 and response_drill.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
                 #self.Elec.send_led_commands("drill", self.drill_to_name[mode])
             else:
@@ -266,17 +266,4 @@ def log_error(node, error_message):
 
 def log_warning(node, warning_message):
     node.rover_state_json['rover']['status']['warnings'] = node.rover_state_json['rover']['status']['warnings'].append(warning_message)
-
-def response_service(node, response, error_type, error_message):
-        res_sub_systems = {}
-        sub_systems_status = node.rover_state_json['rover']['status']['systems']
-        res_sub_systems['navigation'] = sub_systems_status['navigation']['status']
-        res_sub_systems['handling_device'] = sub_systems_status['handling_device']['status']
-        res_sub_systems['drill'] = sub_systems_status['drill']['status']
-
-        response.systems_state = json.dumps(res_sub_systems)
-        response.error_type = error_type
-        response.error_message = error_message
-
-        return response
 
