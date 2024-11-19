@@ -68,10 +68,10 @@ class Drill:
 
         if not self.cancel_drill:
             self.rover_node.node.get_logger().info("Drill Goal finished successfully")
-            return self.result_drill_action("Drill Goal finished successfully", 0, "no errors")
+            return self.result_drill_action(self.result)
         else:
             self.rover_node.node.get_logger().info("Canceled goal drill successfull")
-            return self.result_drill_action(self.result.result, self.result.error_type, self.result.error_message)
+            return self.result_drill_action(self.result)
 
     '''
     Function handling the response of the request to the Drill.
@@ -85,7 +85,7 @@ class Drill:
             self.cancel_drill = True
             self.running = False
             self.rover_node.node.get_logger().info('Drill Goal rejected from drill')
-            return self.result_drill_action("Drill Goal rejected from drill", 1, 'no errors')
+            return self.result_drill_action(self.result)
 
         self.rover_node.node.get_logger().info('Drill Goal accepted from drill')
 
@@ -119,7 +119,7 @@ class Drill:
         
         else:
             self.feedback = feedback.feedback
-            self.goal_handle_cs.publish_feedback(self.feedback)
+            self.update_drill_feedback(self.feedback)
 
     '''
     Cancel action from CS. Need to send cancellation to DRILL and forward cancellation
@@ -171,11 +171,14 @@ class Drill:
 
         self.rover_node.rover_state_json['drill']['state']['state_fsm'] = self.modes[msg.mode]
 
+    def update_drill_feedback(self, feedback):
+        self.rover_node.rover_state_json['drill']['state']['current_status'] = feedback.current_status
+        self.rover_node.rover_state_json['drill']['state']['warning_type'] = feedback.warning_type
 
-    def result_drill_action(self, resultt, error_type, error_messsage):
+
+    def result_drill_action(self, resultt):
         result = DrillCmd.Result()
-        result.result = resultt
-        result.error_type = error_type
-        result.error_message = error_messsage
+        self.rover_node.rover_state_json['drill']['state']['current_status'] = resultt.result
+        self.rover_node.rover_state_json['drill']['state']['warning_type'] = resultt.error_type
         return result
     
