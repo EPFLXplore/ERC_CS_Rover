@@ -34,6 +34,13 @@ class Drill:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'Off'
             self.rover_node.model.Elec.send_led_commands("drill", "Off")
 
+            self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = "0.0"
+            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = "0.0"
+            self.rover_node.rover_state_json['drill']['motors']['motor_module']['current'] = "0.0"
+            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['current'] = "0.0"
+            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['state'] = False
+            self.rover_node.rover_state_json['drill']['motors']['motor_module']['state'] = False
+
     '''
     Function pre-handling the request from CS. Accept or Reject
     '''
@@ -131,7 +138,7 @@ class Drill:
 
     
     '''
-    Cancel action from ROVER. DONT KNOW IF IT WILL WORK BECAUSE OF CALLBACK RETURN
+    Cancel action from ROVER.
     '''
     def cancel_drill_action(self, future):
         cancel_response = future.result()
@@ -146,15 +153,6 @@ class Drill:
     # ------------------------------------------------------------------------------------------
 
     def update_motor_status(self, msg):
-
-        if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
-            self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = "0.0"
-            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = "0.0"
-            self.rover_node.rover_state_json['drill']['motors']['motor_module']['current'] = "0.0"
-            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['current'] = "0.0"
-            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['state'] = False
-            self.rover_node.rover_state_json['drill']['motors']['motor_module']['state'] = False
-            return
 
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = round(msg.distance)
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = msg.vel

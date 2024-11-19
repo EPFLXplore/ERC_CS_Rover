@@ -32,11 +32,46 @@ class Navigation:
         #self.node.create_subscription(PoseStamped,        '/lio_sam/current_pose'          , self.NAV_odometry_pub.publish , 10) # CS DIRECTLY SUBSCRIBED
 
 
-    self.handle_state(self, msg):
+    def handle_state(self, msg):
         self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = msg.data
         
         if msg.data == 'Off':
             self.rover_node.model.Elec.send_led_commands("navigation", "Off")
+
+            # front_left wheel
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_steering'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['speed'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_motor_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_wheel_state'] = False
+            
+
+            # front_right wheel
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_driving'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_steering'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['speed'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_motor_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_wheel_state'] = False
+
+            
+            # back_right wheel
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_driving'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_steering'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['speed'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_motor_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_wheel_state'] = False
+
+            
+            # back_left wheel
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_driving'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_steering'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['speed'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = "0.0"
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_wheel_state'] = False
 
     def nav_odometry(self, odometry):
 
@@ -76,45 +111,6 @@ class Navigation:
         BACK_LEFT_STEER = 7
         """
 
-        # Update status if we put the navigation off but without killing the nodes
-        if self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Off':
-            # front_left wheel
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_steering'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['speed'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_wheel_state'] = False
-            
-
-            # front_right wheel
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_driving'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_steering'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['speed'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_wheel_state'] = False
-
-            
-            # back_right wheel
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_driving'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_steering'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['speed'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_wheel_state'] = False
-
-            
-            # back_left wheel
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_driving'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_steering'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['speed'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_wheel_state'] = False
-
-            return
-
         # states
         self.steering_wheel_state = msg.state[4:8]
         self.driving_wheel_state = msg.state[0:4]
@@ -128,6 +124,7 @@ class Navigation:
 
         # velocity
         self.driving_wheel_vel = [float(i/65536 * 360) for i in msg.velocity[0:4]]
+        #self.driving_wheel_vel = msg.velocity
 
         # update the rover status
 
