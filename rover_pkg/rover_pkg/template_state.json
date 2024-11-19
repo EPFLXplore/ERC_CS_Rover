@@ -350,7 +350,9 @@
     },
     "state": {
       "state_fsm": "IDLE",
-      "container": "CLOSE"
+      "container": "CLOSE",
+      "current_status": "",
+      "warning_type":"0"
     }
   },
   "electronics": {
