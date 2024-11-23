@@ -16,7 +16,8 @@ class Drill:
             5: 'ABORT', 
             6: 'RELEASE',
             7: 'OPEN',
-            8: 'CLOSE'
+            8: 'CLOSE',
+            9: 'WAIT'
         }
 
         self.feedback = None
@@ -28,7 +29,7 @@ class Drill:
         self.rover_node.node.create_subscription(Bool, self.rover_node.science_names['status_system'], self.handle_state, 10)
     
     def handle_state(self, msg):
-        if msg.data:
+        if msg.data == 1:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On'
         else:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'Off'
@@ -156,8 +157,8 @@ class Drill:
 
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = round(msg.distance)
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = msg.vel
-        self.rover_node.rover_state_json['drill']['motors']['motor_module']['current'] = msg.trans_current
-        self.rover_node.rover_state_json['drill']['motors']['motor_drill']['current'] = msg.screw_current
+        self.rover_node.rover_state_json['drill']['motors']['motor_module']['current'] = abs(msg.trans_current)
+        self.rover_node.rover_state_json['drill']['motors']['motor_drill']['current'] = abs(msg.screw_current)
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['state'] = msg.motor_screw
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['state'] = msg.motor_trans
 

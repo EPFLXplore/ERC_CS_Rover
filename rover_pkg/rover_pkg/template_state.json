@@ -352,7 +352,7 @@
       "state_fsm": "IDLE",
       "container": "CLOSE",
       "current_status": "",
-      "warning_type":"0"
+      "warning_type": "0"
     }
   },
   "electronics": {
@@ -368,7 +368,7 @@
         "ph": "0.0"
       },
       "imu": {
-        "xxzw": [],
+        "xyzw": [],
         "orientation_cov": [],
         "ang_vel_cov": [],
         "linear_accel_cov": [],
@@ -389,7 +389,8 @@
       },
       "voltmeter": {
         "voltage": "0.0"
-      }
+      },
+      "dust_sensor": "0.0"
     }
   }
 }

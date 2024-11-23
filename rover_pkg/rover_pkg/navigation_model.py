@@ -118,19 +118,22 @@ class Navigation:
         # currents
         self.steering_current = msg.current[4:8]
         self.driving_current = msg.current[0:4]
+        
+        # averaged current
+        self.steering_average_current = msg.average_current[4:8]
+        self.driving_average_current = msg.average_current[0:4]
 
         # position
         self.steering_wheel_ang = [float(i/65536 * 360) for i in msg.position[0:4]]
 
         # velocity
         self.driving_wheel_vel = [float(i/65536 * 360) for i in msg.velocity[0:4]]
-        #self.driving_wheel_vel = msg.velocity
 
         # update the rover status
 
         # front_left wheel
-        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = self.driving_current[0]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_steering'] = self.steering_current[0]
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = abs(self.driving_average_current[0])
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_steering'] = abs(self.steering_average_current[0])
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['speed'] = self.driving_wheel_vel[0]
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = self.steering_wheel_ang[0]
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_motor_state'] = self.steering_wheel_state[0]
@@ -138,8 +141,8 @@ class Navigation:
         
 
         # front_right wheel
-        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_driving'] = self.driving_current[1]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_steering'] = self.steering_current[1]
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_driving'] = abs(self.driving_average_current[1])
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_steering'] = abs(self.steering_average_current[1])
         self.rover_node.rover_state_json['navigation']['wheels']['front_right']['speed'] = self.driving_wheel_vel[1]
         self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = self.steering_wheel_ang[1]
         self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_motor_state'] = self.steering_wheel_state[1]
@@ -147,8 +150,8 @@ class Navigation:
 
         
         # back_right wheel
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_driving'] = self.driving_current[2]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_steering'] = self.steering_current[2]
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_driving'] = abs(self.driving_average_current[2])
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_steering'] = abs(self.steering_average_current[2])
         self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['speed'] = self.driving_wheel_vel[2]
         self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = self.steering_wheel_ang[2]
         self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_motor_state'] = self.steering_wheel_state[2]
@@ -156,8 +159,8 @@ class Navigation:
 
         
         # back_left wheel
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_driving'] = self.driving_current[3]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_steering'] = self.steering_current[3]
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_driving'] = abs(self.driving_average_current[3])
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_steering'] = abs(self.steering_average_current[3])
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['speed'] = self.driving_wheel_vel[3]
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = self.steering_wheel_ang[3]
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = self.steering_wheel_state[3]

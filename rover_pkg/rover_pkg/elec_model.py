@@ -26,6 +26,8 @@ class Elec:
 
         self.rover_node.node.create_subscription(Mag, self.rover_node.el_names['POTENTIOMETER_TOPIC'], self.potentiometer_callback, 1)
 
+        self.rover_node.node.create_subscription(String, self.rover_node.el_names['DUST_TOPIC'], self.dust_sensor_callback, 1)
+
 
     def send_led_commands(self, subsystem, mode):
 
@@ -63,6 +65,9 @@ class Elec:
         command = LedsCommand()
         command.leds = [led]
         self.leds.publish(command)
+    
+    def dust_sensor_callback(self, msg):
+        self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor'] = msg.data
 
     def drill_mass_callback(self, msg):
         self.rover_node.rover_state_json['electronics']['sensors']['mass_sensors']["mass_drill"] = msg.mass[1]
