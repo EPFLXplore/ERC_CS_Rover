@@ -51,4 +51,7 @@ docker run -i \
     -v $parent_dir:/home/xplore/dev_ws/src \
     -v rover_humble_jetson_home_volume:/home/xplore \
     ghcr.io/epflxplore/rover:humble-jetson \
-    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon build --packages-select rover_pkg custom_msg; pip install ping3 tornado pymongo; source install/setup.bash; export PYTHONPATH=/home/xplore/dev_ws/install/rover_pkg/lib/python3.10/site-packages:/home/xplore/dev_ws/install/custom_msg/local/lib/python3.10/dist-packages:/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages; ros2 run rover_pkg new_rover"
+    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon build --packages-select camera; pip install pyrealsense2; source install/setup.bash; ros2 launch camera camera_node_cs.launch.py"
+
+
+#export PYTHONPATH=/home/xplore/dev_ws/install/rover_pkg/lib/python3.10/site-packages:/home/xplore/dev_ws/install/custom_msg/local/lib/python3.10/dist-packages:/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages;
