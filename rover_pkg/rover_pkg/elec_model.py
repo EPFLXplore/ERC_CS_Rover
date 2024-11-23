@@ -1,4 +1,5 @@
 from custom_msg.msg import LedsCommand, Led, MassArray, FourInOne, Voltage, Imu, Mag
+from std_msgs.msg import String
 class Elec:
     def __init__(self, rover_node, model):
         self.rover_node = rover_node

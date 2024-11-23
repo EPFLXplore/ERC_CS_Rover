@@ -21,7 +21,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallb
 
 from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorStatus, MotorCommands, ScFSMStatusDrill
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
-from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera
+from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera, ChangeModeHDCamera
 from nav2_msgs.action import NavigateToPose
 
 
@@ -119,10 +119,13 @@ class RoverNode():
 
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, 
                                                           self.cs_names["cs_service_change_subsystem"], self.model.change_mode_system_service, callback_group=MutuallyExclusiveCallbackGroup())
-        
+        # Create new HD RGBD mode service
         self.change_camera_mode = self.node.create_service(ChangeModeCamera, 
-                                                          self.cs_names["cs_change_mode_camera"], self.model.change_mode_camera_service, callback_group=MutuallyExclusiveCallbackGroup())
-
+                                                          self.cs_names["cs_change_mode_camera"], self.model.change_mode_camera_service, callback_group=MutuallyExclusiveCallbackGroup()) 
+        
+        self.change_camera_HD_mode = self.node.create_service(SetBool, 
+                                                          self.cs_names["cs_change_mode_camera_HD"], self.model.change_mode_camera_HD_service, callback_group=MutuallyExclusiveCallbackGroup())
+        
         self.nav_service = self.node.create_client(ChangeModeSystem, '/ROVER/change_NAV_mode', callback_group=MutuallyExclusiveCallbackGroup())
 
         self.camera_cs_service_0 = self.node.create_client(SetBool, 
