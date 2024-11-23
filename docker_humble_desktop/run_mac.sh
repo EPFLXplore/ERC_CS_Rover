@@ -31,27 +31,24 @@ current_dir=$(pwd)
 # Use dirname to get the parent directory
 parent_dir=$(dirname "$current_dir")
 
-JTOP_GID=$(getent group jtop | awk -F: '{print $3}')
-
 USERNAME=xplore
 
-docker run -i \
-    --name rover_humble_jetson \
+docker run -it \
+    --name rover_humble_desktop \
     --rm \
     --privileged \
-    --net=host \
+    --network docker_humble_desktop_cs_frontend_net \
+    -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
     -e DISPLAY=unix$DISPLAY \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=$XAUTH \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
     -v $XAUTH:$XAUTH \
     -v /run/user/1000/at-spi:/run/user/1000/at-spi \
-    -v /run/jtop.sock:/run+/jtop.sock \
+    -v /run/jtop.sock:/run/jtop.sock \
     -v /dev:/dev \
     -v $parent_dir:/home/xplore/dev_ws/src \
-    -v rover_humble_jetson_home_volume:/home/xplore \
-    ghcr.io/epflxplore/rover:humble-jetson \
-    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; colcon build --packages-select camera; pip install pyrealsense2; source install/setup.bash; ros2 launch camera camera_node_cs.launch.py"
+    -v rover_humble_desktop_home_volume:/home/xplore \
+    ghcr.io/epflxplore/rover:humble-desktop \
+    /bin/bash -c "sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; /bin/bash"
 
-
-#export PYTHONPATH=/home/xplore/dev_ws/install/rover_pkg/lib/python3.10/site-packages:/home/xplore/dev_ws/install/custom_msg/local/lib/python3.10/dist-packages:/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages;
