@@ -81,19 +81,6 @@ class HandlingDevice:
 
     # -----------------------------------------------------------------------------
 
-    def hd_joint_state(self, joint_state):
-
-        self.joint_positions = joint_state.position
-        self.joint_velocities = joint_state.velocity
-        self.joint_current = joint_state.effort
-
-        # update the rover status
-        for i in range(7):
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = math.degrees(self.joint_positions[i])
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = self.joint_velocities[i]
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = self.joint_current[i]
-
-
     def hd_motor_cmds(self, msg):
         currents = msg.current
         on_off = msg.motor_on

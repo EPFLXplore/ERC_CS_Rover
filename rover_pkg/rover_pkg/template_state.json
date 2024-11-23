@@ -6,48 +6,70 @@
     "software": {
       "nodes": {
         "rover": {
-          "name": "Rover",
-          "status": false
+          "node_rover": {
+            "name": "Rover",
+            "status": false
+          },
+          "health_node": {
+            "name": "Health Node",
+            "status": false
+          },
+          "network": {
+            "name": "Network",
+            "status": false
+          },
+          "rpi_cs": {
+            "name": "RPI CS",
+            "status": false
+        }
         },
-        "wheels_control": {
-          "name": "Wheels Velocity",
-          "status": false
+        "navigation": {
+          "wheels_control": {
+            "name": "Wheels Velocity",
+            "status": false
+          },
+          "wheels_displacement": {
+            "name": "Wheels Displacement",
+            "status": false
+          },
+          "wheels_gamepad": {
+            "name": "Wheels Gamepad",
+            "status": false
+          },
+          "wheels_commands": {
+            "name": "Wheels Commands",
+            "status": false
+          },
+          "navigation_interface": {
+            "name": "Nav Interface",
+            "status": false
+          }
         },
-        "wheels_displacement": {
-          "name": "Wheels Displacement",
-          "status": false
+        "drill": {
+          "drill_fms": {
+            "name": "Drill FSM",
+            "status": false
+          },
+          "drill_commands": {
+            "name": "Drill Commands",
+            "status": false
+          },
+          "drill_interface": {
+            "name": "Drill Interface",
+            "status": false
+          }
         },
-        "wheels_gamepad": {
-          "name": "Wheels Gamepad",
-          "status": false
+        "handling_device": {
+          "motor_control": {
+            "name": "Motor Control",
+            "status": false
+          }
         },
-        "wheels_commands": {
-          "name": "Wheels Commands",
-          "status": false
-        },
-        "navigation_interfe": {
-          "name": "Nav Interface",
-          "status": false
-        },
-        "drill_fms": {
-          "name": "Drill FSM",
-          "status": false
-        },
-        "drill_commands": {
-          "name": "Drill Commands",
-          "status": false
-        },
-        "drill_interface": {
-          "name": "Drill Interface",
-          "status": false
-        },
-        "network": {
-          "name": "Network",
-          "status": false
-        },
-        "rpi_cs": {
-          "name": "RPI CS",
-          "status": false
+        "electronics": {
+          "avionics": {
+            "name": "Avionics",
+            "status": false
+          }
         }
       }
     },
@@ -328,7 +350,9 @@
     },
     "state": {
       "state_fsm": "IDLE",
-      "container": "CLOSE"
+      "container": "CLOSE",
+      "current_status": "",
+      "warning_type":"0"
     }
   },
   "electronics": {

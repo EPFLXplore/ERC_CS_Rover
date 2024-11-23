@@ -19,7 +19,7 @@ from sensor_msgs.msg import JointState, Joy
 from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
-from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorNavStatus, MotorCommands
+from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorStatus, MotorCommands, ScFSMStatusDrill
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
 from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera
 from nav2_msgs.action import NavigateToPose
@@ -103,20 +103,17 @@ class RoverNode():
         # -- SC messages --
         self.node.create_subscription(ScMotorStatus, 
                                       self.science_names["science_pubsub_motor_status"], self.model.Drill.update_motor_status, 10)
-        self.node.create_subscription(String, 
+        self.node.create_subscription(ScFSMStatusDrill, 
                                       self.science_names["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
       
         # -- HD messages --
-        #self.node.create_subscription(
-            #JointState, self.hd_names["hd_motor_telemetry"], self.model.HD.hd_joint_state, 10)
         self.node.create_subscription(
             MotorCommands, self.hd_names["hd_motor_status"], self.model.HD.hd_motor_cmds, 10)
 
 
         # -- NAV messages --
         self.node.create_subscription(Odometry,         '/lio_sam/odom',                self.model.Nav.nav_odometry  , 10)
-        self.node.create_subscription(MotorNavStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
-        self.node.create_subscription(Motorcmds,        '/NAV/displacement',            self.model.Nav.nav_displacement, 10)
+        self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
 
         # ===== SERVICES =====
 
@@ -189,7 +186,7 @@ class RoverNode():
         else:
             self.node.get_logger().info("No Networking")
 
-        #self.health = ActiveNodeChecker(self.rover_state_json)
+        self.health = ActiveNodeChecker(self.rover_state_json)
             
     # timer callback for sending rover state continuously
     def timer_callback(self):
@@ -230,7 +227,7 @@ class RoverNode():
         if self.network_monitor != None:
             executor.add_node(self.network_monitor)
         
-        #executor.add_node(self.health)
+        executor.add_node(self.health)
         executor.spin()
         rclpy.shutdown()
 

@@ -1,4 +1,4 @@
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32
 from std_srvs.srv import SetBool
 from custom_msg.srv import HDMode, DrillMode, ChangeModeSystem
 from rover_pkg.drill_model import Drill
@@ -48,12 +48,14 @@ class NewModel:
         self.Nav = Navigation(rover_node)
         self.Elec = Elec(rover_node, self)
 
+        self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_0", self.cs_data_rates_0, 10)
+        self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_1", self.cs_data_rates_1, 10)
+        self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_2", self.cs_data_rates_2, 10)
+
     async def change_mode_system_service(self, request, response):
 
         system = request.system
         mode = request.mode
-        print(f"system: {system}")
-        print(f"mode: {mode}")
         '''
         # test leds
         if system == 0:
@@ -82,7 +84,7 @@ class NewModel:
             future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
             
             
-            response.systems_state = ""
+            response.new_mode = 0
             response.error_type = 0
             response.error_message = "error_message"
             return response
@@ -110,7 +112,7 @@ class NewModel:
             future = self.rover_node.drill_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_drill(f, mode, response))
             
-            response.systems_state = ""
+            response.new_mode = 0
             response.error_type = 0
             response.error_message = "error_message"
             return response    
@@ -119,8 +121,7 @@ class NewModel:
     def service_callback_nav(self, future, mode):
         try:
             response = future.result()
-            
-            if response.error_type == 0 and response.system_mode == mode:
+            if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
                 #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
             else:
@@ -132,7 +133,7 @@ class NewModel:
         try:
             response = future.result()
             
-            if response.error_type == 0 and response.system_mode == mode:
+            if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
                 #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
             else:
@@ -141,12 +142,11 @@ class NewModel:
             log_error(self.rover_node, "Error in hd service call: " + str(e))
             
     def service_callback_drill(self, future, mode, response):
-        print("babab")
         try:
             response_drill = future.result()
-            if response_drill.error_type == 0 and response_drill.system_mode == mode:
+            if response_drill.error_type == 0 and response_drill.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                self.Elec.send_led_commands("drill", self.drill_to_name[mode])
+                #self.Elec.send_led_commands("drill", self.drill_to_name[mode])
             else:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 
@@ -156,8 +156,9 @@ class NewModel:
     def service_callback_camera(self, future, subsystem, index, activate):
         try:
             response_camera = future.result()
-            if response_camera.error_type == 0:
-                self.rover_node.rover_state_json['cameras'][subsystem][index]['status'] = True if (activate == 1) else False
+            if response_camera.success == True:
+                self.rover_node.rover_state_json['cameras'][subsystem][index]['status'] = activate
+                print(self.rover_node.rover_state_json['cameras'][subsystem][index]['status'])
             else:
                 log_error(self.rover_node, "Error in camera service response callback: " + response_camera.error_message)
 
@@ -172,25 +173,20 @@ class NewModel:
         
         # CS
         if(system == "control_station"):
-            # we have 4 cameras
             req = SetBool.Request()
             req.data = True if activate else False
 
             match index:
-                case "Front":
-                    future = self.rover_node.camera_cs_service_0.call_async(req)
-                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
-                
                 case "Left":
-                    future = self.rover_node.camera_cs_service_1.call_async(req)
+                    future = self.rover_node.camera_cs_service_0.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
                 case "Right":
-                    future = self.rover_node.camera_cs_service_2.call_async(req)
+                    future = self.rover_node.camera_cs_service_1.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
                 case "Behind":
-                    future = self.rover_node.camera_cs_service_3.call_async(req)
+                    future = self.rover_node.camera_cs_service_2.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
             
@@ -200,7 +196,6 @@ class NewModel:
         
         # NAV
         if(system == "navigation"):
-            # we have 4 cameras
             req = SetBool.Request()
             req.data = True if activate else False
 
@@ -216,10 +211,6 @@ class NewModel:
                 case "Front":
                     future = self.rover_node.camera_nav_service_2.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
-
-                case "Around360":
-                    future = self.rover_node.camera_nav_service_3.call_async(req)
-                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
             
             response.error_type = 0
@@ -228,32 +219,12 @@ class NewModel:
 
         # HD
         if(system == "handling_device"):
-            # we have 2 cameras
             req = SetBool.Request()
             req.data = True if activate else False
 
             match index:
                 case "Gripper":
                     future = self.rover_node.camera_hd_service_0.call_async(req)
-                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
-                
-                case "Other":
-                    future = self.rover_node.camera_hd_service_1.call_async(req)
-                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
-            
-            response.error_type = 0
-            response.error_message = "error_message"
-            return response
-        
-        # SC
-        if(system == "science"):
-            # we have 2 cameras
-            req = SetBool.Request()
-            req.data = True if activate else False
-
-            match index:
-                case "Main":
-                    future = self.rover_node.camera_sc_service_0.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
             response.error_type = 0
@@ -263,25 +234,35 @@ class NewModel:
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
     
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
+# DATA RATES CAMERAS
+
+    def cs_data_rates_0(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['control_station']['Left']['status']:
+            self.rover_node.rover_state_json['cameras']['control_station']['Left']['data_rate'] = "0.0."  
+            return
+            
+        self.rover_node.rover_state_json['cameras']['control_station']['Left']['data_rate'] = msg.data 
+
+    def cs_data_rates_1(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['control_station']['Right']['status']:
+            self.rover_node.rover_state_json['cameras']['control_station']['Right']['data_rate'] = "0.0."  
+            return
+        
+        self.rover_node.rover_state_json['cameras']['control_station']['Right']['data_rate'] = msg.data 
+
+    def cs_data_rates_2(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['control_station']['Behind']['status']:
+            self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = "0.0."  
+            return
+        
+        self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = msg.data 
+
+
 def log_error(node, error_message):
     node.rover_state_json['rover']['status']['errors'] = node.rover_state_json['rover']['status']['errors'].append(error_message)
 
 def log_warning(node, warning_message):
     node.rover_state_json['rover']['status']['warnings'] = node.rover_state_json['rover']['status']['warnings'].append(warning_message)
 
-'''
-'''
-def response_service(node, response, error_type, error_message):
-        res_sub_systems = {}
-        sub_systems_status = node.rover_state_json['rover']['status']['systems']
-        res_sub_systems['navigation'] = sub_systems_status['navigation']['status']
-        res_sub_systems['handling_device'] = sub_systems_status['handling_device']['status']
-        res_sub_systems['drill'] = sub_systems_status['drill']['status']
-
-        response.systems_state = json.dumps(res_sub_systems)
-        response.error_type = error_type
-        response.error_message = error_message
-
-        return response
-'''
-'''

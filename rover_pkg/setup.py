@@ -23,17 +23,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'rover = rover_pkg.rover:main',
-            'cameras_publisher = rover_pkg.cameras_publisher:main',
             'gripper_camera = rover_pkg.gripper_camera:main',
-            'monitor = rover_pkg.monitor:main',
             'new_rover = rover_pkg.new_rover:main',
-            'nav_test_node = rover_pkg.nav_test_node:main',
-            'hd_test_node = rover_pkg.hd_test_node:main',
 	        'new_camera_cs = rover_pkg.new_camera_cs:main',
-            'webrtc_camera_cs = rover_pkg.new_camera_webrtc:main',
-            'test_cams = rover_pkg.test_cam:main',
-            'test_nav2 = rover_pkg.test:main',
             'gamepad = rover_pkg.fake_gamepad:main'
         ],
     },
