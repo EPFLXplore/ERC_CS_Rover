@@ -84,10 +84,6 @@ class RoverNode():
         # -- NAV messages --
         self.nav_cmd_pub = self.node.create_publisher(Joy, self.cs_names["cs_pubsub_nav_gamepad"], 1)
 
-        # WILL BE CONVERTED TO SERVICE
-        self.nav_mode_pub = self.node.create_publisher(String, 
-                                                       self.rover_names["rover_pubsub_nav_mode"], 1)
-
         # -- HD messages --
         self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, 
                                                              self.rover_names["rover_hd_man_inv_topic"], 1)
@@ -206,7 +202,33 @@ class RoverNode():
         self.rover_state_json['rover']['status']['warnings'] = []
 
     def transfer_gamepad_cmd_nav(self, msg):
-        # TODO: Check that the mode is set to MANUAL
+        
+        # We need to update the state of the subsystem and the motion mode since with the button we can
+        # do that. Refer to the CS code in the gamepad bindings which button is for what
+
+        # Button 0 => change kinematics (NORMAL / LATERAL)
+        # Button 1 => change subsystem mode (MANUAL / AUTO)
+
+        state = self.rover_state_json['rover']['status']['systems']['navigation']['status']
+
+        # TODO FOR THE KINEMATICS WHEN WE WILL IMPLEMENT THE LATERAL MODE
+
+        if (msg.buttons[1] == 1 and state == 'Auto'):
+            req = ChangeModeSystem.Request()
+            req.system = 0
+            req.mode = 1
+
+            future = self.nav_service.call_async(req)
+            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, 1))
+        
+        if (msg.buttons[1] == 1 and state == 'Manual'):
+            req = ChangeModeSystem.Request()
+            req.system = 0
+            req.mode = 2
+
+            future = self.nav_service.call_async(req)
+            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, 2))
+
         self.nav_cmd_pub.publish(msg)
 
     def transfer_gamepad_cmd_hd(self, msg):

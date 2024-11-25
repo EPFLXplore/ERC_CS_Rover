@@ -8,7 +8,7 @@ known_node_names = {
     "NAV_displacement_cmds": ("navigation", "wheels_displacement", True),
     "NAV_gamepad_interface": ("navigation", "wheels_gamepad", True),
     "NAV_motor_cmds": ("navigation", "wheels_commands", True),
-    "NavCSInterfacing": ("drill", "drill_interface", True)
+    "NavCSInterfacing": ("drill", "drill_interface", True),
     "drill_fsm_node": ("drill", "drill_fms", True),
     "SC_motor_cmds": ("drill", "drill_commands", True)
 }

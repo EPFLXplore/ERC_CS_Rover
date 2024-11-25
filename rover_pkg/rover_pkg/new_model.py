@@ -1,11 +1,10 @@
-from std_msgs.msg import String, Float32
+from std_msgs.msg import Float32
 from std_srvs.srv import SetBool
 from custom_msg.srv import HDMode, DrillMode, ChangeModeSystem
 from rover_pkg.drill_model import Drill
 from rover_pkg.navigation_model import Navigation
 from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
-import json
 
 class NewModel:
     def __init__(self, rover_node):
@@ -74,16 +73,9 @@ class NewModel:
         # --------------------------------------------------------------------
         # NAVIGATION SYSTEM
         if system == 0:
-            # ADD LEDS WHEN SERVICE IS DONE ON NAV
-            
-            req = ChangeModeSystem.Request()
-            req.system = system
-            req.mode = mode
+            # ADD LEDS WHEN SERVICE IS DONE ON NAV            
+            self.send_nav_service(system, mode)
 
-            future = self.rover_node.nav_service.call_async(req)
-            future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
-            
-            
             response.new_mode = 0
             response.error_type = 0
             response.error_message = "error_message"
@@ -117,6 +109,14 @@ class NewModel:
             response.error_message = "error_message"
             return response    
     
+    def send_nav_service(self, system, mode):
+        req = ChangeModeSystem.Request()
+        req.system = system
+        req.mode = mode
+
+        future = self.rover_node.nav_service.call_async(req)
+        future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
+            
 
     def service_callback_nav(self, future, mode):
         try:

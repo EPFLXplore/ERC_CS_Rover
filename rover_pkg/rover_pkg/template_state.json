@@ -170,7 +170,7 @@
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
-        "driving_motor_state": false
+        "driving_wheel_state": false
       },
       "front_right": {
         "current_steering": "0.0",
@@ -178,7 +178,7 @@
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
-        "driving_motor_state": false
+        "driving_wheel_state": false
       },
       "rear_left": {
         "current_steering": "0.0",
@@ -186,7 +186,7 @@
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
-        "driving_motor_state": false
+        "driving_wheel_state": false
       },
       "rear_right": {
         "current_steering": "0.0",
@@ -194,7 +194,7 @@
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
-        "driving_motor_state": false
+        "driving_wheel_state": false
       },
       "pivot": {
         "angle": "0.0"
