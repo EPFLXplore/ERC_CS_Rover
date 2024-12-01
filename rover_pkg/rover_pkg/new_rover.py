@@ -21,7 +21,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallb
 
 from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorStatus, MotorCommands, ScFSMStatusDrill
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
-from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera, ChangeModeHDCamera
+from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera #ChangeModeHDCamera
 from nav2_msgs.action import NavigateToPose
 
 

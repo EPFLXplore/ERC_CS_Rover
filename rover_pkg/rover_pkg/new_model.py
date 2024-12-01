@@ -132,8 +132,8 @@ class NewModel:
     def service_callback_hd(self, future, mode):
         try:
             response = future.result()
-            
-            if response.error_type == 0 and response.new_mode == mode:
+            print(response)
+            if response.error_type == 0 and response.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
                 #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
             else:
