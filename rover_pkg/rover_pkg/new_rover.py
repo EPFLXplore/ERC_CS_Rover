@@ -21,7 +21,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallb
 
 from custom_msg.msg import Wheelstatus, Motorcmds, ScMotorStatus, MotorStatus, MotorCommands, ScFSMStatusDrill
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
-from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera
+from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera, ChangeModeHDCamera
 from nav2_msgs.action import NavigateToPose
 
 
@@ -84,10 +84,6 @@ class RoverNode():
         # -- NAV messages --
         self.nav_cmd_pub = self.node.create_publisher(Joy, self.cs_names["cs_pubsub_nav_gamepad"], 1)
 
-        # WILL BE CONVERTED TO SERVICE
-        self.nav_mode_pub = self.node.create_publisher(String, 
-                                                       self.rover_names["rover_pubsub_nav_mode"], 1)
-
         # -- HD messages --
         self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, 
                                                              self.rover_names["rover_hd_man_inv_topic"], 1)
@@ -119,10 +115,13 @@ class RoverNode():
 
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, 
                                                           self.cs_names["cs_service_change_subsystem"], self.model.change_mode_system_service, callback_group=MutuallyExclusiveCallbackGroup())
-        
+        # Create new HD RGBD mode service
         self.change_camera_mode = self.node.create_service(ChangeModeCamera, 
-                                                          self.cs_names["cs_change_mode_camera"], self.model.change_mode_camera_service, callback_group=MutuallyExclusiveCallbackGroup())
-
+                                                          self.cs_names["cs_change_mode_camera"], self.model.change_mode_camera_service, callback_group=MutuallyExclusiveCallbackGroup()) 
+        
+        self.change_camera_HD_mode = self.node.create_service(SetBool, 
+                                                          self.cs_names["cs_change_mode_camera_HD"], self.model.change_mode_camera_HD_service, callback_group=MutuallyExclusiveCallbackGroup())
+        
         self.nav_service = self.node.create_client(ChangeModeSystem, '/ROVER/change_NAV_mode', callback_group=MutuallyExclusiveCallbackGroup())
 
         self.camera_cs_service_0 = self.node.create_client(SetBool, 
@@ -206,7 +205,33 @@ class RoverNode():
         self.rover_state_json['rover']['status']['warnings'] = []
 
     def transfer_gamepad_cmd_nav(self, msg):
-        # TODO: Check that the mode is set to MANUAL
+        
+        # We need to update the state of the subsystem and the motion mode since with the button we can
+        # do that. Refer to the CS code in the gamepad bindings which button is for what
+
+        # Button 0 => change kinematics (NORMAL / LATERAL)
+        # Button 1 => change subsystem mode (MANUAL / AUTO)
+
+        state = self.rover_state_json['rover']['status']['systems']['navigation']['status']
+
+        # TODO FOR THE KINEMATICS WHEN WE WILL IMPLEMENT THE LATERAL MODE
+
+        if (msg.buttons[1] == 1 and state == 'Auto'):
+            req = ChangeModeSystem.Request()
+            req.system = 0
+            req.mode = 1
+
+            future = self.nav_service.call_async(req)
+            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, 1))
+        
+        if (msg.buttons[1] == 1 and state == 'Manual'):
+            req = ChangeModeSystem.Request()
+            req.system = 0
+            req.mode = 2
+
+            future = self.nav_service.call_async(req)
+            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, 2))
+
         self.nav_cmd_pub.publish(msg)
 
     def transfer_gamepad_cmd_hd(self, msg):

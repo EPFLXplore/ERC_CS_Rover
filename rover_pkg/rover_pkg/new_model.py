@@ -1,11 +1,10 @@
-from std_msgs.msg import String, Float32
+from std_msgs.msg import Float32
 from std_srvs.srv import SetBool
 from custom_msg.srv import HDMode, DrillMode, ChangeModeSystem
 from rover_pkg.drill_model import Drill
 from rover_pkg.navigation_model import Navigation
 from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
-import json
 
 class NewModel:
     def __init__(self, rover_node):
@@ -74,16 +73,9 @@ class NewModel:
         # --------------------------------------------------------------------
         # NAVIGATION SYSTEM
         if system == 0:
-            # ADD LEDS WHEN SERVICE IS DONE ON NAV
-            
-            req = ChangeModeSystem.Request()
-            req.system = system
-            req.mode = mode
+            # ADD LEDS WHEN SERVICE IS DONE ON NAV            
+            self.send_nav_service(system, mode)
 
-            future = self.rover_node.nav_service.call_async(req)
-            future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
-            
-            
             response.new_mode = 0
             response.error_type = 0
             response.error_message = "error_message"
@@ -117,6 +109,14 @@ class NewModel:
             response.error_message = "error_message"
             return response    
     
+    def send_nav_service(self, system, mode):
+        req = ChangeModeSystem.Request()
+        req.system = system
+        req.mode = mode
+
+        future = self.rover_node.nav_service.call_async(req)
+        future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
+            
 
     def service_callback_nav(self, future, mode):
         try:
@@ -189,6 +189,7 @@ class NewModel:
                     future = self.rover_node.camera_cs_service_2.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
+
             
             response.error_type = 0
             response.error_message = "error_message"
@@ -230,6 +231,31 @@ class NewModel:
             response.error_type = 0
             response.error_message = "error_message"
             return response
+        
+
+    async def change_mode_camera_HD_service(self, request, response): # HD RGBD camera mode service setter
+            
+        req = SetBool.Request()
+        req.data = True if request.data else False
+
+        future = self.rover_node.change_camera_HD_mode.call_async(req)
+        future.add_done_callback(lambda f: self.service_callback_camera_HD(f, request.data))
+        
+        response.success = True
+        return response
+    
+    def service_callback_camera_HD(self, future, activate): # HD RGBD camera mode service callback
+        try:
+            response_camera = future.result()
+            if response_camera.success == True:
+                self.rover_node.rover_state_json['handling_device']['state']['rgbd'] = activate
+                print(self.rover_node.rover_state_json['handling_device']['state']['rgbd'])
+            else:
+                log_error(self.rover_node, "Error in camera HD RGBD mode service response callback")
+
+        except Exception as e:
+            log_error(self.rover_node, "Error in camera HD RGBD mode service call: " + str(e)) 
+    
 
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
