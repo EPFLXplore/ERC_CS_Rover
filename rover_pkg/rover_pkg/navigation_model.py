@@ -27,6 +27,8 @@ class Navigation:
 
         self.rover_node.node.create_subscription(String, self.rover_node.nav_names['system_status'], self.handle_state, 10)
 
+        self.wheels_radius = 0.1325
+        self.gear_ratio = 1.0/53.0
 
         # NAV --> Rover
         #self.node.create_subscription(PoseStamped,        '/lio_sam/current_pose'          , self.NAV_odometry_pub.publish , 10) # CS DIRECTLY SUBSCRIBED
@@ -44,7 +46,7 @@ class Navigation:
             self.rover_node.rover_state_json['navigation']['wheels']['front_left']['speed'] = "0.0"
             self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = "0.0"
             self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_wheel_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_motor_state'] = False
             
 
             # front_right wheel
@@ -53,7 +55,7 @@ class Navigation:
             self.rover_node.rover_state_json['navigation']['wheels']['front_right']['speed'] = "0.0"
             self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = "0.0"
             self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_wheel_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_motor_state'] = False
 
             
             # back_right wheel
@@ -62,7 +64,7 @@ class Navigation:
             self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['speed'] = "0.0"
             self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = "0.0"
             self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_wheel_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_motor_state'] = False
 
             
             # back_left wheel
@@ -71,7 +73,7 @@ class Navigation:
             self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['speed'] = "0.0"
             self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = "0.0"
             self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_wheel_state'] = False
+            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_motor_state'] = False
 
     def nav_odometry(self, odometry):
 
@@ -111,6 +113,9 @@ class Navigation:
         BACK_LEFT_STEER = 7
         """
 
+        # conversion RPM tp m/s
+        rps_to_ms = 2 * 3.1415 * self.wheels_radius / 60.0
+
         # states
         self.steering_wheel_state = msg.state[4:8]
         self.driving_wheel_state = msg.state[0:4]
@@ -127,44 +132,45 @@ class Navigation:
         self.steering_wheel_ang = [float(i/65536 * 360) for i in msg.position[0:4]]
 
         # velocity
-        self.driving_wheel_vel = [float(i/65536 * 360) for i in msg.velocity[0:4]]
+        #self.driving_wheel_vel = [float(i/65536 * 360) for i in msg.velocity[0:4]]
+        self.driving_wheel_vel = [float(i * rps_to_ms * self.gear_ratio) for i in msg.velocity[0:4]]
 
         # update the rover status
 
         # front_left wheel
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = abs(self.driving_average_current[0])
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_steering'] = abs(self.steering_average_current[0])
-        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['speed'] = self.driving_wheel_vel[0]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = self.steering_wheel_ang[0]
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['speed'] = abs(round(self.driving_wheel_vel[0], 1))
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = int(self.steering_wheel_ang[0])
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_motor_state'] = self.steering_wheel_state[0]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_wheel_state'] = self.driving_wheel_state[0]
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_motor_state'] = self.driving_wheel_state[0]
         
 
         # front_right wheel
         self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_driving'] = abs(self.driving_average_current[1])
         self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_steering'] = abs(self.steering_average_current[1])
-        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['speed'] = self.driving_wheel_vel[1]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = self.steering_wheel_ang[1]
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['speed'] = abs(round(self.driving_wheel_vel[1], 1))
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = int(self.steering_wheel_ang[1])
         self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_motor_state'] = self.steering_wheel_state[1]
-        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_wheel_state'] = self.driving_wheel_state[1]
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_motor_state'] = self.driving_wheel_state[1]
 
         
         # back_right wheel
         self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_driving'] = abs(self.driving_average_current[2])
         self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_steering'] = abs(self.steering_average_current[2])
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['speed'] = self.driving_wheel_vel[2]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = self.steering_wheel_ang[2]
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['speed'] = abs(round(self.driving_wheel_vel[2], 1))
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = int(self.steering_wheel_ang[2])
         self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_motor_state'] = self.steering_wheel_state[2]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_wheel_state'] = self.driving_wheel_state[2]
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_motor_state'] = self.driving_wheel_state[2]
 
         
         # back_left wheel
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_driving'] = abs(self.driving_average_current[3])
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_steering'] = abs(self.steering_average_current[3])
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['speed'] = self.driving_wheel_vel[3]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = self.steering_wheel_ang[3]
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['speed'] = abs(round(self.driving_wheel_vel[3], 1))
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = int(self.steering_wheel_ang[3])
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = self.steering_wheel_state[3]
-        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_wheel_state'] = self.driving_wheel_state[3]
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_motor_state'] = self.driving_wheel_state[3]
 
 
     def feedback_odometry(self, pose_stamped):
