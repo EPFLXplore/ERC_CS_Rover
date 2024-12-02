@@ -108,7 +108,7 @@ class RoverNode():
 
 
         # -- NAV messages --
-        self.node.create_subscription(Odometry,         '/lio_sam/odom',                self.model.Nav.nav_odometry  , 10)
+        self.node.create_subscription(Odometry,         '/odom',                self.model.Nav.nav_odometry  , 10)
         self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
 
         # ===== SERVICES =====
