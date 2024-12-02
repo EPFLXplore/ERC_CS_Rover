@@ -232,12 +232,12 @@ class NewModel:
             return response
         
 
-    async def change_mode_camera_HD_service(self, request, response): # HD RGBD camera mode service setter
+    def change_mode_camera_HD_service(self, request, response): # HD RGBD camera mode service setter
             
         req = SetBool.Request()
         req.data = True if request.data else False
 
-        future = self.rover_node.change_camera_HD_mode.call_async(req)
+        future = self.rover_node.change_camera_HD_mode_client.call_async(req)
         future.add_done_callback(lambda f: self.service_callback_camera_HD(f, request.data))
         
         response.success = True
