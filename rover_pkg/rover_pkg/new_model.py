@@ -200,15 +200,15 @@ class NewModel:
             req.data = True if activate else False
 
             match index:
-                case "Up1":
+                case "Front":
                     future = self.rover_node.camera_nav_service_0.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
                 
-                case "Up2":
+                case "Up1":
                     future = self.rover_node.camera_nav_service_1.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
-                case "Front":
+                case "Up2":
                     future = self.rover_node.camera_nav_service_2.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
