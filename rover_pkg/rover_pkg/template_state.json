@@ -170,7 +170,9 @@
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
-        "driving_wheel_state": false
+        "driving_wheel_state": false,
+        "steering_fault": false,
+        "driving_fault": false
       },
       "front_right": {
         "current_steering": "0.0",
@@ -178,7 +180,9 @@
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
-        "driving_wheel_state": false
+        "driving_wheel_state": false,
+        "steering_fault": false,
+        "driving_fault": false
       },
       "rear_left": {
         "current_steering": "0.0",
@@ -186,7 +190,9 @@
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
-        "driving_wheel_state": false
+        "driving_wheel_state": false,
+        "steering_fault": false,
+        "driving_fault": false
       },
       "rear_right": {
         "current_steering": "0.0",
@@ -194,7 +200,9 @@
         "steering_angle": "0.0",
         "speed": "0.0",
         "steering_motor_state": false,
-        "driving_wheel_state": false
+        "driving_wheel_state": false,
+        "steering_fault": false,
+        "driving_fault": false
       },
       "pivot": {
         "angle": "0.0"
@@ -247,49 +255,56 @@
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "state": false
+        "state": false,
+        "mode_motor": 0 
       },
       "joint_2": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "state": false
+        "state": false,
+        "mode_motor": 0
       },
       "joint_3": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "state": false
+        "state": false,
+        "mode_motor": 0
       },
       "joint_4": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "state": false
+        "state": false,
+        "mode_motor": 0 
       },
       "joint_5": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "state": false
+        "state": false,
+        "mode_motor": 0 
       },
       "joint_6": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "state": false
+        "state": false,
+        "mode_motor": 0 
       },
       "joint_7": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "state": false
+        "state": false,
+        "mode_motor": 0 
       }
     },
     "gripper": {

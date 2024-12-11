@@ -82,19 +82,34 @@ class HandlingDevice:
     # -----------------------------------------------------------------------------
 
     def hd_motor_cmds(self, msg):
+        
+        if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
+            # update the rover status
+            for i in range(7):
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = False
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = 0
+
+            return           
+        
+
         currents = msg.current
-        on_off = msg.motor_on
-        mode = msg.mode # ?
+        motor_mode = msg.motor_mode
         positions = msg.position
         vel = msg.velocity
         torque = msg.torque
 
+        # This helps with the CS to have either motor connected, or disconnected
+        on_off = [True if motor_mode[i] == 4 else False for i in range(len(motor_mode))]
+
         # update the rover status
         for i in range(7):
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = math.degrees(positions[i])
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = round(math.degrees(positions[i]), 1)
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = vel[i]
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = currents[i]
-
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = round(currents[i], 1)
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = torque[i]
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['status'] = on_off[i]
-            #self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode'] = mode[i]
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = on_off[i]
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = motor_mode[i]
