@@ -137,13 +137,13 @@ class RoverNode():
                                                       '/ROVER/req_camera_cs_2', callback_group=MutuallyExclusiveCallbackGroup())
     
         self.camera_nav_service_0 = self.node.create_client(SetBool, 
-                                                      '/ROVER/req_camera_nav_0', callback_group=MutuallyExclusiveCallbackGroup())
+                                                      '/NAV/req_camera_nav_0', callback_group=MutuallyExclusiveCallbackGroup())
 
         self.camera_nav_service_1 = self.node.create_client(SetBool, 
-                                                      '/ROVER/req_camera_nav_1', callback_group=MutuallyExclusiveCallbackGroup())
+                                                      '/NAV/req_camera_nav_1', callback_group=MutuallyExclusiveCallbackGroup())
     
         self.camera_nav_service_2 = self.node.create_client(SetBool, 
-                                                      '/ROVER/req_camera_nav_2', callback_group=MutuallyExclusiveCallbackGroup())
+                                                      '/NAV/req_camera_nav_2', callback_group=MutuallyExclusiveCallbackGroup())
                 
         self.camera_hd_service_0 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
