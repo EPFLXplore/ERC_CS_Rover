@@ -143,8 +143,8 @@ class Navigation:
         self.driving_wheel_vel = [float(i * rps_to_ms * self.gear_ratio) for i in msg.velocity[0:4]]
 
         # fault
-        self.fault_steering = msg.fault[4:8]
-        self.fault_driving = msg.fault[0:4]
+        self.fault_steering = msg.fault_state[4:8]
+        self.fault_driving = msg.fault_state[0:4]
 
         # update the rover status
 
