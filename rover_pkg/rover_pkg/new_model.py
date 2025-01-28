@@ -6,12 +6,17 @@ from rover_pkg.navigation_model import Navigation
 from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
 
+'''
+=============== ROS Model for subsystems =================
+Authors: Ugo Balducci, Giovanni Ranieri
+Updated: 2024-2025
+'''
+
 class NewModel:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 
-
-        # FOR NOW WILL BE CHANGED
+        # maps for convenience, not really beautiful
         self.systems_to_name = {
             0: "nav",
             1: "hd",
@@ -42,15 +47,18 @@ class NewModel:
             1: "On"
         }
 
+        # Create the different models
         self.Drill = Drill(rover_node)
         self.HD = HandlingDevice(rover_node)
         self.Nav = Navigation(rover_node)
         self.Elec = Elec(rover_node, self)
 
+        # Bandwidth subscription for cameras CS
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_0", self.cs_data_rates_0, 10)
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_1", self.cs_data_rates_1, 10)
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_2", self.cs_data_rates_2, 10)
 
+    # Change the mode of a subsystem. If everything went well, it actionates the leds
     async def change_mode_system_service(self, request, response):
 
         system = request.system
@@ -68,6 +76,13 @@ class NewModel:
         
         return response
         '''
+
+        '''
+        Because services are run asynchronously, the idea would be to have a way of waiting the second
+        request to be done, and then say to the CS it's done. For actions it's done in this way. For
+        services we don't care. We automatically send to the CS that the request went well. But then
+        if something went wrong on the subsystem, the CS is notified and the mode is set to off
+        '''
         
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
@@ -80,8 +95,7 @@ class NewModel:
             response.error_type = 0
             response.error_message = "error_message"
             return response
-# ----------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------
+        
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
         # HD SYSTEM
@@ -91,10 +105,12 @@ class NewModel:
             future = self.rover_node.hd_mode_service.call_async(req)
             future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
         
+            response.new_mode = 0
+            response.error_type = 0
+            response.error_message = "error_message"
+
             return response
 
-# ----------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
         # DRILL SYSTEM
@@ -164,7 +180,7 @@ class NewModel:
         except Exception as e:
             log_error(self.rover_node, "Error in camera service call: " + str(e)) 
     
-
+    # Change the mode of a camera
     def change_mode_camera_service(self, request, response):
         system = request.subsystem
         index = request.camera_name
@@ -189,7 +205,6 @@ class NewModel:
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
 
-            
             response.error_type = 0
             response.error_message = "error_message"
             return response
@@ -232,7 +247,8 @@ class NewModel:
             return response
         
 
-    def change_mode_camera_HD_service(self, request, response): # HD RGBD camera mode service setter
+    # change to RGBD camera mode for HD
+    def change_mode_camera_HD_service(self, request, response):
             
         req = SetBool.Request()
         req.data = True if request.data else False
@@ -243,7 +259,7 @@ class NewModel:
         response.success = True
         return response
     
-    def service_callback_camera_HD(self, future, activate): # HD RGBD camera mode service callback
+    def service_callback_camera_HD(self, future, activate):
         try:
             response_camera = future.result()
             if response_camera.success == True:
@@ -255,9 +271,6 @@ class NewModel:
         except Exception as e:
             log_error(self.rover_node, "Error in camera HD RGBD mode service call: " + str(e)) 
     
-
-# ----------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------
     
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
@@ -284,6 +297,9 @@ class NewModel:
         
         self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = msg.data 
 
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
+# LOGS
 
 def log_error(node, error_message):
     node.rover_state_json['rover']['status']['errors'] = node.rover_state_json['rover']['status']['errors'].append(error_message)

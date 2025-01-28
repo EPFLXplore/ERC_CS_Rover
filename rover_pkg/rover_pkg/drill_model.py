@@ -28,19 +28,22 @@ class Drill:
 
         self.rover_node.node.create_subscription(Bool, self.rover_node.science_names['status_system'], self.handle_state, 10)
     
+    def reset_informations(self):
+        self.rover_node.model.Elec.send_led_commands("drill", "Off")
+
+        self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = "0.0"
+        self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = "0.0"
+        self.rover_node.rover_state_json['drill']['motors']['motor_module']['current'] = "0.0"
+        self.rover_node.rover_state_json['drill']['motors']['motor_drill']['current'] = "0.0"
+        self.rover_node.rover_state_json['drill']['motors']['motor_drill']['state'] = False
+        self.rover_node.rover_state_json['drill']['motors']['motor_module']['state'] = False
+
     def handle_state(self, msg):
         if msg.data == 1:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On'
         else:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'Off'
-            self.rover_node.model.Elec.send_led_commands("drill", "Off")
-
-            self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = "0.0"
-            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = "0.0"
-            self.rover_node.rover_state_json['drill']['motors']['motor_module']['current'] = "0.0"
-            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['current'] = "0.0"
-            self.rover_node.rover_state_json['drill']['motors']['motor_drill']['state'] = False
-            self.rover_node.rover_state_json['drill']['motors']['motor_module']['state'] = False
+            self.reset_informations()
 
     '''
     Function pre-handling the request from CS. Accept or Reject

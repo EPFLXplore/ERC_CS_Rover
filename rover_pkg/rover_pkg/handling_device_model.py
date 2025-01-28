@@ -3,12 +3,15 @@ from custom_msg.action import HDManipulation
 from custom_msg.srv import RequestHDGoal
 import math
 from custom_msg.msg import HDGoal
+from std_msgs.msg import String
 
 class HandlingDevice:
     def __init__(self, rover_node):
         self.rover_node = rover_node
 
         self.running = False
+        self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
+
     
     def make_action(self, goal_handle_cs):
         self.goal_handle_cs = goal_handle_cs
@@ -81,8 +84,21 @@ class HandlingDevice:
 
     # -----------------------------------------------------------------------------
 
+    def handle_state(self, msg):
+        self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = msg.data
+
+        if msg.data == 'Off':
+            for i in range(7):
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = False
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = 0
+
     def hd_motor_cmds(self, msg):
         
+        '''
         if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
             # update the rover status
             for i in range(7):
@@ -94,7 +110,7 @@ class HandlingDevice:
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = 0
 
             return           
-        
+        '''
 
         currents = msg.current
         motor_mode = msg.motor_mode

@@ -1,10 +1,10 @@
 '''
 =============== Node for interfacing between Rover and CS =================
 Authors: Ugo Balducci, Giovanni Ranieri
-Updated: 2024
+Updated: 2024-2025
 
-The main purpose of this class is to act as an orchestrator for the software of the rover.
-The Rover node manages what is sent using ROS across the different subsystems. 
+The main purpose of this node is to act as an orchestrator for the software of the rover.
+The Rover node manages what is sent across the different subsystems. 
 '''
 
 import time, yaml
@@ -15,13 +15,13 @@ from std_msgs.msg       import String, Float32MultiArray
 from std_srvs.srv       import SetBool
 import sys
 
-from sensor_msgs.msg import JointState, Joy
+from sensor_msgs.msg import Joy
 from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
-from custom_msg.msg import ScMotorStatus, MotorStatus, MotorCommands, ScFSMStatusDrill, OldMotorStatus # OldMotorStatus is for HD
+from custom_msg.msg import ScMotorStatus, MotorStatus, ScFSMStatusDrill, OldMotorStatus # OldMotorStatus is for HD
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
-from custom_msg.srv import ChangeModeSystem, HDMode, DrillMode, RequestHDGoal, ChangeModeCamera #ChangeModeHDCamera
+from custom_msg.srv import ChangeModeSystem, DrillMode, RequestHDGoal, ChangeModeCamera #ChangeModeHDCamera
 from nav2_msgs.action import NavigateToPose
 
 
@@ -32,18 +32,14 @@ from .new_model import NewModel
 from .network_monitoring import NetworkMonitoring
 from .active_node_checker import ActiveNodeChecker
 
-
 class RoverNode():
-    """Aggregates the rover topics into single JSON and sends it 
-    to the CS, and conversely receives commands from the CS and 
-    publishes them to the rover topics"""
 
     def __init__(self):
 
-        self.t1 = time.time()
         rclpy.init(args=sys.argv)
         self.node = rclpy.create_node("ROVER")
 
+        # Load the config files of the custom messages
         with open("/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json") as json_file:
             self.rover_state_json = dict(json.load(json_file))
         
@@ -65,68 +61,81 @@ class RoverNode():
         with open('/home/xplore/dev_ws/src/custom_msg/config/nav_interface_names.yaml', 'r') as file:
             self.nav_names = yaml.safe_load(file)["/**"]["ros__parameters"]
 
+        # Create the models
         self.model = NewModel(self)
+
+        # to be removed
         self.logger = MongoDBLogger("Onyx", "rover_state")
+
+        # Potential Network Node (will be instancied only if necessary)
         self.network_monitor = None
 
-        # ==========================================================
-        #              MESSAGES BETWEEN ROVER AND CS
-        # ==========================================================
-
+        # group ros
         reentrant_callback_group = ReentrantCallbackGroup()
 
-        # ===== PUBLISHERS =====
-
+        # publisher of the rover state with the timer
         self.rover_state_pub = self.node.create_publisher(String, 
                                                           self.rover_names["rover_pubsub_state"], 1)
         self.timer = self.node.create_timer(0.1, self.timer_callback)
 
+        # ==========================================================
+        #              PUBLISHERS and SUBSCRIBERS
+        # ==========================================================
+
         # -- NAV messages --
         self.nav_cmd_pub = self.node.create_publisher(Joy, self.cs_names["cs_pubsub_nav_gamepad"], 1)
+        self.node.create_subscription(Joy, self.cs_names["cs_action_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
+        self.node.create_subscription(Odometry,         '/odom',                self.model.Nav.nav_odometry  , 10)
+        self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
 
         # -- HD messages --
         self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, 
                                                              self.rover_names["rover_hd_man_inv_topic"], 1)
         self.hd_cmd_direct_pub = self.node.create_publisher(Float32MultiArray, 
                                                             self.rover_names["rover_hd_man_dir_topic"], 1)
-        
-        # ===== SUBSCRIBERS =====
-        
-        self.node.create_subscription(Joy, self.cs_names["cs_action_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
-        
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
+        self.node.create_subscription(
+            OldMotorStatus, self.hd_names["hd_old_motor_status"], self.model.HD.hd_motor_cmds, 10)        
+
 
         # -- SC messages --
         self.node.create_subscription(ScMotorStatus, 
                                       self.science_names["science_pubsub_motor_status"], self.model.Drill.update_motor_status, 10)
         self.node.create_subscription(ScFSMStatusDrill, 
                                       self.science_names["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
-      
-        # -- HD messages --
-        self.node.create_subscription(
-            OldMotorStatus, self.hd_names["hd_old_motor_status"], self.model.HD.hd_motor_cmds, 10)
 
+        # ==========================================================
+        #                       SERVICES
+        # ==========================================================
 
-        # -- NAV messages --
-        self.node.create_subscription(Odometry,         '/odom',                self.model.Nav.nav_odometry  , 10)
-        self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
-
-        # ===== SERVICES =====
-
+        # server to change mode of a subsystem
         self.change_rover_mode = self.node.create_service(ChangeModeSystem, 
                                                           self.cs_names["cs_service_change_subsystem"], self.model.change_mode_system_service, callback_group=MutuallyExclusiveCallbackGroup())
-        # Create new HD RGBD mode service
+
+        # client to change mode of navigation
+        self.nav_service = self.node.create_client(ChangeModeSystem, self.rover_names["rover_change_nav_mode"], callback_group=MutuallyExclusiveCallbackGroup())
+        
+        # client to change mode of handling device
+        self.hd_mode_service = self.node.create_client(ChangeModeSystem, 
+                                                       self.rover_names["rover_change_hd_mode"], callback_group=MutuallyExclusiveCallbackGroup())
+
+        # client to change mode of drill device
+        self.drill_service = self.node.create_client(DrillMode, 
+                                                       self.science_names["drill_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())    
+
+        # server to change mode of a camera
         self.change_camera_mode = self.node.create_service(ChangeModeCamera, 
                                                           self.cs_names["cs_change_mode_camera"], self.model.change_mode_camera_service, callback_group=MutuallyExclusiveCallbackGroup()) 
         
+        # server to activate the rgbd mode of the HD camera
         self.change_camera_HD_mode = self.node.create_service(SetBool, 
                                                           self.cs_names["cs_change_mode_camera_HD"], self.model.change_mode_camera_HD_service, callback_group=MutuallyExclusiveCallbackGroup())
         
+        # client to activate the rgbd mode of the HD camera
         self.change_camera_HD_mode_client = self.node.create_client(SetBool, 
                                                           '/HD/SetCameraRGB', callback_group=MutuallyExclusiveCallbackGroup())
         
-        self.nav_service = self.node.create_client(ChangeModeSystem, '/ROVER/change_NAV_mode', callback_group=MutuallyExclusiveCallbackGroup())
-
+        # The 7 next clients are to activate cameras
         self.camera_cs_service_0 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_cs_0', callback_group=MutuallyExclusiveCallbackGroup())
 
@@ -147,33 +156,35 @@ class RoverNode():
                 
         self.camera_hd_service_0 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
-                
-        self.hd_mode_service = self.node.create_client(HDMode, 
-                                                       self.hd_names["hd_fsm_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
-
-        self.drill_service = self.node.create_client(DrillMode, 
-                                                       self.science_names["drill_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
 
-        # ===== ACTIONS + SERVICES =====
+        # ==========================================================
+        #                       ACTIONS
+        # ==========================================================
 
+        # server that handle CS request for a manipulation task
         self.hd_manipulation_action = ActionServer(self.node, HDManipulation, 
                                                    self.cs_names["cs_hd_action_manipulation"], execute_callback=self.model.HD.make_action,
                                                 
                                                 goal_callback=self.model.HD.action_status)
 
+        # to be deleted and updated with new structure
         self.hd_manipulation_service = self.node.create_client(RequestHDGoal, 
                                                    self.hd_names["hd_fsm_goal_srv"], callback_group=MutuallyExclusiveCallbackGroup())
-                                                
+
+        # server that handle CS request for a autonomous task in navigation                                   
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
                                                   self.cs_names["cs_action_nav_goal"], self.model.Nav.make_action,
                                                   goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
 
+        # server that handle CS request for a drill task
         self.drill_action = ActionServer(self.node, DrillCmd, 
                                           self.cs_names["cs_action_drill"], execute_callback=self.model.Drill.make_action, 
                                           callback_group=reentrant_callback_group,
                                           goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal_from_cs)
         
+        # The 3 next clients forward the action to the subsystem 
+        # exception with navigation because it's nav2 that handles the action
         self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["rover_hd_action_manipulation"])
 
         #self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["rover_action_nav_goal"])
@@ -181,14 +192,22 @@ class RoverNode():
         self.drill_action_client = ActionClient(self.node, DrillCmd, self.rover_names['rover_action_drill_state'])
 
 
+        # ==========================================================
+        #                       LAUNCHING
+        # ==========================================================
+
+
         self.node.get_logger().info("Rover Node Started")
         
+        # To start the networking node, the command to start the rover node needs to be
+        # ros2 run rover_pkg new_rover true
         if len(sys.argv) > 1 and sys.argv[1] == 'true':
             self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json)
         else:
             self.node.get_logger().info("No Networking")
 
-        self.health = ActiveNodeChecker(self.rover_state_json)
+        # Start the health node checker
+        self.health = ActiveNodeChecker(self.rover_state_json, self.model)
             
     # timer callback for sending rover state continuously
     def timer_callback(self):
@@ -207,6 +226,7 @@ class RoverNode():
         self.rover_state_json['rover']['status']['errors'] = []
         self.rover_state_json['rover']['status']['warnings'] = []
 
+    # Transfer the gamepad commands for navigation
     def transfer_gamepad_cmd_nav(self, msg):
         
         # We need to update the state of the subsystem and the motion mode since with the button we can
@@ -237,6 +257,7 @@ class RoverNode():
 
         self.nav_cmd_pub.publish(msg)
 
+    # Transfer the gamepad commands for the arm
     def transfer_gamepad_cmd_hd(self, msg):
         if(self.rover_state_json['rover']['status']['systems']['handling_device']['status'] == "Manual Direct"):
             msgHD = Float32MultiArray()

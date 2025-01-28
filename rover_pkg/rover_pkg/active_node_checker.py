@@ -15,9 +15,10 @@ known_node_names = {
 
 class ActiveNodeChecker(Node):
 
-    def __init__(self, json):
+    def __init__(self, json, model):
         super().__init__('HealthNode')
         self.json = json
+        self.model = model
         timer_period = 2 # seconds (we leave ROS some time to search, it may happen that the discovery is broken)
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
@@ -27,53 +28,14 @@ class ActiveNodeChecker(Node):
         node_list = self.get_node_names()
 
         if "NAV_motor_cmds" not in node_list:
-            #self.rover_node.model.Elec.send_led_commands("navigation", "Off")
-
             self.json['rover']['status']['systems']['navigation']['status'] = 'Off'
+            self.model.Nav.reset_informations()
 
-
-            # front_left wheel
-            self.json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
-            self.json['navigation']['wheels']['front_left']['current_steering'] = "0.0"
-            self.json['navigation']['wheels']['front_left']['speed'] = "0.0"
-            self.json['navigation']['wheels']['front_left']['steering_angle'] = "0.0"
-            self.json['navigation']['wheels']['front_left']['steering_motor_state'] = False
-            self.json['navigation']['wheels']['front_left']['driving_motor_state'] = False
-            self.json['navigation']['wheels']['front_left']['steering_fault'] = False
-            self.json['navigation']['wheels']['front_left']['driving_fault'] = False
-            
-
-            # front_right wheel
-            self.json['navigation']['wheels']['front_right']['current_driving'] = "0.0"
-            self.json['navigation']['wheels']['front_right']['current_steering'] = "0.0"
-            self.json['navigation']['wheels']['front_right']['speed'] = "0.0"
-            self.json['navigation']['wheels']['front_right']['steering_angle'] = "0.0"
-            self.json['navigation']['wheels']['front_right']['steering_motor_state'] = False
-            self.json['navigation']['wheels']['front_right']['driving_motor_state'] = False
-            self.json['navigation']['wheels']['front_right']['steering_fault'] = False
-            self.json['navigation']['wheels']['front_right']['driving_fault'] = False
-
-            
-            # back_right wheel
-            self.json['navigation']['wheels']['rear_right']['current_driving'] = "0.0"
-            self.json['navigation']['wheels']['rear_right']['current_steering'] = "0.0"
-            self.json['navigation']['wheels']['rear_right']['speed'] = "0.0"
-            self.json['navigation']['wheels']['rear_right']['steering_angle'] = "0.0"
-            self.json['navigation']['wheels']['rear_right']['steering_motor_state'] = False
-            self.json['navigation']['wheels']['rear_right']['driving_motor_state'] = False
-            self.json['navigation']['wheels']['rear_right']['steering_fault'] = False
-            self.json['navigation']['wheels']['rear_right']['driving_fault'] = False
-
-            
-            # back_left wheel
-            self.json['navigation']['wheels']['rear_left']['current_driving'] = "0.0"
-            self.json['navigation']['wheels']['rear_left']['current_steering'] = "0.0"
-            self.json['navigation']['wheels']['rear_left']['speed'] = "0.0"
-            self.json['navigation']['wheels']['rear_left']['steering_angle'] = "0.0"
-            self.json['navigation']['wheels']['rear_left']['steering_motor_state'] = False
-            self.json['navigation']['wheels']['rear_left']['driving_motor_state'] = False
-            self.json['navigation']['wheels']['rear_left']['steering_fault'] = False
-            self.json['navigation']['wheels']['rear_left']['driving_fault'] = False
+        if "SC_motor_cmds" not in node_list:
+            self.json['rover']['status']['systems']['drill']['status'] = 'Off'
+            self.model.Drill.reset_informations()
+        
+        # TODO ADD HD
 
         # For each name, pass it through a dictionary of known node name, 
         # if a match is found, modifiy the node status in the json 

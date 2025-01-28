@@ -21,7 +21,7 @@
           "rpi_cs": {
             "name": "RPI CS",
             "status": false
-        }
+          }
         },
         "navigation": {
           "wheels_control": {

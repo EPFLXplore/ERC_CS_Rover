@@ -27,61 +27,60 @@ class Navigation:
 
         self.rover_node.node.create_subscription(String, self.rover_node.nav_names['system_status'], self.handle_state, 10)
 
-        self.wheels_radius = 0.1325
+        self.wheels_radius = 0.1325 # in [m]
         self.gear_ratio = 1.0/53.0
+    
+    def reset_informations(self):
+        self.rover_node.model.Elec.send_led_commands("navigation", "Off")
 
-        # NAV --> Rover
-        #self.node.create_subscription(PoseStamped,        '/lio_sam/current_pose'          , self.NAV_odometry_pub.publish , 10) # CS DIRECTLY SUBSCRIBED
+        # front_left wheel
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_steering'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['speed'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_motor_state'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_motor_state'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_fault'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_fault'] = False
+        
 
+        # front_right wheel
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_driving'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_steering'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['speed'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_motor_state'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_motor_state'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_fault'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_fault'] = False
+
+        
+        # back_right wheel
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_driving'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_steering'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['speed'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_motor_state'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_motor_state'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_fault'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_fault'] = False
+
+        
+        # back_left wheel
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_driving'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_steering'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['speed'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = "0.0"
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_motor_state'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_fault'] = False
+        self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_fault'] = False
 
     def handle_state(self, msg):
         self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = msg.data
         
         if msg.data == 'Off':
-            self.rover_node.model.Elec.send_led_commands("navigation", "Off")
-
-            # front_left wheel
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_steering'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['speed'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_angle'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['steering_fault'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_left']['driving_fault'] = False
-            
-
-            # front_right wheel
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_driving'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['current_steering'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['speed'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_angle'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['steering_fault'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['front_right']['driving_fault'] = False
-
-            
-            # back_right wheel
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_driving'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['current_steering'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['speed'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_angle'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['steering_fault'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_right']['driving_fault'] = False
-
-            
-            # back_left wheel
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_driving'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['current_steering'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['speed'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_angle'] = "0.0"
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_motor_state'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_fault'] = False
-            self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_fault'] = False
+            self.reset_informations()
 
     def nav_odometry(self, odometry):
 
