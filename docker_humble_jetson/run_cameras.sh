@@ -4,7 +4,8 @@ XAUTH=/tmp/.docker.xauth
 USERNAME=xplore
 CONTAINER_NAME=rover_humble_jetson
 IMAGE_NAME=ghcr.io/epflxplore/rover:humble-jetson
-DOCKER_COMMAND="sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; source install/setup.bash; export PYTHONPATH=/home/xplore/dev_ws/install/rover_pkg/lib/python3.10/site-packages:/home/xplore/dev_ws/install/custom_msg/local/lib/python3.10/dist-packages:/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages; ros2 launch camera camera_node_cs.launch.py"
+DOCKER_COMMAND="sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; source install/setup.bash; ros2 launch camera camera_node_cs.launch.py"
+
 
 # Function to check if a Docker container is running
 is_container_running() {
@@ -45,6 +46,9 @@ parent_dir=$(dirname "$current_dir")
 
 JTOP_GID=$(getent group jtop | awk -F: '{print $3}')
 
+# Check if the container is running
+container_status=$(is_container_running "$CONTAINER_NAME")
+
 if [ "$container_status" == "false" ]; then
     echo "Container $CONTAINER_NAME is not running. Starting a new container..."
     docker run -i \
@@ -65,5 +69,5 @@ if [ "$container_status" == "false" ]; then
         /bin/bash -c "$DOCKER_COMMAND"
 else
     echo "Container $CONTAINER_NAME is already running. Attaching to it..."
-    docker exec -it $CONTAINER_NAME $DOCKER_COMMAND
+    docker exec -it $CONTAINER_NAME /bin/bash -c "$DOCKER_COMMAND"
 fi

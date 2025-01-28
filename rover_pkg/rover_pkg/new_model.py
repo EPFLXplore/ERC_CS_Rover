@@ -192,15 +192,15 @@ class NewModel:
             req.data = True if activate else False
 
             match index:
-                case "Left":
+                case "Behind":
                     future = self.rover_node.camera_cs_service_0.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
-                case "Right":
+                case "Left":
                     future = self.rover_node.camera_cs_service_1.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
-                case "Behind":
+                case "Right": # not used rn on the rover (13.12.24)
                     future = self.rover_node.camera_cs_service_2.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             

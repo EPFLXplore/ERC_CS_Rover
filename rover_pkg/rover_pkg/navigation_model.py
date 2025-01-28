@@ -90,22 +90,22 @@ class Navigation:
         self.angVel = [odometry.twist.twist.angular.x, odometry.twist.twist.angular.y, odometry.twist.twist.angular.z]
 
         # update the rover status
-        self.rover_node.rover_state_json['navigation']['localization']['position']["x"] = self.position[0]
-        self.rover_node.rover_state_json['navigation']['localization']['position']["y"] = self.position[1]
-        self.rover_node.rover_state_json['navigation']['localization']['position']["z"] = self.position[2]
+        self.rover_node.rover_state_json['navigation']['localization']['position']["x"] = round(self.position[0], 2)
+        self.rover_node.rover_state_json['navigation']['localization']['position']["y"] = round(self.position[1], 2)
+        self.rover_node.rover_state_json['navigation']['localization']['position']["z"] = round(self.position[2], 2)
 
-        self.rover_node.rover_state_json['navigation']['localization']['orientation']["x"] = self.orientation[0]
-        self.rover_node.rover_state_json['navigation']['localization']['orientation']["y"] = self.orientation[1]
-        self.rover_node.rover_state_json['navigation']['localization']['orientation']["z"] = self.orientation[2]
-        self.rover_node.rover_state_json['navigation']['localization']['orientation']["w"] = self.orientation[3]
+        self.rover_node.rover_state_json['navigation']['localization']['orientation']["x"] = round(self.orientation[0], 2)
+        self.rover_node.rover_state_json['navigation']['localization']['orientation']["y"] = round(self.orientation[1], 2)
+        self.rover_node.rover_state_json['navigation']['localization']['orientation']["z"] = round(self.orientation[2], 2)
+        self.rover_node.rover_state_json['navigation']['localization']['orientation']["w"] = round(self.orientation[3], 2)
 
-        self.rover_node.rover_state_json['navigation']['localization']['linear_velocity']["x"] = self.linVel[0]
-        self.rover_node.rover_state_json['navigation']['localization']['linear_velocity']["y"] = self.linVel[1]
-        self.rover_node.rover_state_json['navigation']['localization']['linear_velocity']["z"] = self.linVel[2]
+        self.rover_node.rover_state_json['navigation']['localization']['linear_velocity']["x"] = round(self.linVel[0], 2)
+        self.rover_node.rover_state_json['navigation']['localization']['linear_velocity']["y"] = round(self.linVel[1], 2)
+        self.rover_node.rover_state_json['navigation']['localization']['linear_velocity']["z"] = round(self.linVel[2], 2)
 
-        self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["x"] = self.angVel[0]
-        self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["y"] = self.angVel[1]
-        self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["z"] = self.angVel[2]
+        self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["x"] = round(self.angVel[0], 2)
+        self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["y"] = round(self.angVel[1], 2)
+        self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["z"] = round(self.angVel[2], 2)
 
 
     def nav_wheel(self, msg):
