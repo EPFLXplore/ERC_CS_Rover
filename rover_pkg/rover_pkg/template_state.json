@@ -60,6 +60,14 @@
           }
         },
         "handling_device": {
+          "handling_device_interface": {
+            "name": "HD Interface",
+            "status": false
+          },
+          "task_executor": {
+            "name": "Task Executor",
+            "status": false
+          },
           "motor_control": {
             "name": "Motor Control",
             "status": false
@@ -358,7 +366,9 @@
       ]
     },
     "state": {
-      "rgbd": false
+      "rgbd": false,
+      "current_command": "NONE",
+      "task": "NONE"
     }
   },
   "drill": {

@@ -1,5 +1,5 @@
 from rclpy.action import GoalResponse
-from custom_msg.action import HDManipulation
+from custom_msg.action import HDManipulation, NewHDGoal
 from custom_msg.srv import RequestHDGoal
 import math
 from custom_msg.msg import HDGoal
@@ -10,6 +10,11 @@ class HandlingDevice:
         self.rover_node = rover_node
 
         self.running = False
+        self.feedback = None
+        self.cancel_hd = False
+        self.result = None
+        self.counter_cancel = 0
+
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
     
@@ -17,70 +22,125 @@ class HandlingDevice:
         self.goal_handle_cs = goal_handle_cs
         self.rover_node.node.get_logger().info("HD action starting... ")
 
-        self.running = False
-    
-    def make_action(self, goal_handle_cs):
-        self.goal_handle_cs = goal_handle_cs
-        self.rover_node.node.get_logger().info("HD action starting... ")
+        # Create action for HD
 
-        # SEND SERVICE TO HD
         goal = self.createHdGoal(goal_handle_cs.request.action)
 
-        future = self.rover_node.hd_manipulation_service.call_async(goal)
-        future.add_done_callback(lambda f: self.hd_response_callback)
+        self.rover_node.hd_action_client.wait_for_server()
+        future_c = self.rover_node.hd_action_client.send_goal_async(goal, 
+                                self.feedback_callback)
+        
+        future_c.add_done_callback(self.hd_response_callback)
+        self.running = True
         
         while self.running:
             continue
 
-        self.rover_node.node.get_logger().info("Canceled goal hd successfull")
-        return self.result_hd_action("", 0, "no errors")
+        if not self.cancel_hd:
+            self.rover_node.node.get_logger().info('FINISHED')
+        
+        return self.result_hd_action(self.result)
 
     
+    def feedback_callback(self, feedback):
+        if self.cancel_hd and self.counter_cancel == 0:
+            self.counter_cancel = self.counter_cancel + 1
+            future_hd = self.goal_handle_hd.cancel_goal_async()
+            future_hd.add_done_callback(self.cancel_hd_action)
+        
+        else:
+            self.feedback = feedback.feedback
+            self.update_hd_feedback(self.feedback)
+    
+
     def action_status(self, goal):
         if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
             return GoalResponse.REJECT
         
+        self.result = None
         self.running = True
+        self.feedback = None
+        self.cancel_hd = False
+        self.counter_cancel = 0
         return GoalResponse.ACCEPT
+    
+    def update_hd_feedback(self, feedback):
+        self.rover_node.rover_state_json['handling_device']['state']['current_command'] = feedback.current_command
+        self.rover_node.rover_state_json['handling_device']['state']['task'] = feedback.task
+
+
+    def result_hd_action(self, result_action):
+        result = HDManipulation.Result()
+        result.result = result_action.result
+        result.error_type = result_action.error_type
+        result.error_message = result_action.error_message
+        self.rover_node.rover_state_json['handling_device']['state']['current_command'] = "NONE"
+        self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
+        return result
+    
+    '''
+    Cancel action from ROVER.
+    '''
+    def cancel_hd_action(self, future):
+        cancel_response = future.result()
+        if len(cancel_response.goals_canceling) > 0:
+            self.rover_node.node.get_logger().info('HD Goal successfully canceled')
+        else:
+            self.rover_node.node.get_logger().error('HD Goal failed to cancel...')
+            # if enter here.. bad for us
     
     '''
     Function handling the response of the request to the Drill.
     '''
     def hd_response_callback(self, future):
-        try:
-            response = future.result()
-            if response.success:
-                self.rover_node.node.get_logger().info("HD request from ROVER good")
-                self.goal_handle_cs.succeed()
-                self.running = False
-            else:
-                pass
-        except Exception as e:
-            pass
+        self.goal_handle_hd = future.result()
+
+        # GOAL REJECTED FROM HD - FORWARD TO CS (return is sufficient? need to test)
+
+        if not self.goal_handle_hd.accepted:
+            self.cancel_hd = True
+            self.running = False
+            self.rover_node.node.get_logger().info('HD Goal rejected from HD')
+            return self.result_hd_action(self.result)
+
+        self.rover_node.node.get_logger().info('HD Goal accepted from HD')
+        self.rover_node.model.Elec.send_led_commands("hd", "action")
+        
+        get_result_future = self.goal_handle_hd.get_result_async()
+        get_result_future.add_done_callback(self.result_callback)
+
     
     def createHdGoal(self, action):
-        goal = HDGoal()
+        goal = NewHDGoal.Goal()
+        msg_goal = HDGoal()
 
-        if action == "home" or action == "zero" or action == "cobra":
-            goal.target = "named_pose"
-            goal.predefined_pose = action
+        if action == HDGoal.HOME or action == HDGoal.ZERO or action == HDGoal.COBRA:
+            msg_goal.target = HDGoal.NAMED_POSE
+            msg_goal.predefined_pose = action
 
         else:
-            goal.target = action
-        
-        sent_action = RequestHDGoal.Goal()
-        sent_action.goal = goal
+            msg_goal.predefined_pose = HDGoal.UNDEFINED
+            msg_goal.target = action
 
-        return sent_action
+        goal.goal = msg_goal
+        return goal
     
+    def result_callback(self, future):
+        self.result = future.result().result
+        self.feedback = None
 
-    def result_hd_action(self, resultt, error_type, error_messsage):
-        result = HDManipulation.Result()
-        result.result = resultt
-        result.error_type = error_type
-        result.error_message = error_messsage
-        return result
+        if not self.cancel_hd:
+            self.goal_handle_cs.succeed()
 
+        self.running = False
+        self.rover_node.model.Elec.send_led_commands("hd", "On")   
+    
+    '''
+    Cancel action from CS. Need to send cancellation to HD and forward cancellation
+    '''
+    def cancel_goal_from_cs(self, goal_handle_cs):
+        self.rover_node.node.get_logger().info("HD goal cancelation requested...")
+        self.cancel_hd = True
 
     # -----------------------------------------------------------------------------
 

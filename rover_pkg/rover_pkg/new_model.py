@@ -100,9 +100,9 @@ class NewModel:
         # --------------------------------------------------------------------
         # HD SYSTEM
         elif system == 1:
-            req = HDMode.Request()
-            req.mode = mode
-            future = self.rover_node.hd_mode_service.call_async(req)
+
+            # forward the request
+            future = self.rover_node.hd_mode_service.call_async(request)
             future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
         
             response.new_mode = 0
@@ -148,7 +148,7 @@ class NewModel:
     def service_callback_hd(self, future, mode):
         try:
             response = future.result()
-            if response.error_type == 0 and response.system_mode == mode:
+            if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
                 #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
             else:

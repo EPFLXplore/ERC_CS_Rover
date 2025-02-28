@@ -20,7 +20,7 @@ from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
 from custom_msg.msg import ScMotorStatus, MotorStatus, ScFSMStatusDrill, OldMotorStatus # OldMotorStatus is for HD
-from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal
+from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal, NewHDGoal
 from custom_msg.srv import ChangeModeSystem, DrillMode, RequestHDGoal, ChangeModeCamera #ChangeModeHDCamera
 from nav2_msgs.action import NavigateToPose
 
@@ -165,16 +165,17 @@ class RoverNode():
         # server that handle CS request for a manipulation task
         self.hd_manipulation_action = ActionServer(self.node, HDManipulation, 
                                                    self.cs_names["cs_hd_action_manipulation"], execute_callback=self.model.HD.make_action,
-                                                
-                                                goal_callback=self.model.HD.action_status)
+                                                callback_group=reentrant_callback_group,
+                                                goal_callback=self.model.HD.action_status, cancel_callback=self.model.HD.cancel_goal_from_cs)
 
         # to be deleted and updated with new structure
-        self.hd_manipulation_service = self.node.create_client(RequestHDGoal, 
-                                                   self.hd_names["hd_fsm_goal_srv"], callback_group=MutuallyExclusiveCallbackGroup())
+        #self.hd_manipulation_service = self.node.create_client(RequestHDGoal, 
+        #                                           self.hd_names["hd_fsm_goal_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
         # server that handle CS request for a autonomous task in navigation                                   
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
-                                                  self.cs_names["cs_action_nav_goal"], self.model.Nav.make_action,
+                                                  self.cs_names["cs_action_nav_goal"], execute_callback=self.model.Nav.make_action,
+                                                  callback_group=reentrant_callback_group,
                                                   goal_callback=self.model.Nav.action_status, cancel_callback=self.model.Nav.cancel_goal)
 
         # server that handle CS request for a drill task
@@ -185,7 +186,7 @@ class RoverNode():
         
         # The 3 next clients forward the action to the subsystem 
         # exception with navigation because it's nav2 that handles the action
-        self.hd_action_client = ActionClient(self.node, HDManipulation, self.rover_names["rover_hd_action_manipulation"])
+        self.hd_action_client = ActionClient(self.node, NewHDGoal, self.rover_names["rover_hd_action_manipulation"])
 
         #self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["rover_action_nav_goal"])
 

@@ -17,7 +17,8 @@ class Drill:
             6: 'RELEASE',
             7: 'OPEN',
             8: 'CLOSE',
-            9: 'WAIT'
+            9: 'WAIT',
+            10: 'SEMI_RETURN'
         }
 
         self.feedback = None
@@ -79,10 +80,10 @@ class Drill:
 
         if not self.cancel_drill:
             self.rover_node.node.get_logger().info("Drill Goal finished successfully")
-            return self.result_drill_action(self.result)
         else:
             self.rover_node.node.get_logger().info("Canceled goal drill successfull")
-            return self.result_drill_action(self.result)
+        
+        return self.result_drill_action(self.result)
 
     '''
     Function handling the response of the request to the Drill.
