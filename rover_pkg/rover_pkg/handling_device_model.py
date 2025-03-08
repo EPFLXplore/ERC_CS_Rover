@@ -114,7 +114,7 @@ class HandlingDevice:
         goal = NewHDGoal.Goal()
         msg_goal = HDGoal()
 
-        if action == HDGoal.HOME or action == HDGoal.ZERO or action == HDGoal.COBRA:
+        if action == HDGoal.HOME or action == HDGoal.ZERO or action == HDGoal.COBRA or action == HDGoal.SAD:
             msg_goal.target = HDGoal.NAMED_POSE
             msg_goal.predefined_pose = action
 
