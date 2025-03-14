@@ -157,20 +157,6 @@ class HandlingDevice:
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = 0
 
     def hd_motor_cmds(self, msg):
-        
-        '''
-        if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
-            # update the rover status
-            for i in range(7):
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = '0.0'
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = '0.0'
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = '0.0'
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = '0.0'
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = False
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = 0
-
-            return           
-        '''
 
         currents = msg.current
         motor_mode = msg.motor_mode
@@ -178,14 +164,22 @@ class HandlingDevice:
         vel = msg.velocity
         torque = msg.torque
 
-        # This helps with the CS to have either motor connected, or disconnected
-        on_off = [True if motor_mode[i] == 4 else False for i in range(len(motor_mode))]
+        # This mapping comes from the ETH Library of the Arm
+        # There are the states of the motors
+        mapping = {0: "NotReadyToSwitchOn",
+                   1: "SwitchOnDisabled",
+                   2: "ReadyToSwitchOn",
+                   3: "SwitchedOn",
+                   4: "OperationEnabled",
+                   5: "QuickStopActive", 
+                   6: "FaultReactionActive",
+                   7: "Fault",
+                   8: "NA"}
 
         # update the rover status
         for i in range(7):
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = round(math.degrees(positions[i]), 1)
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = vel[i]
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = round(currents[i], 1)
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = torque[i]
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = on_off[i]
-            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = motor_mode[i]
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = abs(vel[i])
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = abs(round(currents[i], 1))
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = abs(torque[i])
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = mapping[motor_mode[i]]

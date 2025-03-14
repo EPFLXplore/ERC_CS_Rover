@@ -273,8 +273,7 @@
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "state": false,
-        "mode_motor": 0 
+        "mode_motor": "0"
       },
       "joint_2": {
         "angle": "0.0",
