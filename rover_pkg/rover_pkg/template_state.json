@@ -273,49 +273,49 @@
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "mode_motor": "NA"
+        "mode_motor": "NotReadyToSwitchOn"
       },
       "joint_2": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "mode_motor": "NA"
+        "mode_motor": "NotReadyToSwitchOn"
       },
       "joint_3": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "mode_motor": "NA"
+        "mode_motor": "NotReadyToSwitchOn"
       },
       "joint_4": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "mode_motor": "NA"
+        "mode_motor": "NotReadyToSwitchOn"
       },
       "joint_5": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "mode_motor": "NA"
+        "mode_motor": "NotReadyToSwitchOn"
       },
       "joint_6": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "mode_motor": "NA"
+        "mode_motor": "NotReadyToSwitchOn"
       },
       "joint_7": {
         "angle": "0.0",
         "current": "0.0",
         "velocity": "0.0",
         "torque": "0.0",
-        "mode_motor": "NA" 
+        "mode_motor": "NotReadyToSwitchOn" 
       }
     },
     "gripper": {

@@ -114,12 +114,17 @@ class HandlingDevice:
         goal = NewHDGoal.Goal()
         msg_goal = HDGoal()
 
+        # Predefined poses
         if action == HDGoal.HOME or action == HDGoal.ZERO or action == HDGoal.COBRA or action == HDGoal.SAD:
             msg_goal.target = HDGoal.NAMED_POSE
             msg_goal.predefined_pose = action
 
+        # Tool Actions
+        elif action == HDGoal.SHOVEL_TOOL:
+            msg_goal.target = HDGoal.TOOL_PICKUP
+            msg_goal.target = action
+            
         else:
-            msg_goal.predefined_pose = HDGoal.UNDEFINED
             msg_goal.target = action
 
         goal.goal = msg_goal
