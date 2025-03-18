@@ -233,28 +233,32 @@ class RoverNode():
         # We need to update the state of the subsystem and the motion mode since with the button we can
         # do that. Refer to the CS code in the gamepad bindings which button is for what
 
-        # Button 0 => change kinematics (NORMAL / LATERAL)
-        # Button 1 => change subsystem mode (MANUAL / AUTO)
+        # Button 1 => change subsystem mode
 
         state = self.rover_state_json['rover']['status']['systems']['navigation']['status']
 
-        # TODO FOR THE KINEMATICS WHEN WE WILL IMPLEMENT THE LATERAL MODE
-
+        # For safety, we change nothing if the state is auto and we click on 
+        # changing the mode. 
         if (msg.buttons[1] == 1 and state == 'Auto'):
+            return
+
+        # Change to Ackermann
+        if (msg.buttons[1] == 1 and state == 'Omni'):
             req = ChangeModeSystem.Request()
             req.system = 0
             req.mode = 1
 
             future = self.nav_service.call_async(req)
-            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, 1))
+            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, req.mode))
         
-        if (msg.buttons[1] == 1 and state == 'Manual'):
+        # Change to Omni
+        elif (msg.buttons[1] == 1 and state == 'Ackermann'):
             req = ChangeModeSystem.Request()
             req.system = 0
             req.mode = 2
 
             future = self.nav_service.call_async(req)
-            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, 2))
+            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, req.mode))
 
         self.nav_cmd_pub.publish(msg)
 
