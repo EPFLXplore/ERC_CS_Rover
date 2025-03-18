@@ -17,10 +17,6 @@
           "network": {
             "name": "Network",
             "status": false
-          },
-          "rpi_cs": {
-            "name": "RPI CS",
-            "status": false
           }
         },
         "navigation": {

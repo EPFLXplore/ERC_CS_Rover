@@ -2,9 +2,9 @@
 
 XAUTH=/tmp/.docker.xauth
 USERNAME=xplore
-CONTAINER_NAME=rover_humble_jetson
+CONTAINER_NAME=rover_humble_jetson_2
 IMAGE_NAME=ghcr.io/epflxplore/rover:humble-jetson
-DOCKER_COMMAND="sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; source install/setup.bash; ros2 launch camera camera_node_cs.launch.py"
+DOCKER_COMMAND="sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; source src/docker_humble_jetson/attach.sh; ros2 launch camera camera_node_cs.launch.py"
 
 
 # Function to check if a Docker container is running

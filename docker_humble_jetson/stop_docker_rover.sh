@@ -8,7 +8,6 @@ is_container_running() {
 }
 
 CONTAINER_NAME=rover_humble_jetson
-
 container_status=$(is_container_running "$CONTAINER_NAME")
 
 if [ "$container_status" == "true" ]; then

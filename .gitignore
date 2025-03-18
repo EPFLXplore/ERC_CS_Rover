@@ -6,6 +6,9 @@ rover_pkg/log/
 rover_pkg/install/
 *.pyc
 
+docker_humble_desktop/build.sh
+docker_humble_jetson/build.sh
+
 # Redis Backup file
 *.rdb
 

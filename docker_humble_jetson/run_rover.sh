@@ -4,7 +4,7 @@ XAUTH=/tmp/.docker.xauth
 USERNAME=xplore
 CONTAINER_NAME=rover_humble_jetson
 IMAGE_NAME=ghcr.io/epflxplore/rover:humble-jetson
-DOCKER_COMMAND="sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; source install/setup.bash; export PYTHONPATH=/home/xplore/dev_ws/install/rover_pkg/lib/python3.10/site-packages:/home/xplore/dev_ws/install/custom_msg/local/lib/python3.10/dist-packages:/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages; ros2 run rover_pkg new_rover"
+DOCKER_COMMAND="sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; source src/docker_humble_jetson/attach.sh; ros2 run rover_pkg new_rover"
 
 # Function to check if a Docker container is running
 is_container_running() {

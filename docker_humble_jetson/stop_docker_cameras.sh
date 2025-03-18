@@ -7,7 +7,7 @@ is_container_running() {
     fi
 }
 
-CONTAINER_NAME=rover_humble_jetson
+CONTAINER_NAME=rover_humble_jetson_2
 
 container_status=$(is_container_running "$CONTAINER_NAME")
 

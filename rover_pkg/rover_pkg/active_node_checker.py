@@ -18,7 +18,9 @@ known_node_names = {
     "MotorController": ("handling_device", "motor_control", True),
     "kinematics_task_executor": ("handling_device", "task_executor", True),
 
-    "/ROVER/camera_cs_0": ("control_station", "Behind", False)
+    "/ROVER/camera_cs_0": ("control_station", "Behind", False),
+    "/ROVER/camera_cs_1": ("control_station", "Left", False),
+    "/ROVER/camera_cs_2": ("control_station", "Right", False),
 }
 
 class ActiveNodeChecker(Node):
@@ -36,13 +38,6 @@ class ActiveNodeChecker(Node):
         node_list = self.get_node_names()
 
         if "NAV_motor_cmds" not in node_list:
-            i = 0
-            while i != 2:
-                time.sleep(1)
-                if "NAV_motor_cmds" not in node_list:
-                    i += 1
-                else:
-                    break
             #self.rover_node.model.Elec.send_led_commands("navigation", "Off")
             self.json['rover']['status']['systems']['navigation']['status'] = 'Off'
             self.model.Nav.reset_informations()
