@@ -133,7 +133,7 @@ class RoverNode():
         
         # client to activate the rgbd mode of the HD camera
         self.change_camera_HD_mode_client = self.node.create_client(SetBool, 
-                                                          '/HD/SetCameraRGB', callback_group=MutuallyExclusiveCallbackGroup())
+                                                          '/ROVER/depth_req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
         
         # The 7 next clients are to activate cameras
         self.camera_cs_service_0 = self.node.create_client(SetBool, 

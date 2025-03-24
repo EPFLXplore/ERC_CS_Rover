@@ -383,7 +383,8 @@
   "electronics": {
     "power": {
       "voltage": "0.0",
-      "current": "0.0"
+      "current": "0.0",
+      "state": "NO DATA"
     },
     "sensors": {
       "four_in_one": {
@@ -411,9 +412,6 @@
       },
       "potentiometer": {
         "position": "0.0"
-      },
-      "voltmeter": {
-        "voltage": "0.0"
       },
       "dust_sensor": "0.0"
     }

@@ -17,6 +17,18 @@ class HandlingDevice:
 
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
+    def reset_informations(self):
+        self.rover_node.model.Elec.send_led_commands("hd", "Off")
+
+        self.rover_node.rover_state_json['handling_device']['state']['current_command'] = "NONE"
+        self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
+        for i in range(7):
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = '0.0'
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = False
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = 0
     
     def make_action(self, goal_handle_cs):
         self.goal_handle_cs = goal_handle_cs
@@ -113,9 +125,9 @@ class HandlingDevice:
     def createHdGoal(self, action):
         goal = NewHDGoal.Goal()
         msg_goal = HDGoal()
-
+        
         # Predefined poses
-        if action == HDGoal.HOME or action == HDGoal.ZERO or action == HDGoal.COBRA or action == HDGoal.SAD:
+        if action == HDGoal.HOME or action == HDGoal.ZERO or action == HDGoal.COBRA or action == HDGoal.ABOVE_GROUND:
             msg_goal.target = HDGoal.NAMED_POSE
             msg_goal.predefined_pose = action
 
@@ -153,13 +165,7 @@ class HandlingDevice:
         self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = msg.data
 
         if msg.data == 'Off':
-            for i in range(7):
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = '0.0'
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = '0.0'
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = '0.0'
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = '0.0'
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = False
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = 0
+           self.reset_informations()
 
     def hd_motor_cmds(self, msg):
 

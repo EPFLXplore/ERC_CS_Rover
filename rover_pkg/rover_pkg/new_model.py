@@ -250,7 +250,7 @@ class NewModel:
 
     # change to RGBD camera mode for HD
     def change_mode_camera_HD_service(self, request, response):
-            
+        
         req = SetBool.Request()
         req.data = True if request.data else False
 

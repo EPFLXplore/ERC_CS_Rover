@@ -45,6 +45,10 @@ class ActiveNodeChecker(Node):
         if "SC_motor_cmds" not in node_list:
             self.json['rover']['status']['systems']['drill']['status'] = 'Off'
             self.model.Drill.reset_informations()
+            
+        if "HDCSInterfacing" not in node_list:
+            self.json['rover']['status']['systems']['handling_device']['status'] = 'Off'
+            self.model.HD.reset_informations()
         
         # TODO ADD HD
 
