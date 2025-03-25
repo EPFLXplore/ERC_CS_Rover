@@ -68,7 +68,7 @@ class Elec:
         self.leds.publish(command)
     
     def dust_sensor_callback(self, msg):
-        self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor'] = msg.data
+        self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor'] = "0.0"
 
     def drill_mass_callback(self, msg):
         self.rover_node.rover_state_json['electronics']['sensors']['mass_sensors']["mass_drill"] = msg.mass[1]
@@ -90,25 +90,5 @@ class Elec:
             "current": msg.current,
             "state": msg.status
         }
-    
-    def imu_callback(self, msg):
-        self.rover_node.rover_state_json['electronics']['sensors']['imu'] = {
-            "xyzw": msg.orientation,
-            "orientation_covariance": msg.imu.orientation_cov,
-            "ang_vel_cov": msg.imu.angular_velocity_covariance,
-            "linear_accel_cov": msg.imu.linear_acceleration_covariance,
-            "ang_vel": msg.imu.angular_velocity,
-            "linear_accel": msg.imu.linear_acceleration
-        }
-    
-    def mag_callback(self, msg):
-        self.rover_node.rover_state_json['electronics']['sensors']['magnetic'] = {
-            "mag_field": msg.mag_raw.magnetic_field,
-            "mag_field_cov": msg.mag_raw.magnetic_field_covariance
-        }
-    
-    def potentiometer_callback(self, msg):
-        self.rover_node.rover_state_json['electronics']['sensors']['potentiometer'] = {
-            
-        }
+
 

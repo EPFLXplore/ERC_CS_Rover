@@ -239,7 +239,6 @@ class NewModel:
 
             match index:
                 case "Gripper":
-                    log_warning(self.rover_node, "éaejtdngéeroijgé")
                     future = self.rover_node.camera_hd_service_0.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             

@@ -314,16 +314,6 @@
         "mode_motor": "NotReadyToSwitchOn" 
       }
     },
-    "gripper": {
-      "position": {
-        "x": "0.0",
-        "y": "0.0",
-        "z": "0.0"
-      },
-      "tool": "None",
-      "angle": "0.0",
-      "torque": "0.0"
-    },
     "vision": {
       "objects": [
         {
@@ -393,25 +383,9 @@
         "conductivity": "0.0",
         "ph": "0.0"
       },
-      "imu": {
-        "xyzw": [],
-        "orientation_cov": [],
-        "ang_vel_cov": [],
-        "linear_accel_cov": [],
-        "ang_vel": [],
-        "linear_accel": []
-
-      },
-      "magnetic": {
-        "mag_field": [],
-        "mag_field_cov": []
-      },
       "mass_sensors": {
         "mass_container": "0.0",
         "mass_drill": "0.0"
-      },
-      "potentiometer": {
-        "position": "0.0"
       },
       "dust_sensor": "0.0"
     }
