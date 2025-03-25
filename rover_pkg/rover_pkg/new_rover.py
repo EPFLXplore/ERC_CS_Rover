@@ -203,7 +203,8 @@ class RoverNode():
         # To start the networking node, the command to start the rover node needs to be
         # ros2 run rover_pkg new_rover true
         if len(sys.argv) > 1 and sys.argv[1] == 'true':
-            self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json)
+            self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json,
+                                                     node=self.node)
         else:
             self.node.get_logger().info("No Networking")
 
