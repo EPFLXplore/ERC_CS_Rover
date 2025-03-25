@@ -11,7 +11,7 @@ known_node_names = {
     "NAV_motor_cmds": ("navigation", "wheels_commands", True),
     "NavCSInterfacing": ("navigation", "navigation_interface", True),
 
-    "drill_fsm_node": ("drill", "drill_fms", True),
+    "DrillCSInterface": ("drill", "drill_fms", True),
     "SC_motor_cmds": ("drill", "drill_commands", True),
 
     "HDCSInterfacing": ("handling_device", "handling_device_interface", True),

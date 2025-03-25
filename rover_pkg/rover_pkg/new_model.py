@@ -31,15 +31,16 @@ class NewModel:
 
         self.nav_to_name = {
             0: "Off",
-            1: "Manual",
-            2: "Auto"
+            1: "Ackermann",
+            2: "Omni",
+            3: "Auto"
         }
 
         self.hd_to_name = {
             0: "Off",
             1: "Manual Direct",
-            2: "Auto",
-            3: "Manual Inverse"
+            2: "Manual Inverse",
+            3: "Auto"
         }
 
         self.drill_to_name = {
@@ -138,7 +139,7 @@ class NewModel:
         try:
             response = future.result()
             if response.error_type == 0 and response.new_mode == mode:
-                self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Manual' if (mode == 1) else 'Off')
+                self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Ackermann' if (mode == 1) else ('Omni' if (mode == 2) else 'Off'))
                 #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
             else:
                 log_error(self.rover_node, "Error in nav service response callback: " + response.error_message)
@@ -159,6 +160,7 @@ class NewModel:
     def service_callback_drill(self, future, mode, response):
         try:
             response_drill = future.result()
+            log_warning(self.rover_node, "edrnvrei")
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
                 #self.Elec.send_led_commands("drill", self.drill_to_name[mode])

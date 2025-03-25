@@ -78,10 +78,7 @@
       }
     },
     "network": {
-      "ipv4": "",
-      "mac": "",
-      "signal_strength": "0.0",
-      "connected_devices": []
+      "signal_strength": "0.0"
     },
     "status": {
       "systems": {
