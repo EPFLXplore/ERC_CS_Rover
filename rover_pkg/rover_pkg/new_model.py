@@ -32,7 +32,7 @@ class NewModel:
         self.nav_to_name = {
             0: "Off",
             1: "Ackermann",
-            2: "Omni"
+            2: "Omni",
             3: "Auto"
         }
 
