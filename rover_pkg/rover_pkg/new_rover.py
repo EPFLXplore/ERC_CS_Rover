@@ -11,7 +11,7 @@ import time, yaml
 import rclpy
 from rclpy.action import ActionServer, ActionClient
 
-from std_msgs.msg       import String, Float32MultiArray
+from std_msgs.msg       import String, Float32MultiArray, Float32
 from std_srvs.srv       import SetBool
 import sys
 
@@ -83,8 +83,8 @@ class RoverNode():
         # ==========================================================
 
         # -- NAV messages --
-        self.nav_cmd_pub = self.node.create_publisher(Joy, self.cs_names["cs_pubsub_nav_gamepad"], 1)
-        self.node.create_subscription(Joy, self.cs_names["cs_action_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
+        self.nav_cmd_pub = self.node.create_publisher(Joy, self.rover_names["rover_pubsub_nav_gamepad"], 1)
+        self.node.create_subscription(Joy, self.cs_names["cs_pubsub_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
         self.node.create_subscription(Odometry,         '/odom',                self.model.Nav.nav_odometry  , 10)
         self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
 
@@ -103,6 +103,10 @@ class RoverNode():
                                       self.science_names["science_pubsub_motor_status"], self.model.Drill.update_motor_status, 10)
         self.node.create_subscription(ScFSMStatusDrill, 
                                       self.science_names["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
+        
+        # -- Others --
+        self.cam_cmd_pub = self.node.create_publisher(Float32, self.rover_names["rover_pubsub_camera_gamepad"], 1)
+        self.node.create_subscription(Joy, self.cs_names["cs_pubsub_camera_gamepad"], self.transfer_gamepad_cmd_camera, 10)
 
         # ==========================================================
         #                       SERVICES
@@ -274,6 +278,12 @@ class RoverNode():
             msgHD = Float32MultiArray()
             msgHD.data = msg.axes
             self.hd_cmd_inverse_pub.publish(msgHD)
+        
+    def transfer_gamepad_cmd_camera(self, msg):
+        front_cam_angle = msg.axes[0]
+        angle = Float32()
+        angle.data = front_cam_angle
+        self.cam_cmd_pub.publish(angle)
         
 
     def run(self):
