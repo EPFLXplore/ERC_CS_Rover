@@ -87,6 +87,8 @@ class RoverNode():
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
         self.node.create_subscription(Odometry,         '/odom',                self.model.Nav.nav_odometry  , 10)
         self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
+        self.node.create_subscription(Float32,    self.cs_names['cs_pubsub_speed_rover'],  self.model.Nav.change_speed_rover, 10)
+        self.speed_rover_pub = self.node.create_publisher(Float32, self.rover_names["rover_change_nav_speed"], 1)
 
         # -- HD messages --
         self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, 

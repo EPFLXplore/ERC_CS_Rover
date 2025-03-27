@@ -337,3 +337,11 @@ class Navigation:
         msg.pose.pose.orientation.z = 0
         msg.pose.pose.orientation.w = 0
         return msg
+    
+    '''
+    Forward the speed of the rover to NAV
+    '''
+    def change_speed_rover(self, msg):
+        if(msg.data <= 0.5 or msg.data >= 2.5): return
+        
+        self.rover_node.speed_rover_pub(msg)
