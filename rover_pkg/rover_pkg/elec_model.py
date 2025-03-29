@@ -21,11 +21,11 @@ class Elec:
 
         self.rover_node.node.create_subscription(Voltage, 'BMS_topic', self.bms_callback, 1)
 
-        self.rover_node.node.create_subscription(Imu, self.rover_node.el_names['IMU_TOPIC'], self.imu_callback, 1)
+       # self.rover_node.node.create_subscription(Imu, self.rover_node.el_names['IMU_TOPIC'], self.imu_callback, 1)
 
-        self.rover_node.node.create_subscription(Mag, self.rover_node.el_names['MAG_RAW_TOPIC'], self.mag_callback, 1)
+       # self.rover_node.node.create_subscription(Mag, self.rover_node.el_names['MAG_RAW_TOPIC'], self.mag_callback, 1)
 
-        self.rover_node.node.create_subscription(Mag, self.rover_node.el_names['POTENTIOMETER_TOPIC'], self.potentiometer_callback, 1)
+       # self.rover_node.node.create_subscription(Mag, self.rover_node.el_names['POTENTIOMETER_TOPIC'], self.potentiometer_callback, 1)
 
         self.rover_node.node.create_subscription(String, self.rover_node.el_names['DUST_TOPIC'], self.dust_sensor_callback, 1)
 
