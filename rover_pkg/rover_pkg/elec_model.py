@@ -1,4 +1,4 @@
-from custom_msg.msg import MassArray, FourInOne, # BMS
+from custom_msg.msg import MassArray, FourInOne # BMS
 from std_msgs.msg import String
 class Elec:
     def __init__(self, rover_node, model):
