@@ -11,7 +11,7 @@ import time, yaml
 import rclpy
 from rclpy.action import ActionServer, ActionClient
 
-from std_msgs.msg       import String, Float32MultiArray, Float32
+from std_msgs.msg       import String, Float32MultiArray, Float32, Int8
 from std_srvs.srv       import SetBool
 import sys
 
@@ -107,7 +107,7 @@ class RoverNode():
                                       self.science_names["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
         
         # -- Others --
-        self.cam_cmd_pub = self.node.create_publisher(Float32, self.rover_names["rover_pubsub_camera_gamepad"], 1)
+        self.cam_cmd_pub = self.node.create_publisher(Int8, self.rover_names["rover_pubsub_camera_gamepad"], 1)
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_camera_gamepad"], self.transfer_gamepad_cmd_camera, 10)
 
         # ==========================================================
@@ -281,10 +281,16 @@ class RoverNode():
             msgHD.data = msg.axes
             self.hd_cmd_inverse_pub.publish(msgHD)
         
+    # Transfer the gamepad commands for the navigation camera
     def transfer_gamepad_cmd_camera(self, msg):
-        front_cam_angle = msg.axes[0]
-        angle = Float32()
-        angle.data = front_cam_angle
+        increase = msg.buttons[0]
+        decrease = msg.buttons[1]
+        angle = Int8()
+        if increase == 1:
+            angle.data = increase
+        elif decrease == -1:
+            angle.data = decrease
+            
         self.cam_cmd_pub.publish(angle)
         
 

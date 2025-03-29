@@ -27,6 +27,7 @@ class Elec:
 
        # self.rover_node.node.create_subscription(Mag, self.rover_node.el_names['POTENTIOMETER_TOPIC'], self.potentiometer_callback, 1)
 
+
         self.rover_node.node.create_subscription(String, self.rover_node.el_names['DUST_TOPIC'], self.dust_sensor_callback, 1)
 
 
