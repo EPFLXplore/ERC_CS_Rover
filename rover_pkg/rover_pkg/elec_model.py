@@ -1,5 +1,5 @@
-from custom_msg.msg import MassArray, FourInOne # BMS
-from std_msgs.msg import String
+# from custom_msg.msg import MassArray, FourInOne # BMS
+# from std_msgs.msg import String
 class Elec:
     def __init__(self, rover_node, model):
         self.rover_node = rover_node
@@ -7,28 +7,22 @@ class Elec:
 
         # 0 -> nav, 1 -> hd, 2 -> drill
 
-        self.leds = self.rover_node.node.create_publisher(LedsCommand, 
-                                                             self.rover_node.el_names["LED_COM_TOPIC"], 1)
+        # self.leds = self.rover_node.node.create_publisher(LedsCommand, 
+        #                                                      self.rover_node.el_names["LED_COM_TOPIC"], 1)
 
-        self.rover_node.node.create_subscription(MassArray, 
-                                                  self.rover_node.el_names["DRILL_MASS_TOPIC"], self.drill_mass_callback, 1)
+        # self.rover_node.node.create_subscription(MassArray, 
+        #                                           self.rover_node.el_names["DRILL_MASS_TOPIC"], self.drill_mass_callback, 1)
 
-        self.rover_node.node.create_subscription(MassArray,
-                                                    self.rover_node.el_names["CONTAINER_MASS_TOPIC"], self.container_mass_callback, 1)
+        # self.rover_node.node.create_subscription(MassArray,
+        #                                             self.rover_node.el_names["CONTAINER_MASS_TOPIC"], self.container_mass_callback, 1)
 
-        self.rover_node.node.create_subscription(FourInOne,
-                                                    self.rover_node.el_names["FOUR_IN_ONE_TOPIC"], self.four_in_one_callback, 1)
+        # self.rover_node.node.create_subscription(FourInOne,
+        #                                             self.rover_node.el_names["FOUR_IN_ONE_TOPIC"], self.four_in_one_callback, 1)
 
-        #self.rover_node.node.create_subscription(Voltage, 'BMS_topic', self.bms_callback, 1)
-
-       # self.rover_node.node.create_subscription(Imu, self.rover_node.el_names['IMU_TOPIC'], self.imu_callback, 1)
-
-       # self.rover_node.node.create_subscription(Mag, self.rover_node.el_names['MAG_RAW_TOPIC'], self.mag_callback, 1)
-
-       # self.rover_node.node.create_subscription(Mag, self.rover_node.el_names['POTENTIOMETER_TOPIC'], self.potentiometer_callback, 1)
+        # #self.rover_node.node.create_subscription(Voltage, 'BMS_topic', self.bms_callback, 1)
 
 
-        self.rover_node.node.create_subscription(String, self.rover_node.el_names['DUST_TOPIC'], self.dust_sensor_callback, 1)
+        # self.rover_node.node.create_subscription(String, self.rover_node.el_names['DUST_TOPIC'], self.dust_sensor_callback, 1)
 
 
     def send_led_commands(self, subsystem, mode):
@@ -64,9 +58,9 @@ class Elec:
             case 'action':
                 led.mode = 6
 
-        command = LedsCommand()
-        command.leds = [led]
-        self.leds.publish(command)
+        # command = LedsCommand()
+        # command.leds = [led]
+        # self.leds.publish(command)
     
     def dust_sensor_callback(self, msg):
         self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor'] = "0.0"
