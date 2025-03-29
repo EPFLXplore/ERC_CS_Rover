@@ -173,7 +173,7 @@ class HandlingDevice:
         motor_mode = msg.motor_mode
         positions = msg.position
         vel = msg.velocity
-        #torque = msg.torque
+        torque = msg.torque
 
         # This mapping comes from the ETH Library of the Arm
         # There are the states of the motors
@@ -192,5 +192,5 @@ class HandlingDevice:
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = round(math.degrees(positions[i]), 1)
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = abs(vel[i])
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = abs(round(currents[i], 1))
-            #self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = abs(torque[i])
+            self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = abs(torque[i])
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = mapping[motor_mode[i]]
