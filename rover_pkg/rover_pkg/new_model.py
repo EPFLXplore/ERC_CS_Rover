@@ -89,7 +89,6 @@ class NewModel:
         # --------------------------------------------------------------------
         # NAVIGATION SYSTEM
         if system == 0:
-            # ADD LEDS WHEN SERVICE IS DONE ON NAV            
             self.send_nav_service(system, mode)
 
             response.new_mode = 0
@@ -102,7 +101,6 @@ class NewModel:
         # HD SYSTEM
         elif system == 1:
 
-            # forward the request
             future = self.rover_node.hd_mode_service.call_async(request)
             future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
         
@@ -163,7 +161,7 @@ class NewModel:
             log_warning(self.rover_node, "edrnvrei")
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                #self.Elec.send_led_commands("drill", self.drill_to_name[mode])
+                #self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
             else:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 

@@ -1,4 +1,4 @@
-# from custom_msg.msg import MassArray, FourInOne # BMS
+# from custom_msg.msg import MassArray, FourInOne, LEDMessage # BMS
 # from std_msgs.msg import String
 class Elec:
     def __init__(self, rover_node, model):
@@ -7,7 +7,7 @@ class Elec:
 
         # 0 -> nav, 1 -> hd, 2 -> drill
 
-        # self.leds = self.rover_node.node.create_publisher(LedsCommand, 
+        # self.led_pub = self.rover_node.node.create_publisher(LEDMessage, 
         #                                                      self.rover_node.el_names["LED_COM_TOPIC"], 1)
 
         # self.rover_node.node.create_subscription(MassArray, 
@@ -29,38 +29,35 @@ class Elec:
 
         match subsystem:
             case 'nav':
-                self.send_mode("nav", mode, 0, 33)
+                self.send_mode("nav", mode)
             case 'hd':
-                self.send_mode("hd", mode, 33, 66)
+                self.send_mode("hd", mode)
             case 'drill':
-                self.send_mode("drill", mode, 66, 100)
+                self.send_mode("drill", mode)
 
 
-    def send_mode(self, system, mode, low, high):
-        led = Led()
-        led.low = low
-        led.high = high
-        led.system = self.model.name_system[system]
+    def send_mode(self, system, mode):
+        pass
+        # led = LEDMessage()
+        # led.system = self.model.name_system[system]
 
-        match mode:
-            case 'Manual':
-                led.mode = 1
-            case 'Manual Direct':
-                led.mode = 2
-            case 'Manual Inverse':
-                led.mode = 3
-            case 'Auto':
-                led.mode = 4
-            case 'Off':
-                led.mode = 5
-            case 'On':
-                led.mode = 0
-            case 'action':
-                led.mode = 6
+        # match mode:
+        #     case 'Manual':
+        #         led.mode = 1
+        #     case 'Manual Direct':
+        #         led.mode = 2
+        #     case 'Manual Inverse':
+        #         led.mode = 3
+        #     case 'Auto':
+        #         led.mode = 4
+        #     case 'Off':
+        #         led.mode = 5
+        #     case 'On':
+        #         led.mode = 0
+        #     case 'action':
+        #         led.mode = 6
 
-        # command = LedsCommand()
-        # command.leds = [led]
-        # self.leds.publish(command)
+        # self.led_pub.publish(led)
     
     def dust_sensor_callback(self, msg):
         self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor'] = "0.0"

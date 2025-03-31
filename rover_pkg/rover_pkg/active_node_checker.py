@@ -38,15 +38,17 @@ class ActiveNodeChecker(Node):
         node_list = self.get_node_names()
 
         if "NAV_motor_cmds" not in node_list:
-            #self.rover_node.model.Elec.send_led_commands("navigation", "Off")
+            #self.rover_node.model.Elec.send_led_commands("nav", "Off")
             self.json['rover']['status']['systems']['navigation']['status'] = 'Off'
             self.model.Nav.reset_informations()
 
         if "SC_motor_cmds" not in node_list:
+            #self.rover_node.model.Elec.send_led_commands("drill", "Off")
             self.json['rover']['status']['systems']['drill']['status'] = 'Off'
             self.model.Drill.reset_informations()
             
         if "HDCSInterfacing" not in node_list:
+            #self.rover_node.model.Elec.send_led_commands("hd", "Off")
             self.json['rover']['status']['systems']['handling_device']['status'] = 'Off'
             self.model.HD.reset_informations()
         
