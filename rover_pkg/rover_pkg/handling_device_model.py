@@ -28,7 +28,7 @@ class HandlingDevice:
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = '0.0'
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = '0.0'
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = False
-                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = 0
+                self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = "NotReadyToSwitchOn"
     
     def make_action(self, goal_handle_cs):
         self.goal_handle_cs = goal_handle_cs
