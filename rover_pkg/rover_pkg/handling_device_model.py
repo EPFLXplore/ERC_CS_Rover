@@ -15,6 +15,9 @@ class HandlingDevice:
         self.result = None
         self.counter_cancel = 0
 
+        # Switches
+        self.switches = [value for key, value in vars(HDGoal).items() if key.startswith("BUTTON")]
+
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
     def reset_informations(self):
@@ -134,7 +137,12 @@ class HandlingDevice:
         # Tool Actions
         elif action == HDGoal.SHOVEL_TOOL:
             msg_goal.target = HDGoal.TOOL_PICKUP
-            msg_goal.target = action
+            msg_goal.tool = action
+            
+        # Switches
+        elif action in self.switches:
+            msg_goal.target = HDGoal.BUTTON_TASK
+            msg_goal.switch = action
             
         else:
             msg_goal.target = action
