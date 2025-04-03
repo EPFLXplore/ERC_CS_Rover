@@ -127,7 +127,7 @@ class HandlingDevice:
         msg_goal = HDGoal()
         
         # Predefined poses
-        if action == HDGoal.HOME or action == HDGoal.ZERO or action == HDGoal.COBRA or action == HDGoal.ABOVE_GROUND:
+        if action == HDGoal.FRONT_PANEL or action == HDGoal.RANGEMENT or action == HDGoal.HOME or action == HDGoal.ZERO or action == HDGoal.COBRA or action == HDGoal.ABOVE_GROUND:
             msg_goal.target = HDGoal.NAMED_POSE
             msg_goal.predefined_pose = action
 
