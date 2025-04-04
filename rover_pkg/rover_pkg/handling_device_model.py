@@ -142,7 +142,7 @@ class HandlingDevice:
         # Switches
         elif action in self.switches:
             msg_goal.target = HDGoal.BUTTON_TASK
-            msg_goal.switch = action
+            msg_goal.switch_name = action
             
         else:
             msg_goal.target = action
