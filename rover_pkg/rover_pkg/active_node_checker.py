@@ -17,10 +17,20 @@ known_node_names = {
     "HDCSInterfacing": ("handling_device", "handling_device_interface", True),
     "MotorController": ("handling_device", "motor_control", True),
     "kinematics_task_executor": ("handling_device", "task_executor", True),
+    "perception_node": ("handling_device", "perception", True),
+    
+    "avionics_costco": ("electronics", "avionics", True),
+    "avionics_BMS": ("electronics", "bms", True),
 
     "/ROVER/camera_cs_0": ("control_station", "Behind", False),
     "/ROVER/camera_cs_1": ("control_station", "Left", False),
     "/ROVER/camera_cs_2": ("control_station", "Right", False),
+    
+    "/ROVER/camera_nav_0": ("navigation", "Front", False),
+    "/ROVER/camera_nav_1": ("navigation", "Up1", False),
+    "/ROVER/camera_nav_2": ("navigation", "Up2", False),
+    
+    "/HD/camera_hd_gripper": ("handling_device", "Gripper", False),
 }
 
 class ActiveNodeChecker(Node):

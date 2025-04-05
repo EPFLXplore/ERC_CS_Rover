@@ -67,11 +67,19 @@
           "motor_control": {
             "name": "Motor Control",
             "status": false
+          },
+          "perception": {
+            "name": "Perception",
+            "status": false
           }
         },
         "electronics": {
           "avionics": {
             "name": "Avionics",
+            "status": false
+          },
+          "bms": {
+            "name": "BMS",
             "status": false
           }
         }
@@ -122,6 +130,7 @@
     },
     "handling_device": {
       "Gripper": {
+        "name": "Gripper",
         "status": false,
         "node": false,
         "data_rate": "0.0"
@@ -129,16 +138,19 @@
     },
     "navigation": {
       "Front": {
+        "name": "Front",
         "status": false,
         "node": false,
         "data_rate": "0.0"
       },
       "Up1": {
+        "name": "Up1",
         "status": false,
         "node": false,
         "data_rate": "0.0"
       },
       "Up2": {
+        "name": "Up2",
         "status": false,
         "node": false,
         "data_rate": "0.0"

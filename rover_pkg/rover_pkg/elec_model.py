@@ -1,5 +1,5 @@
-# from custom_msg.msg import MassArray, FourInOne, LEDMessage # BMS
-# from std_msgs.msg import String
+from custom_msg.msg import MassArray, FourInOne, LEDMessage, BMS
+
 class Elec:
     def __init__(self, rover_node, model):
         self.rover_node = rover_node
@@ -19,7 +19,7 @@ class Elec:
         # self.rover_node.node.create_subscription(FourInOne,
         #                                             self.rover_node.el_names["FOUR_IN_ONE_TOPIC"], self.four_in_one_callback, 1)
 
-        # #self.rover_node.node.create_subscription(Voltage, 'BMS_topic', self.bms_callback, 1)
+        self.rover_node.node.create_subscription(BMS, self.rover_node.el_names['BMS_TOPIC'], self.bms_callback, 1)
 
 
         # self.rover_node.node.create_subscription(String, self.rover_node.el_names['DUST_TOPIC'], self.dust_sensor_callback, 1)

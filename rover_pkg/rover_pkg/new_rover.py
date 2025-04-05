@@ -19,7 +19,7 @@ from sensor_msgs.msg import Joy
 from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
-from custom_msg.msg import ScMotorStatus, MotorStatus, ScFSMStatusDrill, OldMotorStatus # OldMotorStatus is for HD
+from custom_msg.msg import ServoRequest, ScMotorStatus, MotorStatus, ScFSMStatusDrill, OldMotorStatus # OldMotorStatus is for HD
 from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal, NewHDGoal
 from custom_msg.srv import ChangeModeSystem, DrillMode, RequestHDGoal, ChangeModeCamera #ChangeModeHDCamera
 from nav2_msgs.action import NavigateToPose
@@ -107,7 +107,7 @@ class RoverNode():
                                       self.science_names["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
         
         # -- Others --
-        self.cam_cmd_pub = self.node.create_publisher(Int8, self.rover_names["rover_pubsub_camera_gamepad"], 1)
+        self.cam_cmd_pub = self.node.create_publisher(ServoRequest, self.el_names["SERVO_REQ_TOPIC"], 1)
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_camera_gamepad"], self.transfer_gamepad_cmd_camera, 10)
 
         # ==========================================================
@@ -285,14 +285,16 @@ class RoverNode():
     def transfer_gamepad_cmd_camera(self, msg):
         increase = msg.buttons[0]
         decrease = msg.buttons[1]
-        angle = Int8()
+        angle = ServoRequest()
+        angle.id = 0
+        angle.zero_in = False
         if increase == 1:
-            angle.data = increase
+            angle.increment = 5
+            self.cam_cmd_pub.publish(angle)
         elif decrease == -1:
-            angle.data = decrease
-            
-        self.cam_cmd_pub.publish(angle)
-        
+            angle.increment = -5
+            self.cam_cmd_pub.publish(angle)
+                
 
     def run(self):
         executor = rclpy.executors.MultiThreadedExecutor()
