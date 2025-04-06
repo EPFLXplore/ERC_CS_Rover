@@ -23,10 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'gripper_camera = rover_pkg.gripper_camera:main',
-            'new_rover = rover_pkg.new_rover:main',
-	        'new_camera_cs = rover_pkg.new_camera_cs:main',
-            'gamepad = rover_pkg.fake_gamepad:main'
+            'rover = rover_pkg.new_rover:main',
         ],
     },
 )

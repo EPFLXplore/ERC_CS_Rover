@@ -28,7 +28,7 @@ from nav2_msgs.action import NavigateToPose
 from rover_pkg.db_logger import MongoDBLogger
 from bson import json_util
 import json
-from .new_model import NewModel
+from .model import NewModel
 from .network_monitoring import NetworkMonitoring
 from .active_node_checker import ActiveNodeChecker
 
@@ -206,9 +206,9 @@ class RoverNode():
 
         self.node.get_logger().info("Rover Node Started")
         
-        # To start the networking node, the command to start the rover node needs to be
-        # ros2 run rover_pkg new_rover true
-        if len(sys.argv) > 1 and sys.argv[1] == 'true':
+        # To not start the networking node, put network_node to False
+        network_node = False
+        if network_node:
             self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json,
                                                      node=self.node)
         else:
