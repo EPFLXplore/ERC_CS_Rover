@@ -13,12 +13,11 @@ class Drill:
             2: 'DRILLSTART',
             3: 'EXTEND',
             4: 'RETURN',
-            5: 'ABORT', 
-            6: 'RELEASE',
-            7: 'OPEN',
-            8: 'CLOSE',
-            9: 'WAIT',
-            10: 'SEMI_RETURN'
+            5: 'RELEASE',
+            6: 'OPEN',
+            7: 'CLOSE',
+            8: 'WAIT',
+            9: 'SEMI_RETURN'
         }
 
         self.feedback = None

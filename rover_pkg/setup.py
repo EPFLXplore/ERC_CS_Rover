@@ -23,7 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'rover = rover_pkg.new_rover:main',
+            'rover = rover_pkg.rover:main',
         ],
     },
 )
