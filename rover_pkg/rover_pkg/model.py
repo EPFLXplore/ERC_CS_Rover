@@ -277,38 +277,38 @@ class NewModel:
 # DATA RATES CAMERAS
 
     def cs_data_rates_0(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['control_station']['Behind']['status']:
+            self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = "0.0"  
+            return
+            
+        self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = msg.data 
+
+    def cs_data_rates_1(self, msg):
         if not self.rover_node.rover_state_json['cameras']['control_station']['Left']['status']:
             self.rover_node.rover_state_json['cameras']['control_station']['Left']['data_rate'] = "0.0"  
             return
-            
+        
         self.rover_node.rover_state_json['cameras']['control_station']['Left']['data_rate'] = msg.data 
 
-    def cs_data_rates_1(self, msg):
+    def cs_data_rates_2(self, msg):
         if not self.rover_node.rover_state_json['cameras']['control_station']['Right']['status']:
             self.rover_node.rover_state_json['cameras']['control_station']['Right']['data_rate'] = "0.0"  
             return
         
         self.rover_node.rover_state_json['cameras']['control_station']['Right']['data_rate'] = msg.data 
 
-    def cs_data_rates_2(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['control_station']['Behind']['status']:
-            self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = "0.0"  
-            return
-        
-        self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = msg.data 
-
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
 # STATE CAMERAS
 
     def cs_states_0(self, msg):
-        self.rover_node.rover_state_json['cameras']['control_station']['Left']['status'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['control_station']['Behind']['status'] = msg.data 
 
     def cs_states_1(self, msg):
-        self.rover_node.rover_state_json['cameras']['control_station']['Right']['status'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['control_station']['Left']['status'] = msg.data 
 
     def cs_states_2(self, msg):
-        self.rover_node.rover_state_json['cameras']['control_station']['Behind']['status'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['control_station']['Right']['status'] = msg.data 
         
     def nav_states_0(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['status'] = msg.data 
