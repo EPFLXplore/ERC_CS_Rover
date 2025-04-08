@@ -396,7 +396,20 @@
         "mass_container": "0.0",
         "mass_drill": "0.0"
       },
-      "dust_sensor": "0.0"
+      "dust_sensor": {
+        "pm1_0_std": "0",
+        "pm2_5_std": "0",
+        "pm10_std": "0",
+        "pm1_0_atm": "0",
+        "pm2_5_atm": "0",
+        "pm10_atm": "0",
+        "num_particles_0_3": "0",
+        "num_particles_0_5": "0",
+        "num_particles_1_0": "0",
+        "num_particles_2_5": "0",
+        "num_particles_5_0": "0",
+        "num_particles_10": "0"
+      }
     }
   }
 }

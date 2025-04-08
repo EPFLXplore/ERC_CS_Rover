@@ -85,7 +85,7 @@ class RoverNode():
         # -- NAV messages --
         self.nav_cmd_pub = self.node.create_publisher(Joy, self.rover_names["rover_pubsub_nav_gamepad"], 1)
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
-        self.node.create_subscription(Odometry,         '/odom',                self.model.Nav.nav_odometry  , 10)
+        self.node.create_subscription(Odometry,         '/odometry/filtered',                self.model.Nav.nav_odometry  , 10)
         self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, 10)
         self.node.create_subscription(Float32,    self.cs_names['cs_pubsub_speed_rover'],  self.model.Nav.change_speed_rover, 10)
         self.speed_rover_pub = self.node.create_publisher(Float32, self.rover_names["rover_change_nav_speed"], 1)
@@ -230,6 +230,8 @@ class RoverNode():
 
         # Start the health node checker
         self.health = ActiveNodeChecker(self.rover_state_json, self.model)
+        
+        self.last_increment = 0
             
     # timer callback for sending rover state continuously
     def timer_callback(self):
@@ -299,15 +301,24 @@ class RoverNode():
     def transfer_gamepad_cmd_camera(self, msg):
         increase = msg.buttons[0]
         decrease = msg.buttons[1]
+        
+        if increase == 0 and decrease == 0:
+            self.last_increment = 0
+        
+        if self.last_increment == 1 and increase == 1: return
+        if self.last_increment == 1 and decrease == -1: return
+        self.node.get_logger().info("ff")
         angle = ServoRequest()
-        angle.id = 0
+        angle.id = 1 
         angle.zero_in = False
         if increase == 1:
-            angle.increment = 5
+            angle.increment = 13
             self.cam_cmd_pub.publish(angle)
+            self.last_increment = 1
         elif decrease == -1:
-            angle.increment = -5
+            angle.increment = -13
             self.cam_cmd_pub.publish(angle)
+            self.last_increment = 1
                 
 
     def run(self):

@@ -19,8 +19,7 @@ known_node_names = {
     "kinematics_task_executor": ("handling_device", "task_executor", True),
     "perception_node": ("handling_device", "perception", True),
     
-    "avionics_costco": ("electronics", "avionics", True),
-    "avionics_BMS": ("electronics", "bms", True),
+    "costco_publisher": ("electronics", "avionics", True),
 
     "/ROVER/camera_cs_0": ("control_station", "Behind", False),
     "/ROVER/camera_cs_1": ("control_station", "Left", False),
@@ -61,6 +60,9 @@ class ActiveNodeChecker(Node):
             #self.rover_node.model.Elec.send_led_commands("hd", "Off")
             self.json['rover']['status']['systems']['handling_device']['status'] = 'Off'
             self.model.HD.reset_informations()
+            
+        if "costco_publisher" not in node_list:
+            self.model.Elec.reset_informations()
         
         # TODO ADD HD
 
