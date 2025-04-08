@@ -11,7 +11,7 @@ import time, yaml
 import rclpy
 from rclpy.action import ActionServer, ActionClient
 
-from std_msgs.msg       import String, Float32MultiArray, Float32, Int8
+from std_msgs.msg       import String, Float32MultiArray, Float32, Bool
 from std_srvs.srv       import SetBool
 import sys
 
@@ -163,6 +163,20 @@ class RoverNode():
         self.camera_hd_service_0 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
 
+        # The 7 next subscriber are to monitor the state of the cameras
+        self.node.create_subscription(Bool, '/ROVER/state_camera_cs_0', self.model.cs_states_0, 10)
+        
+        self.node.create_subscription(Bool, '/ROVER/state_camera_cs_1', self.model.cs_states_1, 10)
+        
+        self.node.create_subscription(Bool, '/ROVER/state_camera_cs_2', self.model.cs_states_2, 10)
+        
+        self.node.create_subscription(Bool, '/NAV/state_camera_nav_0', self.model.nav_states_0, 10)
+        
+        self.node.create_subscription(Bool, '/NAV/state_camera_nav_1', self.model.nav_states_1, 10)
+        
+        self.node.create_subscription(Bool, '/NAV/state_camera_nav_2', self.model.nav_states_2, 10)
+        
+        self.node.create_subscription(Bool, '/ROVER/state_camera_hd_0', self.model.hd_states_0, 10)
 
         # ==========================================================
         #                       ACTIONS

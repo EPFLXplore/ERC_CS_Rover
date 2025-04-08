@@ -299,6 +299,31 @@ class NewModel:
 
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
+# STATE CAMERAS
+
+    def cs_states_0(self, msg):
+        self.rover_node.rover_state_json['cameras']['control_station']['Left']['status'] = msg.data 
+
+    def cs_states_1(self, msg):
+        self.rover_node.rover_state_json['cameras']['control_station']['Right']['status'] = msg.data 
+
+    def cs_states_2(self, msg):
+        self.rover_node.rover_state_json['cameras']['control_station']['Behind']['status'] = msg.data 
+        
+    def nav_states_0(self, msg):
+        self.rover_node.rover_state_json['cameras']['navigation']['Front']['status'] = msg.data 
+
+    def nav_states_1(self, msg):
+        self.rover_node.rover_state_json['cameras']['navigation']['Up1']['status'] = msg.data 
+
+    def nav_states_2(self, msg):
+        self.rover_node.rover_state_json['cameras']['navigation']['Up2']['status'] = msg.data 
+        
+    def hd_states_0(self, msg):
+        self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['status'] = msg.data 
+
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
 # LOGS
 
 def log_error(node, error_message):
