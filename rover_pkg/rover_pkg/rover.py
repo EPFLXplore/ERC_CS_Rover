@@ -221,7 +221,7 @@ class RoverNode():
         self.node.get_logger().info("Rover Node Started")
         
         # To not start the networking node, put network_node to False
-        self.network_node = True
+        self.network_node = False
         if self.network_node:
             self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json,
                                                      node=self.node)

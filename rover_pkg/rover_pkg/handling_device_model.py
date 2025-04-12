@@ -196,9 +196,11 @@ class HandlingDevice:
                    8: "NA"}
 
         # update the rover status
-        for i in range(7):
+        for i in range(6):
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = round(math.degrees(positions[i]), 1)
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = abs(vel[i])
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = abs(round(currents[i], 1))
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = abs(torque[i])
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = mapping[motor_mode[i]]
+        
+        self.rover_node.rover_state_json['handling_device']['joints'][f'joint_7']['current'] = abs(round(currents[6], 1))
