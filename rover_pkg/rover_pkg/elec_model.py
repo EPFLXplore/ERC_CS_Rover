@@ -1,4 +1,4 @@
-from custom_msg.msg import MassArray, FourInOne, LEDMessage, BMS, DustData
+from custom_msg.msg import MassPacket, FourInOne, LEDMessage, BMS, DustData
 
 class Elec:
     def __init__(self, rover_node, model):
@@ -10,14 +10,11 @@ class Elec:
         # self.led_pub = self.rover_node.node.create_publisher(LEDMessage, 
         #                                                      self.rover_node.el_names["LED_COM_TOPIC"], 1)
 
-        # self.rover_node.node.create_subscription(MassArray, 
-        #                                           self.rover_node.el_names["DRILL_MASS_TOPIC"], self.drill_mass_callback, 1)
+        self.rover_node.node.create_subscription(MassPacket, 
+                                                  self.rover_node.el_names["MASS_TOPIC"], self.mass_callback, 1)
 
-        # self.rover_node.node.create_subscription(MassArray,
-        #                                             self.rover_node.el_names["CONTAINER_MASS_TOPIC"], self.container_mass_callback, 1)
-
-        # self.rover_node.node.create_subscription(FourInOne,
-        #                                             self.rover_node.el_names["FOUR_IN_ONE_TOPIC"], self.four_in_one_callback, 1)
+        self.rover_node.node.create_subscription(FourInOne,
+                                                    self.rover_node.el_names["FOUR_IN_ONE_TOPIC"], self.four_in_one_callback, 1)
 
         self.rover_node.node.create_subscription(BMS, self.rover_node.el_names['BMS_TOPIC'], self.bms_callback, 1)
 
@@ -105,18 +102,19 @@ class Elec:
             "num_particles_10": msg.num_particles_10
         }
 
-    def drill_mass_callback(self, msg):
-        self.rover_node.rover_state_json['electronics']['sensors']['mass_sensors']["mass_drill"] = msg.mass[1]
-    
-    def container_mass_callback(self, msg):
-        self.rover_node.rover_state_json['electronics']['sensors']['mass_sensors']["mass_container"] = msg.mass[0]
+    def mass_callback(self, msg):
+        if (msg.id == 0):
+            self.rover_node.rover_state_json['electronics']['sensors']['mass_sensors']["mass_drill"] = round(msg.mass, 3)   
+        elif (msg.id == 1):
+            self.rover_node.rover_state_json['electronics']['sensors']['mass_sensors']["mass_container"] = round(msg.mass, 3)
+        
     
     def four_in_one_callback(self, msg):
         self.rover_node.rover_state_json['electronics']['sensors']['four_in_one'] = {
-            "temperature": msg.temperature,
-            "moisture": msg.moisture,
-            "conductivity": msg.conductivity,
-            "ph": msg.ph
+            "temperature": round(msg.temperature, 1),
+            "humidity": round(msg.humidity, 1),
+            "conductivity": round(msg.conductivity, 0),
+            "ph": round(msg.ph, 1)
         }
     
     def bms_callback(self, msg):
