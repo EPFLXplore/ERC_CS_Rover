@@ -307,7 +307,6 @@ class RoverNode():
         
         if self.last_increment == 1 and increase == 1: return
         if self.last_increment == 1 and decrease == -1: return
-        self.node.get_logger().info("ff")
         angle = ServoRequest()
         angle.id = 1 
         angle.zero_in = False
