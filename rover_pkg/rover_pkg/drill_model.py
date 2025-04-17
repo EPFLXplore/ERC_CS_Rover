@@ -1,4 +1,4 @@
-from rclpy.action import GoalResponse
+from rclpy.action import GoalResponse, CancelResponse
 from std_msgs.msg import Bool
 from custom_msg.action import DrillCmd
 import math
@@ -139,7 +139,7 @@ class Drill:
         self.rover_node.node.get_logger().info("Drill goal cancelation requested...")
         self.cancel_drill = True
 
-
+        return CancelResponse.ACCEPT
     
     '''
     Cancel action from ROVER.
@@ -148,6 +148,8 @@ class Drill:
         cancel_response = future.result()
         if len(cancel_response.goals_canceling) > 0:
             self.rover_node.node.get_logger().info('Drill Goal successfully canceled')
+        
+            # TODO DO LIKE HD!!
         else:
             self.rover_node.node.get_logger().error('Drill Goal failed to cancel...')
             # if enter here.. bad for us
