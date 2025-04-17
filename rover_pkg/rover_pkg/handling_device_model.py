@@ -1,9 +1,9 @@
-from rclpy.action import GoalResponse
 from custom_msg.action import HDManipulation, NewHDGoal
 from custom_msg.srv import RequestHDGoal
 import math
 from custom_msg.msg import HDGoal
 from std_msgs.msg import String
+from rclpy.action import GoalResponse, CancelResponse
 
 class HandlingDevice:
     def __init__(self, rover_node):
@@ -38,9 +38,9 @@ class HandlingDevice:
         self.rover_node.node.get_logger().info("HD action starting... ")
 
         # Create action for HD
-
         goal = self.createHdGoal(goal_handle_cs.request.action)
 
+        # Start the second action and add the callback
         self.rover_node.hd_action_client.wait_for_server()
         future_c = self.rover_node.hd_action_client.send_goal_async(goal, 
                                 self.feedback_callback)
@@ -48,26 +48,35 @@ class HandlingDevice:
         future_c.add_done_callback(self.hd_response_callback)
         self.running = True
         
+        # Wait for the action to finish
         while self.running:
             continue
 
+        # If the action was not canceled, we need to set the result
         if not self.cancel_hd:
             self.rover_node.node.get_logger().info('FINISHED')
-        
-        return self.result_hd_action(self.result)
-
+            return self.result_hd_action(self.result)
+        else:
+            self.rover_node.node.get_logger().info('CANCELED')
+            return self.no_result()
     
     def feedback_callback(self, feedback):
+        
+        # If the action is canceled, we need to cancel the goal HD
         if self.cancel_hd and self.counter_cancel == 0:
             self.counter_cancel = self.counter_cancel + 1
+            
+            # cancel the HD goal and wait response in the callback
             future_hd = self.goal_handle_hd.cancel_goal_async()
             future_hd.add_done_callback(self.cancel_hd_action)
         
+        # else we just update the feedback
         else:
             self.feedback = feedback.feedback
             self.update_hd_feedback(self.feedback)
     
 
+    # Accept or reject the goal of CS
     def action_status(self, goal):
         if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
             return GoalResponse.REJECT
@@ -79,11 +88,12 @@ class HandlingDevice:
         self.counter_cancel = 0
         return GoalResponse.ACCEPT
     
+    # Update the feedback on the rover state
     def update_hd_feedback(self, feedback):
         self.rover_node.rover_state_json['handling_device']['state']['current_command'] = feedback.current_command
         self.rover_node.rover_state_json['handling_device']['state']['task'] = feedback.task
 
-
+    # Create the result of the action
     def result_hd_action(self, result_action):
         result = HDManipulation.Result()
         result.result = result_action.result
@@ -93,24 +103,35 @@ class HandlingDevice:
         self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
         return result
     
-    '''
-    Cancel action from ROVER.
-    '''
+     # Create an empty result
+    def no_result(self):
+        result = HDManipulation.Result()
+        result.result = "result_action.result"
+        result.error_type = 1
+        result.error_message = ""
+        self.rover_node.rover_state_json['handling_device']['state']['current_command'] = "NONE"
+        self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
+        return result
+    
+    # Callback for the cancelation of the HD action
     def cancel_hd_action(self, future):
         cancel_response = future.result()
         if len(cancel_response.goals_canceling) > 0:
             self.rover_node.node.get_logger().info('HD Goal successfully canceled')
+        
+            self.goal_handle_cs.canceled()
+        
+            # After receiving ack from HD, we exit the action running
+            self.running = False
         else:
             self.rover_node.node.get_logger().error('HD Goal failed to cancel...')
-            # if enter here.. bad for us
+            # if enter here.. bad for us lol
     
     '''
     Function handling the response of the request to the Drill.
     '''
     def hd_response_callback(self, future):
         self.goal_handle_hd = future.result()
-
-        # GOAL REJECTED FROM HD - FORWARD TO CS (return is sufficient? need to test)
 
         if not self.goal_handle_hd.accepted:
             self.cancel_hd = True
@@ -166,6 +187,8 @@ class HandlingDevice:
     def cancel_goal_from_cs(self, goal_handle_cs):
         self.rover_node.node.get_logger().info("HD goal cancelation requested...")
         self.cancel_hd = True
+        
+        return CancelResponse.ACCEPT
 
     # -----------------------------------------------------------------------------
 
