@@ -108,7 +108,6 @@ class RoverNode():
         
         # -- Others --
         self.cam_cmd_pub = self.node.create_publisher(ServoRequest, self.el_names["SERVO_REQ_TOPIC"], 1)
-        self.node.create_subscription(Joy, self.cs_names["cs_pubsub_camera_gamepad"], self.transfer_gamepad_cmd_camera, 10)
 
         # ==========================================================
         #                       SERVICES
@@ -176,7 +175,7 @@ class RoverNode():
         
         self.node.create_subscription(Bool, '/NAV/state_camera_nav_2', self.model.nav_states_2, 10)
         
-        self.node.create_subscription(Bool, '/ROVER/state_camera_hd_0', self.model.hd_states_0, 10)
+        self.node.create_subscription(Bool, '/HD/state_camera_hd_0', self.model.hd_states_0, 10)
 
         # ==========================================================
         #                       ACTIONS
@@ -187,10 +186,6 @@ class RoverNode():
                                                    self.cs_names["cs_hd_action_manipulation"], execute_callback=self.model.HD.make_action,
                                                 callback_group=reentrant_callback_group,
                                                 goal_callback=self.model.HD.action_status, cancel_callback=self.model.HD.cancel_goal_from_cs)
-
-        # to be deleted and updated with new structure
-        #self.hd_manipulation_service = self.node.create_client(RequestHDGoal, 
-        #                                           self.hd_names["hd_fsm_goal_srv"], callback_group=MutuallyExclusiveCallbackGroup())
 
         # server that handle CS request for a autonomous task in navigation                                   
         self.nav_reach_goal_action = ActionServer(self.node, NAVReachGoal, 
@@ -253,8 +248,8 @@ class RoverNode():
     # Transfer the gamepad commands for navigation
     def transfer_gamepad_cmd_nav(self, msg):
         
-        # We need to update the state of the subsystem and the motion mode since with the button we can
-        # do that. Refer to the CS code in the gamepad bindings which button is for what
+        # Transfer the camera commands
+        self.transfer_gamepad_cmd_camera(msg)
 
         # Button 1 => change subsystem mode
 
@@ -299,8 +294,8 @@ class RoverNode():
         
     # Transfer the gamepad commands for the navigation camera
     def transfer_gamepad_cmd_camera(self, msg):
-        increase = msg.buttons[0]
-        decrease = msg.buttons[1]
+        increase = msg.buttons[2]
+        decrease = msg.buttons[3]
         
         if increase == 0 and decrease == 0:
             self.last_increment = 0

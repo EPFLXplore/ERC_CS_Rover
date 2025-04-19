@@ -54,10 +54,16 @@ class NewModel:
         self.Nav = Navigation(rover_node)
         self.Elec = Elec(rover_node, self)
 
-        # Bandwidth subscription for cameras CS
+        # Bandwidth subscription for cameras
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_0", self.cs_data_rates_0, 10)
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_1", self.cs_data_rates_1, 10)
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_2", self.cs_data_rates_2, 10)
+        
+        self.rover_node.node.create_subscription(Float32, "/NAV/bw_camera_nav_0", self.nav_data_rates_0, 10)
+        self.rover_node.node.create_subscription(Float32, "/NAV/bw_camera_nav_1", self.nav_data_rates_1, 10)
+        self.rover_node.node.create_subscription(Float32, "/NAV/bw_camera_nav_2", self.nav_data_rates_2, 10)
+        
+        self.rover_node.node.create_subscription(Float32, "/HD/bw_camera_hd_0", self.hd_data_rates_0, 10)
 
     # Change the mode of a subsystem. If everything went well, it actionates the leds
     async def change_mode_system_service(self, request, response):
@@ -296,6 +302,36 @@ class NewModel:
             return
         
         self.rover_node.rover_state_json['cameras']['control_station']['Right']['data_rate'] = msg.data 
+        
+    def nav_data_rates_0(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['navigation']['Front']['status']:
+            self.rover_node.rover_state_json['cameras']['navigation']['Front']['data_rate'] = "0.0"  
+            return
+        
+        self.rover_node.rover_state_json['cameras']['navigation']['Front']['data_rate'] = msg.data 
+
+    def nav_data_rates_1(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['navigation']['Up1']['status']:
+            self.rover_node.rover_state_json['cameras']['navigation']['Up1']['data_rate'] = "0.0"  
+            return
+        
+        self.rover_node.rover_state_json['cameras']['navigation']['Up1']['data_rate'] = msg.data 
+
+
+    def nav_data_rates_2(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['navigation']['Up2']['status']:
+            self.rover_node.rover_state_json['cameras']['navigation']['Up2']['data_rate'] = "0.0"  
+            return
+        
+        self.rover_node.rover_state_json['cameras']['navigation']['Up2']['data_rate'] = msg.data 
+
+    def hd_data_rates_0(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['status']:
+            self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['data_rate'] = "0.0"  
+            return
+        
+        self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['data_rate'] = msg.data 
+
 
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
