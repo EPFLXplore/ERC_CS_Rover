@@ -10,7 +10,10 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     rover_node = Node(
         package='rover_pkg',
-        executable='rover'
+        executable='rover',
+        parameters=[
+            {'network_node': True},
+        ]
     )
 
     included_launch = IncludeLaunchDescription(

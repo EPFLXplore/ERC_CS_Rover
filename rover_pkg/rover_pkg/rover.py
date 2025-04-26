@@ -24,8 +24,6 @@ from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal, NewHDGoal
 from custom_msg.srv import ChangeModeSystem, DrillMode, RequestHDGoal, ChangeModeCamera #ChangeModeHDCamera
 from nav2_msgs.action import NavigateToPose
 
-
-from rover_pkg.db_logger import MongoDBLogger
 from bson import json_util
 import json
 from .model import NewModel
@@ -61,11 +59,12 @@ class RoverNode():
         with open('/home/xplore/dev_ws/src/custom_msg/config/nav_interface_names.yaml', 'r') as file:
             self.nav_names = yaml.safe_load(file)["/**"]["ros__parameters"]
 
+        # Parameters Launch file
+        self.declare_parameter("network_node", False)
+        self.network_node = self.get_parameter("network_node").get_parameter_value().bool_value
+
         # Create the models
         self.model = NewModel(self)
-
-        # to be removed
-        self.logger = MongoDBLogger("Onyx", "rover_state")
 
         # Potential Network Node (will be instancied only if necessary)
         self.network_monitor = None
@@ -107,6 +106,7 @@ class RoverNode():
                                       self.science_names["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
         
         # -- Others --
+        self.last_increment = 0
         self.cam_cmd_pub = self.node.create_publisher(ServoRequest, self.el_names["SERVO_REQ_TOPIC"], 1)
 
         # ==========================================================
@@ -215,27 +215,19 @@ class RoverNode():
 
         self.node.get_logger().info("Rover Node Started")
         
-        # To not start the networking node, put network_node to False
-        self.network_node = False
         if self.network_node:
             self.network_monitor = NetworkMonitoring(rover_state=self.rover_state_json,
                                                      node=self.node)
         else:
-            self.node.get_logger().info("No Networking")
+            self.node.get_logger().info("No Networking Node")
 
         # Start the health node checker
         self.health = ActiveNodeChecker(self.rover_state_json, self.model)
-        
-        self.last_increment = 0
             
     # timer callback for sending rover state continuously
     def timer_callback(self):
         msg = String()
         self.rover_state_json["timestamp"] = int(time.time()) # epoch
-
-        # Log in MongoDB
-        rover_bson = json.loads(json_util.dumps(self.rover_state_json))
-        self.logger.log(rover_bson)
 
         msg.data = json.dumps(self.rover_state_json)
         self.clear_rover_msgs()

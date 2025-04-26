@@ -22,8 +22,7 @@ WORKDIR /home/$USERNAME
 
 RUN pip install numpy
 RUN pip install aiohttp aiortc aiohttp_cors
-RUN pip install pymongo ping3 tornado requests pyrealsense2
-#RUN pip install jetson-stats
+RUN pip install ping3 tornado requests pyrealsense2
 
 # Set a diretory to store the project
 WORKDIR /home/$USERNAME/dev_ws/src
