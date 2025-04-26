@@ -156,7 +156,7 @@ class HandlingDevice:
             msg_goal.predefined_pose = action
 
         # Tool Actions
-        elif action == HDGoal.SHOVEL_TOOL:
+        elif action == HDGoal.CLAM_TOOL:
             msg_goal.target = HDGoal.TOOL_PICKUP
             msg_goal.tool = action
             
