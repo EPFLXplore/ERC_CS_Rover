@@ -60,8 +60,8 @@ class RoverNode():
             self.nav_names = yaml.safe_load(file)["/**"]["ros__parameters"]
 
         # Parameters Launch file
-        self.declare_parameter("network_node", False)
-        self.network_node = self.get_parameter("network_node").get_parameter_value().bool_value
+        self.node.declare_parameter("network_node", False)
+        self.network_node = self.node.get_parameter("network_node").get_parameter_value().bool_value
 
         # Create the models
         self.model = NewModel(self)
