@@ -1,5 +1,4 @@
 from custom_msg.action import HDManipulation, NewHDGoal
-from custom_msg.srv import RequestHDGoal
 import math
 from custom_msg.msg import HDGoal
 from std_msgs.msg import String
@@ -17,6 +16,14 @@ class HandlingDevice:
 
         # Switches
         self.switches = [value for key, value in vars(HDGoal).items() if key.startswith("BUTTON")]
+        
+        # Predefined poses
+        self.predefined_poses = [HDGoal.FRONT_PANEL, HDGoal.RANGEMENT, HDGoal.HOME, HDGoal.ZERO, 
+                                 HDGoal.COBRA, HDGoal.ABOVE_GROUND, HDGoal.PROBE_1, HDGoal.PROBE_2,
+                                 HDGoal.PROBE_3]
+        
+        # Tools
+        self.tools = [HDGoal.CLAM_TOOL]
 
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
@@ -151,12 +158,12 @@ class HandlingDevice:
         msg_goal = HDGoal()
         
         # Predefined poses
-        if action == HDGoal.FRONT_PANEL or action == HDGoal.RANGEMENT or action == HDGoal.HOME or action == HDGoal.ZERO or action == HDGoal.COBRA or action == HDGoal.ABOVE_GROUND:
+        if action in self.predefined_poses:
             msg_goal.target = HDGoal.NAMED_POSE
             msg_goal.predefined_pose = action
 
-        # Tool Actions
-        elif action == HDGoal.CLAM_TOOL:
+        # Tools
+        elif action in self.tools:
             msg_goal.target = HDGoal.TOOL_PICKUP
             msg_goal.tool = action
             
