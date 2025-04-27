@@ -159,6 +159,9 @@ class Drill:
     # ------------------------------------------------------------------------------------------
 
     def update_motor_status(self, msg):
+        
+        if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
+            return
 
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = round(msg.distance)
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = msg.vel
@@ -175,7 +178,7 @@ class Drill:
 
         self.rover_node.rover_state_json['drill']['state']['state_fsm'] = self.modes[msg.mode]
 
-    def update_drill_feedback(self, feedback):
+    def update_drill_feedback(self, feedback): 
         self.rover_node.rover_state_json['drill']['state']['current_status'] = feedback.current_status
         self.rover_node.rover_state_json['drill']['state']['warning_type'] = feedback.warning_type
 

@@ -199,6 +199,9 @@ class HandlingDevice:
            self.reset_informations()
 
     def hd_motor_cmds(self, msg):
+        
+        if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
+            return
 
         currents = msg.current
         motor_mode = msg.motor_mode

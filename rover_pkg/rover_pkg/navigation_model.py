@@ -119,6 +119,9 @@ class Navigation:
         BACK_RIGHT_STEER = 6
         BACK_LEFT_STEER = 7
         """
+        
+        if self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Off':
+            return
 
         # conversion RPM tp m/s
         rps_to_ms = 2 * 3.1415 * self.wheels_radius / 60.0
