@@ -44,7 +44,7 @@ class Elec:
         
         self.rover_node.rover_state_json['electronics']['sensors']['four_in_one'] = {
             "temperature": "0.0",
-            "moisture": "0.0",
+            "humidity": "0.0",
             "conductivity": "0.0",
             "ph": "0.0"
         }

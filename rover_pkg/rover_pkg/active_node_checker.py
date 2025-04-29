@@ -21,9 +21,9 @@ known_node_names = {
     
     "costco_publisher": ("electronics", "avionics", True),
 
-    "/ROVER/camera_cs_0": ("control_station", "Behind", False),
-    "/ROVER/camera_cs_1": ("control_station", "Left", False),
-    "/ROVER/camera_cs_2": ("control_station", "Right", False),
+    "/ROVER/camera_cs_0": ("rover", "Behind", False),
+    "/ROVER/camera_cs_1": ("rover", "Left", False),
+    "/ROVER/camera_cs_2": ("rover", "Right", False),
     
     "/ROVER/camera_nav_0": ("navigation", "Front", False),
     "/ROVER/camera_nav_1": ("navigation", "Up1", False),

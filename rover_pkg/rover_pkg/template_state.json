@@ -108,7 +108,7 @@
     }
   },
   "cameras": {
-    "control_station": {
+    "rover": {
       "Left": {
         "name": "Left",
         "status": false,
