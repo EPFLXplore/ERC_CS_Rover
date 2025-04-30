@@ -1,11 +1,14 @@
 from rclpy.action import GoalResponse, CancelResponse
 from std_msgs.msg import Bool
 from custom_msg.action import DrillCmd
-import math
+from .model import SubSystems, Errors
+from .elec_model import LedMode
 
 class Drill:
     def __init__(self, rover_node):
         self.rover_node = rover_node
+        
+        self.in_fault = False
 
         self.modes = {
             0: 'STOPPED',
@@ -29,7 +32,7 @@ class Drill:
         self.rover_node.node.create_subscription(Bool, self.rover_node.science_names['status_system'], self.handle_state, 10)
     
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands("drill", "Off")
+        self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, LedMode.OFF)
 
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = "0.0"
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = "0.0"
@@ -169,6 +172,15 @@ class Drill:
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['current'] = abs(msg.screw_current)
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['state'] = msg.motor_screw
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['state'] = msg.motor_trans
+        
+        if msg.motor_trans or msg.motor_screw:
+            if not self.in_fault:
+                self.rover_node.model.Elec.send_led_errors(SubSystems.DRILL, Errors.FAULT)
+                self.in_fault = True
+        else:
+            if self.in_fault: 
+                self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, LedMode.MANUAL.value)
+                self.in_fault = False
 
 
     def update_drill_status(self, msg):

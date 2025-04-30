@@ -1,10 +1,6 @@
 from rclpy.node import Node
-import rclpy
 import requests
 from requests.auth import HTTPBasicAuth
-import json
-from ping3 import ping
-from std_msgs.msg import String
 
 class NetworkMonitoring(Node):
     def __init__(self, rover_state, node):
@@ -20,9 +16,6 @@ class NetworkMonitoring(Node):
         self.wireless_connection = None
         self.logs = None
         
-        with open("/home/xplore/dev_ws/src/rover_pkg/rover_pkg/ip_names.json") as json_file:
-            self.ip_names = dict(json.load(json_file))
-
         self.wireless_devices_timer = self.create_timer(2.0, self.retrieve_network_info)
         self.get_logger().info("Networking Node ready")
         

@@ -1,14 +1,55 @@
 from custom_msg.msg import MassPacket, FourInOne, LEDMessage, BMS, DustData
+from enum import Enum
+from .model import SubSystems, Errors
+
+'''
+Led System
+
+- Default: Mode when the subsystem is either not in use, or in just powerered on
+- Manual: Mode when manual is on
+- Auto: Mode when auto is on
+- Fault: Mode when the subsystem is in fault
+- Reset Motors: Mode when the motors need to be reset by someone near the rover
+- Emergency Shutdown: Mode when the rover has to be shut down 
+
+'''
+class LedMode(Enum):
+    OFF = 0,
+    MANUAL = 1,
+    AUTO = 2,
+    FAULT = 3,
+    RESET_MOTORS = 4,
+    EMERGENGY_SHUTDOWN = 5
 
 class Elec:
-    def __init__(self, rover_node, model):
+    def __init__(self, rover_node):
         self.rover_node = rover_node
-        self.model = model
 
-        # 0 -> nav, 1 -> hd, 2 -> drill
+        '''
+        Each number is a mode, for example 1 and 2 are ackermann and omnidrive
+        '''
+        self.modes_nav = {
+            0: LedMode.OFF,
+            1: LedMode.MANUAL,
+            2: LedMode.MANUAL,
+            3: LedMode.AUTO
+        }
+        
+        self.modes_hd = {
+            0: LedMode.OFF,
+            1: LedMode.MANUAL,
+            2: LedMode.MANUAL,
+            3: LedMode.AUTO
+        }
+        
+        self.modes_drill = {
+            0: LedMode.OFF,
+            1: LedMode.MANUAL,
+            2: LedMode.AUTO,
+        }
 
-        # self.led_pub = self.rover_node.node.create_publisher(LEDMessage, 
-        #                                                      self.rover_node.el_names["LED_COM_TOPIC"], 1)
+        self.led_pub = self.rover_node.node.create_publisher(LEDMessage, 
+                                                             self.rover_node.el_names["LED_COM_TOPIC"], 1)
 
         self.rover_node.node.create_subscription(MassPacket, 
                                                   self.rover_node.el_names["MASS_TOPIC"], self.mass_callback, 1)
@@ -52,39 +93,42 @@ class Elec:
         self.rover_node.rover_state_json['electronics']['sensors']['mass_sensors']["mass_container"] = "0.0"
 
 
+    '''
+    Function that sends the right color to the led system.
+    '''
     def send_led_commands(self, subsystem, mode):
+        
+        led = LEDMessage()
+        led.subsystem = subsystem
 
         match subsystem:
-            case 'nav':
-                self.send_mode("nav", mode)
-            case 'hd':
-                self.send_mode("hd", mode)
-            case 'drill':
-                self.send_mode("drill", mode)
-
-
-    def send_mode(self, system, mode):
-        pass
-        # led = LEDMessage()
-        # led.system = self.model.name_system[system]
-
-        # match mode:
-        #     case 'Manual':
-        #         led.mode = 1
-        #     case 'Manual Direct':
-        #         led.mode = 2
-        #     case 'Manual Inverse':
-        #         led.mode = 3
-        #     case 'Auto':
-        #         led.mode = 4
-        #     case 'Off':
-        #         led.mode = 5
-        #     case 'On':
-        #         led.mode = 0
-        #     case 'action':
-        #         led.mode = 6
-
-        # self.led_pub.publish(led)
+            case SubSystems.NAVIGATION:
+                led.mode = self.modes_nav[mode].value
+            case SubSystems.HANDLING_DEVICE:
+                led.mode = self.modes_hd[mode].value
+            case SubSystems.DRILL:
+                led.mode = self.modes_drill[mode].value
+        
+        self.led_pub.publish(led)
+        
+    '''
+    Function that sends an error to the led system. If the error is the emergency
+    or the reset motors, the subsystem is not needed. 
+    '''
+    def send_led_errors(self, subsystem, error_type):
+        if error_type == Errors.EMERGENCY_SHUTDOWN:
+            led = LEDMessage()
+            led.mode = LedMode.EMERGENGY_SHUTDOWN.value
+            self.led_pub.publish(led)
+        elif error_type == Errors.RESET_MOTORS:
+            led = LEDMessage()
+            led.mode = LedMode.RESET_MOTORS.value
+            self.led_pub.publish(led)
+        elif error_type == Errors.FAULT:
+            led = LEDMessage()
+            led.subsystem = subsystem
+            led.mode = LedMode.FAULT.value
+            self.led_pub.publish(led)
     
     def dust_sensor_callback(self, msg):
         self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor'] = {

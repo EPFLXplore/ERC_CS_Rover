@@ -1,4 +1,6 @@
 from custom_msg.action import HDManipulation, NewHDGoal
+from .model import SubSystems, Errors
+from .elec_model import LedMode
 import math
 from custom_msg.msg import HDGoal
 from std_msgs.msg import String
@@ -7,6 +9,8 @@ from rclpy.action import GoalResponse, CancelResponse
 class HandlingDevice:
     def __init__(self, rover_node):
         self.rover_node = rover_node
+        
+        self.in_fault = False
 
         self.running = False
         self.feedback = None
@@ -28,7 +32,7 @@ class HandlingDevice:
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands("hd", "Off")
+        self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.OFF)
 
         self.rover_node.rover_state_json['handling_device']['state']['current_command'] = "NONE"
         self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
@@ -236,5 +240,26 @@ class HandlingDevice:
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['current'] = abs(round(currents[i], 1))
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = abs(torque[i])
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = mapping[motor_mode[i]]
+            
+                # Check if motor is in fault:
+                if motor_mode[i] == 7:
+                    
+                    # If the state is not in fault we update
+                    if not self.in_fault:
+                        self.rover_node.model.Elec.send_led_errors(SubSystems.HANDLING_DEVICE, Errors.FAULT)
+                        self.in_fault = True
+                else:
+                    
+                    # If the state was in fault we update
+                    if self.in_fault:
+                        if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Manual Direct':
+                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.MANUAL.value)
+                        elif self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Manual Inverse':
+                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.MANUAL.value)
+                        elif self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Auto':
+                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.AUTO.value)
+                        
+                        self.in_fault = False
+
             
             self.rover_node.rover_state_json['handling_device']['joints'][f'joint_7']['current'] = abs(round(currents[6], 1))

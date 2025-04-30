@@ -38,7 +38,7 @@ class RoverNode():
         self.node = rclpy.create_node("ROVER")
 
         # Load the config files of the custom messages
-        with open("/home/xplore/dev_ws/src/rover_pkg/rover_pkg/template_state.json") as json_file:
+        with open("/home/xplore/dev_ws/src/rover_pkg/rover_pkg/rover_state.json") as json_file:
             self.rover_state_json = dict(json.load(json_file))
         
         with open('/home/xplore/dev_ws/src/custom_msg/config/cs_interface_names.yaml', 'r') as file:

@@ -1,58 +1,37 @@
 from std_msgs.msg import Float32
 from std_srvs.srv import SetBool
-from custom_msg.srv import HDMode, DrillMode, ChangeModeSystem
+from custom_msg.srv import DrillMode, ChangeModeSystem
 from rover_pkg.drill_model import Drill
 from rover_pkg.navigation_model import Navigation
 from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
-
+from enum import Enum
+    
 '''
 =============== ROS Model for subsystems =================
 Authors: Ugo Balducci, Giovanni Ranieri
 Updated: 2024-2025
 '''
 
+class SubSystems(Enum):
+    NAVIGATION = 0,
+    HANDLING_DEVICE = 1,
+    DRILL = 2
+    
+class Errors(Enum):
+    FAULT = 0,
+    RESET_MOTORS = 1,
+    EMERGENCY_SHUTDOWN = 2,
+    
 class NewModel:
     def __init__(self, rover_node):
         self.rover_node = rover_node
-
-        # maps for convenience, not really beautiful
-        self.systems_to_name = {
-            0: "nav",
-            1: "hd",
-            2: "drill"
-        }
-
-        self.name_system = {
-            "nav": 0,
-            "hd": 1,
-            "drill": 2
-        }
-
-        self.nav_to_name = {
-            0: "Off",
-            1: "Ackermann",
-            2: "Omni",
-            3: "Auto"
-        }
-
-        self.hd_to_name = {
-            0: "Off",
-            1: "Manual Direct",
-            2: "Manual Inverse",
-            3: "Auto"
-        }
-
-        self.drill_to_name = {
-            0: "Off",
-            1: "On"
-        }
 
         # Create the different models
         self.Drill = Drill(rover_node)
         self.HD = HandlingDevice(rover_node)
         self.Nav = Navigation(rover_node)
-        self.Elec = Elec(rover_node, self)
+        self.Elec = Elec(rover_node)
 
         # Bandwidth subscription for cameras
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_0", self.cs_data_rates_0, 10)
@@ -70,20 +49,7 @@ class NewModel:
 
         system = request.system
         mode = request.mode
-        '''
-        # test leds
-        if system == 0:
-            self.Elec.send_led_commands(self.systems_to_name[system], self.nav_to_name[mode])
-        
-        elif system == 1:
-            self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
-        
-        elif system == 2:
-            self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
-        
-        return response
-        '''
-
+    
         '''
         Because services are run asynchronously, the idea would be to have a way of waiting the second
         request to be done, and then say to the CS it's done. For actions it's done in this way. For
@@ -144,7 +110,7 @@ class NewModel:
             response = future.result()
             if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Ackermann' if (mode == 1) else ('Omni' if (mode == 2) else 'Off'))
-                #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
+                self.Elec.send_led_commands(SubSystems.NAVIGATION, mode)
             else:
                 log_error(self.rover_node, "Error in nav service response callback: " + response.error_message)
         except Exception as e:
@@ -155,7 +121,7 @@ class NewModel:
             response = future.result()
             if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
-                #self.Elec.send_led_commands(self.systems_to_name[system], self.hd_to_name[mode])
+                self.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, mode)
             else:
                 log_error(self.rover_node, "Error in hd service response callback: " + response.error_message)
         except Exception as e:
@@ -164,10 +130,9 @@ class NewModel:
     def service_callback_drill(self, future, mode, response):
         try:
             response_drill = future.result()
-            log_warning(self.rover_node, "edrnvrei")
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                #self.Elec.send_led_commands(self.systems_to_name[system], self.drill_to_name[mode])
+                self.Elec.send_led_commands(SubSystems.DRILL, mode)
             else:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 
@@ -193,7 +158,7 @@ class NewModel:
         activate = request.activate
         
         # CS
-        if(system == "control_station"):
+        if(system == "rover"):
             req = SetBool.Request()
             req.data = True if activate else False
 
@@ -283,25 +248,25 @@ class NewModel:
 # DATA RATES CAMERAS
 
     def cs_data_rates_0(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['control_station']['Behind']['status']:
-            self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = "0.0"  
+        if not self.rover_node.rover_state_json['cameras']['rover']['Behind']['status']:
+            self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = "0.0"  
             return
             
-        self.rover_node.rover_state_json['cameras']['control_station']['Behind']['data_rate'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = msg.data 
 
     def cs_data_rates_1(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['control_station']['Left']['status']:
-            self.rover_node.rover_state_json['cameras']['control_station']['Left']['data_rate'] = "0.0"  
+        if not self.rover_node.rover_state_json['cameras']['rover']['Left']['status']:
+            self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = "0.0"  
             return
         
-        self.rover_node.rover_state_json['cameras']['control_station']['Left']['data_rate'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = msg.data 
 
     def cs_data_rates_2(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['control_station']['Right']['status']:
-            self.rover_node.rover_state_json['cameras']['control_station']['Right']['data_rate'] = "0.0"  
+        if not self.rover_node.rover_state_json['cameras']['rover']['Right']['status']:
+            self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = "0.0"  
             return
         
-        self.rover_node.rover_state_json['cameras']['control_station']['Right']['data_rate'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = msg.data 
         
     def nav_data_rates_0(self, msg):
         if not self.rover_node.rover_state_json['cameras']['navigation']['Front']['status']:
@@ -338,10 +303,10 @@ class NewModel:
 # STATE CAMERAS
 
     def cs_states_0(self, msg):
-        self.rover_node.rover_state_json['cameras']['control_station']['Behind']['status'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['Behind']['status'] = msg.data 
 
     def cs_states_1(self, msg):
-        self.rover_node.rover_state_json['cameras']['control_station']['Left']['status'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['Left']['status'] = msg.data 
 
     def cs_states_2(self, msg):
         self.rover_node.rover_state_json['cameras']['control_station']['Right']['status'] = msg.data 

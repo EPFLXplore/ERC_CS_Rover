@@ -1,13 +1,18 @@
-from rclpy.action import GoalResponse, CancelResponse
+from rclpy.action import GoalResponse
 from nav_msgs.msg import Odometry
 from custom_msg.action import NAVReachGoal
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String
+from .model import SubSystems, Errors
+from .elec_model import LedMode
 
 class Navigation:
-    def __init__(self, rover_node):
+    def __init__(self, rover_node, model):
         self.rover_node = rover_node
+        self.model = model
+        
+        self.in_fault = False
 
         self.feedback = None
         self.running = False
@@ -31,7 +36,7 @@ class Navigation:
         self.gear_ratio = 1.0/53.0
     
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands("navigation", "Off")
+        self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.OFF)
 
         # front_left wheel
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
@@ -193,6 +198,25 @@ class Navigation:
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_fault'] = self.fault_steering[3]
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_fault'] = self.fault_driving[3]
 
+        # Check if motor is in fault:
+        if self.fault_steering.any() or self.fault_driving.any():
+            
+            # If the state is not in fault we update
+            if not self.in_fault:
+                self.rover_node.model.Elec.send_led_errors(SubSystems.NAVIGATION, Errors.FAULT)
+                self.in_fault = True
+        else:
+            
+            # If the state was in fault we update
+            if self.in_fault:
+                if self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Ackermann':
+                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.MANUAL.value)
+                elif self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Omni':
+                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.MANUAL.value)
+                elif self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Auto':
+                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.AUTO.value)
+                
+                self.in_fault = False
 
     def feedback_odometry(self, pose_stamped):
         msg = Odometry()
