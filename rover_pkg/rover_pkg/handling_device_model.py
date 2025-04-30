@@ -1,6 +1,5 @@
 from custom_msg.action import HDManipulation, NewHDGoal
-from .model import SubSystems, Errors
-from .elec_model import LedMode
+from .states import SubSystems, Errors, LedMode
 import math
 from custom_msg.msg import HDGoal
 from std_msgs.msg import String

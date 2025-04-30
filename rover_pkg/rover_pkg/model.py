@@ -12,16 +12,6 @@ from enum import Enum
 Authors: Ugo Balducci, Giovanni Ranieri
 Updated: 2024-2025
 '''
-
-class SubSystems(Enum):
-    NAVIGATION = 0,
-    HANDLING_DEVICE = 1,
-    DRILL = 2
-    
-class Errors(Enum):
-    FAULT = 0,
-    RESET_MOTORS = 1,
-    EMERGENCY_SHUTDOWN = 2,
     
 class NewModel:
     def __init__(self, rover_node):

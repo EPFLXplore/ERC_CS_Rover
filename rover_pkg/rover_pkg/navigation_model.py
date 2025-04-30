@@ -4,8 +4,7 @@ from custom_msg.action import NAVReachGoal
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String
-from .model import SubSystems, Errors
-from .elec_model import LedMode
+from .states import SubSystems, Errors, LedMode
 
 class Navigation:
     def __init__(self, rover_node, model):
