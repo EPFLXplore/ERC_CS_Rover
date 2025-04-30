@@ -31,7 +31,7 @@ class Drill:
         self.rover_node.node.create_subscription(Bool, self.rover_node.science_names['status_system'], self.handle_state, 10)
     
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, LedMode.OFF)
+        self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, 0)
 
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = "0.0"
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = "0.0"
@@ -101,8 +101,6 @@ class Drill:
             return self.result_drill_action(self.result)
 
         self.rover_node.node.get_logger().info('Drill Goal accepted from drill')
-
-        self.rover_node.model.Elec.send_led_commands("drill", "action")
         
         get_result_future = self.goal_handle_drill.get_result_async()
         get_result_future.add_done_callback(self.result_callback)
@@ -118,7 +116,6 @@ class Drill:
             self.goal_handle_cs.succeed()
 
         self.running = False
-        self.rover_node.model.Elec.send_led_commands("drill", "On")        
 
     '''
     Function forwarding the feedback from Drill to CS. Handle also the cancellation from CS
@@ -178,7 +175,7 @@ class Drill:
                 self.in_fault = True
         else:
             if self.in_fault: 
-                self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, LedMode.MANUAL.value)
+                self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, 1)
                 self.in_fault = False
 
 

@@ -5,7 +5,7 @@ from rover_pkg.drill_model import Drill
 from rover_pkg.navigation_model import Navigation
 from rover_pkg.handling_device_model import HandlingDevice
 from rover_pkg.elec_model import Elec
-from enum import Enum
+from .states import SubSystems
     
 '''
 =============== ROS Model for subsystems =================

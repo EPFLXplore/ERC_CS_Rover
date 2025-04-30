@@ -7,9 +7,8 @@ from std_msgs.msg import String
 from .states import SubSystems, Errors, LedMode
 
 class Navigation:
-    def __init__(self, rover_node, model):
+    def __init__(self, rover_node):
         self.rover_node = rover_node
-        self.model = model
         
         self.in_fault = False
 
@@ -35,7 +34,7 @@ class Navigation:
         self.gear_ratio = 1.0/53.0
     
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.OFF)
+        self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, 0)
 
         # front_left wheel
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
@@ -209,11 +208,11 @@ class Navigation:
             # If the state was in fault we update
             if self.in_fault:
                 if self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Ackermann':
-                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.MANUAL.value)
+                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, 1)
                 elif self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Omni':
-                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.MANUAL.value)
+                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, 2)
                 elif self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Auto':
-                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.AUTO.value)
+                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, 3)
                 
                 self.in_fault = False
 

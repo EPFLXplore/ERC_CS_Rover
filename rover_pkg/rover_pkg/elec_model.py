@@ -80,15 +80,15 @@ class Elec:
     def send_led_commands(self, subsystem, mode):
         
         led = LEDMessage()
-        led.subsystem = subsystem
+        led.system = subsystem.value
 
         match subsystem:
             case SubSystems.NAVIGATION:
-                led.mode = self.modes_nav[mode].value
+                led.mode = self.modes_nav[mode].value[0]
             case SubSystems.HANDLING_DEVICE:
-                led.mode = self.modes_hd[mode].value
+                led.mode = self.modes_hd[mode].value[0]
             case SubSystems.DRILL:
-                led.mode = self.modes_drill[mode].value
+                led.mode = self.modes_drill[mode].value[0]
         
         self.led_pub.publish(led)
         
@@ -107,7 +107,7 @@ class Elec:
             self.led_pub.publish(led)
         elif error_type == Errors.FAULT:
             led = LEDMessage()
-            led.subsystem = subsystem
+            led.system = subsystem.value
             led.mode = LedMode.FAULT.value
             self.led_pub.publish(led)
     

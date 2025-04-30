@@ -31,8 +31,7 @@ class HandlingDevice:
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.OFF)
-
+        self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, 0)
         self.rover_node.rover_state_json['handling_device']['state']['current_command'] = "NONE"
         self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
         for i in range(7):
@@ -150,7 +149,6 @@ class HandlingDevice:
             return self.result_hd_action(self.result)
 
         self.rover_node.node.get_logger().info('HD Goal accepted from HD')
-        self.rover_node.model.Elec.send_led_commands("hd", "action")
         
         get_result_future = self.goal_handle_hd.get_result_async()
         get_result_future.add_done_callback(self.result_callback)
@@ -189,7 +187,6 @@ class HandlingDevice:
             self.goal_handle_cs.succeed()
 
         self.running = False
-        self.rover_node.model.Elec.send_led_commands("hd", "On")   
     
     '''
     Cancel action from CS. Need to send cancellation to HD and forward cancellation
@@ -252,11 +249,11 @@ class HandlingDevice:
                     # If the state was in fault we update
                     if self.in_fault:
                         if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Manual Direct':
-                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.MANUAL.value)
+                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, 1)
                         elif self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Manual Inverse':
-                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.MANUAL.value)
+                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, 2)
                         elif self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Auto':
-                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.AUTO.value)
+                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, 3)
                         
                         self.in_fault = False
 
