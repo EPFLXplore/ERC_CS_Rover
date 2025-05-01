@@ -259,7 +259,7 @@ class RoverNode():
             req.mode = 1
 
             future = self.nav_service.call_async(req)
-            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, req.mode))
+            future.add_done_callback(lambda f: self.model.service_callback_nav(f, req.mode))
         
         # Change to Omni
         elif (msg.buttons[1] == 1 and state == 'Ackermann'):
@@ -268,7 +268,7 @@ class RoverNode():
             req.mode = 2
 
             future = self.nav_service.call_async(req)
-            future.add_done_callback(lambda f: self.model.Nav.service_callback_nav(f, req.mode))
+            future.add_done_callback(lambda f: self.model.service_callback_nav(f, req.mode))
 
         self.nav_cmd_pub.publish(msg)
 

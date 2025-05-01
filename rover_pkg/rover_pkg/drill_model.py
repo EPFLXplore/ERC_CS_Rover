@@ -171,7 +171,7 @@ class Drill:
         
         if msg.motor_trans or msg.motor_screw:
             if not self.in_fault:
-                self.rover_node.model.Elec.send_led_errors(SubSystems.DRILL, Errors.FAULT)
+                self.rover_node.model.Elec.send_led_errors(SubSystems.DRILL, Errors.FAULT.value)
                 self.in_fault = True
         else:
             if self.in_fault: 

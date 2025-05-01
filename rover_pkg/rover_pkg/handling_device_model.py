@@ -242,7 +242,7 @@ class HandlingDevice:
                     
                     # If the state is not in fault we update
                     if not self.in_fault:
-                        self.rover_node.model.Elec.send_led_errors(SubSystems.HANDLING_DEVICE, Errors.FAULT)
+                        self.rover_node.model.Elec.send_led_errors(SubSystems.HANDLING_DEVICE, Errors.FAULT.value)
                         self.in_fault = True
                 else:
                     

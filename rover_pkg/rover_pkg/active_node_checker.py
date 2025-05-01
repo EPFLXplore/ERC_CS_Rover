@@ -58,8 +58,8 @@ class ActiveNodeChecker(Node):
             self.json['rover']['status']['systems']['handling_device']['status'] = 'Off'
             self.model.HD.reset_informations()
             
-        if "costco_publisher" not in node_list:
-            self.model.Elec.reset_informations()
+        # if "costco_publisher" not in node_list:
+        #     self.model.Elec.reset_informations()
         
         # TODO ADD HD
 

@@ -197,11 +197,11 @@ class Navigation:
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_fault'] = self.fault_driving[3]
 
         # Check if motor is in fault:
-        if self.fault_steering.any() or self.fault_driving.any():
+        if any(self.fault_steering) or any(self.fault_driving):
             
             # If the state is not in fault we update
             if not self.in_fault:
-                self.rover_node.model.Elec.send_led_errors(SubSystems.NAVIGATION, Errors.FAULT)
+                self.rover_node.model.Elec.send_led_errors(SubSystems.NAVIGATION, Errors.FAULT.value)
                 self.in_fault = True
         else:
             
