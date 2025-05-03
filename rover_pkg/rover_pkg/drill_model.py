@@ -31,7 +31,7 @@ class Drill:
         self.rover_node.node.create_subscription(Bool, self.rover_node.science_names['status_system'], self.handle_state, 10)
     
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, 0)
+        #self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, 0)
 
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = "0.0"
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = "0.0"
@@ -171,11 +171,11 @@ class Drill:
         
         if msg.motor_trans or msg.motor_screw:
             if not self.in_fault:
-                self.rover_node.model.Elec.send_led_errors(SubSystems.DRILL, Errors.FAULT.value)
+                #self.rover_node.model.Elec.send_led_errors(SubSystems.DRILL, Errors.FAULT.value)
                 self.in_fault = True
         else:
             if self.in_fault: 
-                self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, 1)
+                #self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, 1)
                 self.in_fault = False
 
 

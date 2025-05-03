@@ -100,7 +100,7 @@ class NewModel:
             response = future.result()
             if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Ackermann' if (mode == 1) else ('Omni' if (mode == 2) else 'Off'))
-                self.Elec.send_led_commands(SubSystems.NAVIGATION, mode)
+                #self.Elec.send_led_commands(SubSystems.NAVIGATION, mode)
             else:
                 log_error(self.rover_node, "Error in nav service response callback: " + response.error_message)
         except Exception as e:
@@ -111,7 +111,7 @@ class NewModel:
             response = future.result()
             if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
-                self.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, mode)
+                s#elf.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, mode)
             else:
                 log_error(self.rover_node, "Error in hd service response callback: " + response.error_message)
         except Exception as e:
@@ -122,7 +122,7 @@ class NewModel:
             response_drill = future.result()
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                self.Elec.send_led_commands(SubSystems.DRILL, mode)
+                #self.Elec.send_led_commands(SubSystems.DRILL, mode)
             else:
                 log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
 
@@ -153,15 +153,15 @@ class NewModel:
             req.data = True if activate else False
 
             match index:
-                case "Behind":
+                case "Left":
                     future = self.rover_node.camera_cs_service_0.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
-                case "Left":
+                case "Right":
                     future = self.rover_node.camera_cs_service_1.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
-                case "Right": # not used rn on the rover (13.12.24)
+                case "Behind":
                     future = self.rover_node.camera_cs_service_2.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
@@ -238,25 +238,25 @@ class NewModel:
 # DATA RATES CAMERAS
 
     def cs_data_rates_0(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['rover']['Behind']['status']:
-            self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = "0.0"  
-            return
-            
-        self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = msg.data 
-
-    def cs_data_rates_1(self, msg):
         if not self.rover_node.rover_state_json['cameras']['rover']['Left']['status']:
             self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = "0.0"  
             return
-        
+            
         self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = msg.data 
 
-    def cs_data_rates_2(self, msg):
+    def cs_data_rates_1(self, msg):
         if not self.rover_node.rover_state_json['cameras']['rover']['Right']['status']:
             self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = "0.0"  
             return
         
         self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = msg.data 
+
+    def cs_data_rates_2(self, msg):
+        if not self.rover_node.rover_state_json['cameras']['rover']['Behind']['status']:
+            self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = "0.0"  
+            return
+        
+        self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = msg.data 
         
     def nav_data_rates_0(self, msg):
         if not self.rover_node.rover_state_json['cameras']['navigation']['Front']['status']:
@@ -293,13 +293,13 @@ class NewModel:
 # STATE CAMERAS
 
     def cs_states_0(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Behind']['status'] = msg.data 
-
-    def cs_states_1(self, msg):
         self.rover_node.rover_state_json['cameras']['rover']['Left']['status'] = msg.data 
 
+    def cs_states_1(self, msg):
+        self.rover_node.rover_state_json['cameras']['rover']['Right']['status'] = msg.data 
+
     def cs_states_2(self, msg):
-        self.rover_node.rover_state_json['cameras']['control_station']['Right']['status'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['Behind']['status'] = msg.data 
         
     def nav_states_0(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['status'] = msg.data 

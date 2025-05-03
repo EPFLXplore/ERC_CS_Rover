@@ -240,40 +240,20 @@ class RoverNode():
     # Transfer the gamepad commands for navigation
     def transfer_gamepad_cmd_nav(self, msg):
         
+        # Security check is the message is really for navigation
+        if msg.buttons[0] != 1: return
+        
         # Transfer the camera commands
         self.transfer_gamepad_cmd_camera(msg)
-
-        # Button 1 => change subsystem mode
-
-        state = self.rover_state_json['rover']['status']['systems']['navigation']['status']
-
-        # For safety, we change nothing if the state is auto and we click on 
-        # changing the mode. 
-        if (msg.buttons[1] == 1 and state == 'Auto'):
-            return
-
-        # Change to Ackermann
-        if (msg.buttons[1] == 1 and state == 'Omni'):
-            req = ChangeModeSystem.Request()
-            req.system = 0
-            req.mode = 1
-
-            future = self.nav_service.call_async(req)
-            future.add_done_callback(lambda f: self.model.service_callback_nav(f, req.mode))
-        
-        # Change to Omni
-        elif (msg.buttons[1] == 1 and state == 'Ackermann'):
-            req = ChangeModeSystem.Request()
-            req.system = 0
-            req.mode = 2
-
-            future = self.nav_service.call_async(req)
-            future.add_done_callback(lambda f: self.model.service_callback_nav(f, req.mode))
 
         self.nav_cmd_pub.publish(msg)
 
     # Transfer the gamepad commands for the arm
     def transfer_gamepad_cmd_hd(self, msg):
+        
+        # Security check is the message is really for handling device
+        if msg.buttons[0] != 2: return
+        
         if(self.rover_state_json['rover']['status']['systems']['handling_device']['status'] == "Manual Direct"):
             msgHD = Float32MultiArray()
             msgHD.data = msg.axes
