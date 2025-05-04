@@ -61,10 +61,14 @@ class ActiveNodeChecker(Node):
         # if "costco_publisher" not in node_list:
         #     self.model.Elec.reset_informations()
         
-        # TODO ADD HD
-
-        # For each name, pass it through a dictionary of known node name, 
-        # if a match is found, modifiy the node status in the json 
+        '''
+        For each name, pass it through a dictionary of known node name, 
+        if a match is found, modifiy the node status in the json
+        
+        Be aware that, for Cameras, we have the status and the node in the rover state. The 'status', for a camera activated,
+        checks that the camera is publishing. The 'node' is another boolean saying if the node is actually running, so without
+        errors. 
+        '''
         for name in known_node_names:
 
             # Check if node in list corresponds to one in the dictionary

@@ -238,53 +238,25 @@ class NewModel:
 # DATA RATES CAMERAS
 
     def cs_data_rates_0(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['rover']['Left']['status']:
-            self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = "0.0"  
-            return
-            
         self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = msg.data 
 
     def cs_data_rates_1(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['rover']['Right']['status']:
-            self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = "0.0"  
-            return
-        
         self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = msg.data 
 
     def cs_data_rates_2(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['rover']['Behind']['status']:
-            self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = "0.0"  
-            return
-        
         self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = msg.data 
         
     def nav_data_rates_0(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['navigation']['Front']['status']:
-            self.rover_node.rover_state_json['cameras']['navigation']['Front']['data_rate'] = "0.0"  
-            return
-        
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['data_rate'] = msg.data 
 
     def nav_data_rates_1(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['navigation']['Up1']['status']:
-            self.rover_node.rover_state_json['cameras']['navigation']['Up1']['data_rate'] = "0.0"  
-            return
-        
         self.rover_node.rover_state_json['cameras']['navigation']['Up1']['data_rate'] = msg.data 
 
 
     def nav_data_rates_2(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['navigation']['Up2']['status']:
-            self.rover_node.rover_state_json['cameras']['navigation']['Up2']['data_rate'] = "0.0"  
-            return
-        
         self.rover_node.rover_state_json['cameras']['navigation']['Up2']['data_rate'] = msg.data 
 
-    def hd_data_rates_0(self, msg):
-        if not self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['status']:
-            self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['data_rate'] = "0.0"  
-            return
-        
+    def hd_data_rates_0(self, msg):        
         self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['data_rate'] = msg.data 
 
 
@@ -294,24 +266,45 @@ class NewModel:
 
     def cs_states_0(self, msg):
         self.rover_node.rover_state_json['cameras']['rover']['Left']['status'] = msg.data 
+        
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = "0.0"
 
     def cs_states_1(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Right']['status'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['Right']['status'] = msg.data
+        
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = "0.0"
 
     def cs_states_2(self, msg):
         self.rover_node.rover_state_json['cameras']['rover']['Behind']['status'] = msg.data 
         
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = "0.0"
+        
     def nav_states_0(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['status'] = msg.data 
+        
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['navigation']['Front']['data_rate'] = "0.0"
 
     def nav_states_1(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Up1']['status'] = msg.data 
+        
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['navigation']['Up1']['data_rate'] = "0.0"
 
     def nav_states_2(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Up2']['status'] = msg.data 
         
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['navigation']['Up2']['data_rate'] = "0.0"
+        
     def hd_states_0(self, msg):
         self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['status'] = msg.data 
+        
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['data_rate'] = "0.0"
 
 # ----------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------
