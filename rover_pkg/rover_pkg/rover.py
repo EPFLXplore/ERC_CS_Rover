@@ -141,14 +141,22 @@ class RoverNode():
                                                           '/ROVER/depth_req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
         
         # The 7 next clients are to activate cameras
+        
+        # Left
         self.camera_cs_service_0 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_cs_0', callback_group=MutuallyExclusiveCallbackGroup())
 
+        # Right
         self.camera_cs_service_1 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_cs_1', callback_group=MutuallyExclusiveCallbackGroup())
     
+        # Drill
         self.camera_cs_service_2 = self.node.create_client(SetBool, 
                                                       '/ROVER/req_camera_cs_2', callback_group=MutuallyExclusiveCallbackGroup())
+        
+        # Behind
+        self.camera_cs_service_3 = self.node.create_client(SetBool, 
+                                                      '/ROVER/req_camera_cs_3', callback_group=MutuallyExclusiveCallbackGroup())
     
         self.camera_nav_service_0 = self.node.create_client(SetBool, 
                                                       '/NAV/req_camera_nav_0', callback_group=MutuallyExclusiveCallbackGroup())
@@ -163,11 +171,18 @@ class RoverNode():
                                                       '/ROVER/req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
 
         # The 7 next subscriber are to monitor the state of the cameras
+        
+        # Left
         self.node.create_subscription(Bool, '/ROVER/state_camera_cs_0', self.model.cs_states_0, 10)
         
+        # Right
         self.node.create_subscription(Bool, '/ROVER/state_camera_cs_1', self.model.cs_states_1, 10)
         
+        # Drill
         self.node.create_subscription(Bool, '/ROVER/state_camera_cs_2', self.model.cs_states_2, 10)
+        
+        # Behind
+        self.node.create_subscription(Bool, '/ROVER/state_camera_cs_3', self.model.cs_states_3, 10)
         
         self.node.create_subscription(Bool, '/NAV/state_camera_nav_0', self.model.nav_states_0, 10)
         

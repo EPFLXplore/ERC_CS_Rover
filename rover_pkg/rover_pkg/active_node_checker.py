@@ -23,7 +23,8 @@ known_node_names = {
 
     "/ROVER/camera_cs_0": ("rover", "Behind", False),
     "/ROVER/camera_cs_1": ("rover", "Left", False),
-    "/ROVER/camera_cs_2": ("rover", "Right", False),
+    "/ROVER/camera_cs_2": ("rover", "Drill", False),
+    "/ROVER/camera_cs_3": ("rover", "Right", False),
     
     "/NAV/camera_nav_front": ("navigation", "Front", False),
     "/NAV/camera_aruco_left": ("navigation", "Up1", False),

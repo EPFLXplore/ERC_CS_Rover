@@ -121,6 +121,12 @@
         "node": false,
         "data_rate": "0.0"
       },
+      "Drill": {
+        "name": "Drill",
+        "status": false,
+        "node": false,
+        "data_rate": "0.0"
+      },
       "Behind": {
         "name": "Behind",
         "status": false,

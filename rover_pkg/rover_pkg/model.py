@@ -27,6 +27,7 @@ class NewModel:
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_0", self.cs_data_rates_0, 10)
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_1", self.cs_data_rates_1, 10)
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_2", self.cs_data_rates_2, 10)
+        self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_3", self.cs_data_rates_3, 10)
         
         self.rover_node.node.create_subscription(Float32, "/NAV/bw_camera_nav_0", self.nav_data_rates_0, 10)
         self.rover_node.node.create_subscription(Float32, "/NAV/bw_camera_nav_1", self.nav_data_rates_1, 10)
@@ -161,8 +162,12 @@ class NewModel:
                     future = self.rover_node.camera_cs_service_1.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
-                case "Behind":
+                case "Drill":
                     future = self.rover_node.camera_cs_service_2.call_async(req)
+                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
+                    
+                case "Behind":
+                    future = self.rover_node.camera_cs_service_3.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
 
@@ -244,6 +249,9 @@ class NewModel:
         self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = msg.data 
 
     def cs_data_rates_2(self, msg):
+        self.rover_node.rover_state_json['cameras']['rover']['Drill']['data_rate'] = msg.data 
+        
+    def cs_data_rates_3(self, msg):
         self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = msg.data 
         
     def nav_data_rates_0(self, msg):
@@ -277,6 +285,12 @@ class NewModel:
             self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = "0.0"
 
     def cs_states_2(self, msg):
+        self.rover_node.rover_state_json['cameras']['rover']['Drill']['status'] = msg.data 
+        
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['rover']['Drill']['data_rate'] = "0.0"
+            
+    def cs_states_3(self, msg):
         self.rover_node.rover_state_json['cameras']['rover']['Behind']['status'] = msg.data 
         
         if not msg.data:
