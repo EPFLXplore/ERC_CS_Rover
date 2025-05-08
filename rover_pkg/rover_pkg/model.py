@@ -225,17 +225,39 @@ class NewModel:
         response.success = True
         return response
     
+    # change to RGBD camera mode for NAV
+    def change_mode_camera_NAV_service(self, request, response):
+        
+        req = SetBool.Request()
+        req.data = True if request.data else False
+
+        future = self.rover_node.change_camera_NAV_mode_client.call_async(req)
+        future.add_done_callback(lambda f: self.service_callback_camera_NAV(f, request.data))
+        
+        response.success = True
+        return response
+    
     def service_callback_camera_HD(self, future, activate):
         try:
             response_camera = future.result()
             if response_camera.success == True:
-                self.rover_node.rover_state_json['handling_device']['state']['rgbd'] = activate
-                print(self.rover_node.rover_state_json['handling_device']['state']['rgbd'])
+                self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['depth'] = activate
             else:
                 log_error(self.rover_node, "Error in camera HD RGBD mode service response callback")
 
         except Exception as e:
             log_error(self.rover_node, "Error in camera HD RGBD mode service call: " + str(e)) 
+    
+    def service_callback_camera_NAV(self, future, activate):
+        try:
+            response_camera = future.result()
+            if response_camera.success == True:
+                self.rover_node.rover_state_json['cameras']['navigation']['Front']['depth'] = activate
+            else:
+                log_error(self.rover_node, "Error in camera NSV RGBD mode service response callback")
+
+        except Exception as e:
+            log_error(self.rover_node, "Error in camera NAV RGBD mode service call: " + str(e)) 
     
     
 # ----------------------------------------------------------------------------------------------

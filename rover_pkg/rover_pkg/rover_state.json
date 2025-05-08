@@ -139,7 +139,8 @@
         "name": "Gripper",
         "status": false,
         "node": false,
-        "data_rate": "0.0"
+        "data_rate": "0.0",
+        "depth": false
       }
     },
     "navigation": {
@@ -147,7 +148,8 @@
         "name": "Front",
         "status": false,
         "node": false,
-        "data_rate": "0.0"
+        "data_rate": "0.0",
+        "depth": false
       },
       "Up1": {
         "name": "Up1",
@@ -360,7 +362,6 @@
       ]
     },
     "state": {
-      "rgbd": false,
       "current_command": "NONE",
       "task": "NONE"
     }

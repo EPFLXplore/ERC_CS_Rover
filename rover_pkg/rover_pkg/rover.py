@@ -136,9 +136,17 @@ class RoverNode():
         self.change_camera_HD_mode = self.node.create_service(SetBool, 
                                                           self.cs_names["cs_change_mode_camera_HD"], self.model.change_mode_camera_HD_service, callback_group=MutuallyExclusiveCallbackGroup())
         
+         # server to activate the rgbd mode of the NAV camera
+        self.change_camera_NAV_mode = self.node.create_service(SetBool, 
+                                                          self.cs_names["cs_change_mode_camera_NAV"], self.model.change_mode_camera_NAV_service, callback_group=MutuallyExclusiveCallbackGroup())
+        
         # client to activate the rgbd mode of the HD camera
         self.change_camera_HD_mode_client = self.node.create_client(SetBool, 
                                                           '/ROVER/depth_req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
+        
+        # client to activate the rgbd mode of the NAV camera
+        self.change_camera_NAV_mode_client = self.node.create_client(SetBool, 
+                                                          '/NAV/depth_req_camera_nav_0', callback_group=MutuallyExclusiveCallbackGroup())
         
         # The 7 next clients are to activate cameras
         
