@@ -22,11 +22,13 @@ class HandlingDevice:
         
         # Predefined poses
         self.predefined_poses = [HDGoal.FRONT_PANEL, HDGoal.RANGEMENT, HDGoal.HOME, HDGoal.ZERO, 
-                                 HDGoal.COBRA, HDGoal.ABOVE_GROUND, HDGoal.PROBE_1, HDGoal.PROBE_2,
-                                 HDGoal.PROBE_3]
+                                 HDGoal.COBRA, HDGoal.ABOVE_GROUND]
         
         # Tools
         self.tools = [HDGoal.CLAM_TOOL]
+        
+        # Probes Brugg
+        self.probes_brugg = [HDGoal.BRUGG_PROBE_1, HDGoal.BRUGG_PROBE_2, HDGoal.BRUGG_PROBE_3]
 
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
@@ -172,6 +174,11 @@ class HandlingDevice:
         elif action in self.switches:
             msg_goal.target = HDGoal.BUTTON_TASK
             msg_goal.switch_name = action
+            
+        # Brugg probes
+        elif action in self.probes_brugg:
+            msg_goal.target = HDGoal.BRUGG_PROBE
+            msg_goal.probe_number = action
             
         else:
             msg_goal.target = action
