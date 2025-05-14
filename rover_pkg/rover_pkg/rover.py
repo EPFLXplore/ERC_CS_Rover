@@ -108,6 +108,11 @@ class RoverNode():
         # -- Others --
         self.last_increment = 0
         self.cam_cmd_pub = self.node.create_publisher(ServoRequest, self.el_names["SERVO_REQ_TOPIC"], 1)
+        
+        self.switching_nav = False
+        self.switching_hd = False
+        self.last_hd_switch_time = None
+        self.last_nav_switch_time = None
 
         # ==========================================================
         #                       SERVICES
@@ -125,6 +130,7 @@ class RoverNode():
                                                        self.rover_names["rover_change_hd_mode"], callback_group=MutuallyExclusiveCallbackGroup())
 
         # client to change mode of drill device
+        # TODO NEXT YEAR REMOVE THE DRILLMODE SERVICE
         self.drill_service = self.node.create_client(DrillMode, 
                                                        self.science_names["drill_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())    
 
@@ -264,7 +270,27 @@ class RoverNode():
     def transfer_gamepad_cmd_nav(self, msg):
         
         # Security check is the message is really for navigation
-        if msg.buttons[0] != 1: return
+        if int(msg.buttons[0]) != 1: return
+        
+        # For switching mode
+        switch = int(msg.buttons[1])   
+        
+        # For switching mode
+        switch = int(msg.buttons[1])
+        current_time = time.time()
+        if switch == 1:
+            if not self.switching_nav:
+                if self.last_nav_switch_time is None or (current_time - self.last_nav_switch_time) > 3:
+                    self.switching_hd = True
+                    self.last_nav_switch_time = current_time
+                    # switch function
+                    new_mode = 1 if self.rover_state_json['rover']['status']['systems']['navigation']['status'] == "Omni" else 2
+                    self.model.send_nav_service(0, new_mode)
+            else:
+                # Already switching, ignore
+                pass
+        else:
+            self.switching_nav = False
         
         # Transfer the camera commands
         self.transfer_gamepad_cmd_camera(msg)
@@ -275,7 +301,24 @@ class RoverNode():
     def transfer_gamepad_cmd_hd(self, msg):
         
         # Security check is the message is really for handling device
-        if msg.buttons[0] != 2: return
+        if int(msg.buttons[0]) != 2: return
+        
+        # For switching mode
+        switch = int(msg.buttons[1])
+        current_time = time.time()
+        if switch == 1:
+            if not self.switching_hd:
+                if self.last_hd_switch_time is None or (current_time - self.last_hd_switch_time) > 3:
+                    self.switching_hd = True
+                    self.last_hd_switch_time = current_time
+                    # switch function
+                    new_mode = 1 if self.rover_state_json['rover']['status']['systems']['handling_device']['status'] == "Manual Inverse" else 2
+                    self.model.send_hd_service(1, new_mode)
+            else:
+                # Already switching, ignore
+                pass
+        else:
+            self.switching_hd = False
         
         if(self.rover_state_json['rover']['status']['systems']['handling_device']['status'] == "Manual Direct"):
             msgHD = Float32MultiArray()

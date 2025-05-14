@@ -63,9 +63,7 @@ class NewModel:
         # --------------------------------------------------------------------
         # HD SYSTEM
         elif system == 1:
-
-            future = self.rover_node.hd_mode_service.call_async(request)
-            future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
+            self.send_hd_service(system, mode)
         
             response.new_mode = 0
             response.error_type = 0
@@ -94,6 +92,14 @@ class NewModel:
 
         future = self.rover_node.nav_service.call_async(req)
         future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
+        
+    def send_hd_service(self, system, mode):
+        req = ChangeModeSystem.Request()
+        req.system = system
+        req.mode = mode
+
+        future = self.rover_node.hd_mode_service.call_async(req)
+        future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
             
 
     def service_callback_nav(self, future, mode):
@@ -102,6 +108,8 @@ class NewModel:
             if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Ackermann' if (mode == 1) else ('Omni' if (mode == 2) else 'Off'))
                 #self.Elec.send_led_commands(SubSystems.NAVIGATION, mode)
+                self.rover_node.switching_nav = False  # Update shared attribute instead of local variable
+
             else:
                 log_error(self.rover_node, "Error in nav service response callback: " + response.error_message)
         except Exception as e:
@@ -112,7 +120,8 @@ class NewModel:
             response = future.result()
             if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
-                s#elf.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, mode)
+                #elf.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, mode)
+                self.rover_node.switching_hd = False
             else:
                 log_error(self.rover_node, "Error in hd service response callback: " + response.error_message)
         except Exception as e:
