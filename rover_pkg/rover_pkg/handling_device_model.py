@@ -34,8 +34,12 @@ class HandlingDevice:
 
     def reset_informations(self):
         #self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, 0)
+        self.rover_node.node.get_logger().info("RESET HD")
         self.rover_node.rover_state_json['handling_device']['state']['current_command'] = "NONE"
         self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
+        self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['status'] = False
+        self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['node'] = False
+        self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['depth'] = False
         for i in range(7):
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['angle'] = '0.0'
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['velocity'] = '0.0'
@@ -209,7 +213,7 @@ class HandlingDevice:
     def handle_state(self, msg):
         self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = msg.data
 
-        if msg.data == 'Off':
+        if msg.data == 'Off' and self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] != 'Off':
            self.reset_informations()
 
     def hd_motor_cmds(self, msg):

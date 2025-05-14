@@ -44,8 +44,9 @@ class Drill:
         if msg.data == 1:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On'
         else:
-            self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'Off'
-            self.reset_informations()
+            if self.json['rover']['status']['systems']['drill']['status'] != 'Off':
+                self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'Off'
+                self.reset_informations()
 
     '''
     Function pre-handling the request from CS. Accept or Reject

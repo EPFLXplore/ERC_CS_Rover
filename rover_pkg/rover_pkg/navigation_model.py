@@ -79,10 +79,14 @@ class Navigation:
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['steering_fault'] = False
         self.rover_node.rover_state_json['navigation']['wheels']['rear_left']['driving_fault'] = False
 
+        self.rover_node.rover_state_json['cameras']['navigation']['Front']['status'] = False
+        self.rover_node.rover_state_json['cameras']['navigation']['Front']['node'] = False
+        self.rover_node.rover_state_json['cameras']['navigation']['Front']['depth'] = False
+
     def handle_state(self, msg):
         self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = msg.data
         
-        if msg.data == 'Off':
+        if msg.data == 'Off' and self.json['rover']['status']['systems']['navigation']['status'] != 'Off':
             self.reset_informations()
 
     def nav_odometry(self, odometry):

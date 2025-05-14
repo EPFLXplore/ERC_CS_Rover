@@ -80,7 +80,6 @@ class ActiveNodeChecker(Node):
                     self.json['rover']['software']['nodes'][known_node_names[name][0]][known_node_names[name][1]]['status'] = True
                 else:
                     self.json['cameras'][known_node_names[name][0]][known_node_names[name][1]]['node'] = True
-                    self.json['cameras'][known_node_names[name][0]][known_node_names[name][1]]['status'] = True
                 
             # if the node is not found
             else:
@@ -88,4 +87,3 @@ class ActiveNodeChecker(Node):
                     self.json['rover']['software']['nodes'][known_node_names[name][0]][known_node_names[name][1]]['status'] = False
                 else:
                     self.json['cameras'][known_node_names[name][0]][known_node_names[name][1]]['node'] = False
-                    self.json['cameras'][known_node_names[name][0]][known_node_names[name][1]]['status'] = False
