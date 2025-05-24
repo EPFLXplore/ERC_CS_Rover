@@ -144,7 +144,6 @@ class NewModel:
             response_camera = future.result()
             if response_camera.success == True:
                 self.rover_node.rover_state_json['cameras'][subsystem][index]['status'] = activate
-                print(self.rover_node.rover_state_json['cameras'][subsystem][index]['status'])
             else:
                 log_error(self.rover_node, "Error in camera service response callback: " + response_camera.error_message)
 
@@ -290,7 +289,6 @@ class NewModel:
 
     def nav_data_rates_1(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Up1']['data_rate'] = msg.data 
-
 
     def nav_data_rates_2(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Up2']['data_rate'] = msg.data 
