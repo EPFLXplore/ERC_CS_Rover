@@ -1,7 +1,7 @@
 {
   "rover": {
     "hardware": {
-      "json": "0.0"
+      "stats_hd": {}
     },
     "software": {
       "nodes": {
@@ -102,9 +102,7 @@
           "status": "Off",
           "message": "Drill is running"
         }
-      },
-      "errors": [],
-      "warnings": []
+      }
     }
   },
   "cameras": {

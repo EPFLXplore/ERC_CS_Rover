@@ -95,7 +95,7 @@ class RoverNode():
         # -- NAV messages --
         self.nav_cmd_pub = self.node.create_publisher(Joy, self.rover_names["rover_pubsub_nav_gamepad"], 1)
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
-        self.node.create_subscription(Odometry,         '/odometry/filtered',                self.model.Nav.nav_odometry  , 10)
+        #self.node.create_subscription(Odometry,         '/odometry/filtered',                self.model.Nav.nav_odometry  , 10)
         self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, qos_profile=self.qos_profile)
         self.node.create_subscription(Float32,    self.cs_names['cs_pubsub_speed_rover'],  self.model.Nav.change_speed_rover, 10)
         self.speed_rover_pub = self.node.create_publisher(Float32, self.rover_names["rover_change_nav_speed"], 1)
@@ -105,6 +105,7 @@ class RoverNode():
                                                              self.rover_names["rover_hd_man_inv_topic"], 1)
         self.hd_cmd_direct_pub = self.node.create_publisher(Float32MultiArray, 
                                                             self.rover_names["rover_hd_man_dir_topic"], 1)
+        self.node.create_subscription(String, '/HD/jetson_stats', self.jetson_stats_hd, 10)
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
         self.node.create_subscription(
             OldMotorStatus, self.hd_names["hd_old_motor_status"], self.model.HD.hd_motor_cmds, 10)        
@@ -267,15 +268,8 @@ class RoverNode():
     # timer callback for sending rover state continuously
     def timer_callback(self):
         msg = String()
-        self.rover_state_json["timestamp"] = int(time.time()) # epoch
-
         msg.data = json.dumps(self.rover_state_json)
-        self.clear_rover_msgs()
         self.rover_state_pub.publish(msg)
-
-    def clear_rover_msgs(self):
-        self.rover_state_json['rover']['status']['errors'] = []
-        self.rover_state_json['rover']['status']['warnings'] = []
 
     # Transfer the gamepad commands for navigation
     def transfer_gamepad_cmd_nav(self, msg):
@@ -362,6 +356,10 @@ class RoverNode():
             angle.increment = -13
             self.cam_cmd_pub.publish(angle)
             self.last_increment = 1
+            
+    
+    def jetson_stats_hd(self, msg):
+        self.rover_state_json['rover']['hardware']['stats_hd'] = json.loads(msg.data)
                 
 
     def run(self):

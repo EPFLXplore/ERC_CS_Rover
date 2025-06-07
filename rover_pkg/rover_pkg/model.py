@@ -111,9 +111,9 @@ class NewModel:
                 self.rover_node.switching_nav = False  # Update shared attribute instead of local variable
 
             else:
-                log_error(self.rover_node, "Error in nav service response callback: " + response.error_message)
+                self.rover_node.node.get_logger().info("Error in nav service response callback: " + response.error_message)
         except Exception as e:
-            log_error(self.rover_node, "Error in nav service call: " + str(e))
+            self.rover_node.node.get_logger().info("Error in nav service call: " + str(e))
        
     def service_callback_hd(self, future, mode):
         try:
@@ -123,9 +123,9 @@ class NewModel:
                 #elf.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, mode)
                 self.rover_node.switching_hd = False
             else:
-                log_error(self.rover_node, "Error in hd service response callback: " + response.error_message)
+                self.rover_node.node.get_logger().info("Error in hd service response callback: " + response.error_message)
         except Exception as e:
-            log_error(self.rover_node, "Error in hd service call: " + str(e))
+            self.rover_node.node.get_logger().info("Error in hd service call: " + str(e))
             
     def service_callback_drill(self, future, mode, response):
         try:
@@ -134,10 +134,10 @@ class NewModel:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
                 #self.Elec.send_led_commands(SubSystems.DRILL, mode)
             else:
-                log_error(self.rover_node, "Error in drill service response callback: " + response.error_message)
+                self.rover_node.node.get_logger().info("Error in drill service response callback: " + response.error_message)
 
         except Exception as e:
-            log_error(self.rover_node, "Error in drill service call: " + str(e))  
+            self.rover_node.node.get_logger().info("Error in drill service call: " + str(e))  
 
     def service_callback_camera(self, future, subsystem, index, activate):
         try:
@@ -145,10 +145,10 @@ class NewModel:
             if response_camera.success == True:
                 self.rover_node.rover_state_json['cameras'][subsystem][index]['status'] = activate
             else:
-                log_error(self.rover_node, "Error in camera service response callback: " + response_camera.error_message)
+                self.rover_node.node.get_logger().info("Error in camera service response callback: " + response_camera.error_message)
 
         except Exception as e:
-            log_error(self.rover_node, "Error in camera service call: " + str(e)) 
+            self.rover_node.node.get_logger().info("Error in camera service call: " + str(e)) 
     
     # Change the mode of a camera
     def change_mode_camera_service(self, request, response):
@@ -251,10 +251,10 @@ class NewModel:
             if response_camera.success == True:
                 self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['depth'] = activate
             else:
-                log_error(self.rover_node, "Error in camera HD RGBD mode service response callback")
+                self.rover_node.node.get_logger().info("Error in camera HD RGBD mode service response callback")
 
         except Exception as e:
-            log_error(self.rover_node, "Error in camera HD RGBD mode service call: " + str(e)) 
+            self.rover_node.node.get_logger().info("Error in camera HD RGBD mode service call: " + str(e)) 
     
     def service_callback_camera_NAV(self, future, activate):
         try:
@@ -262,10 +262,10 @@ class NewModel:
             if response_camera.success == True:
                 self.rover_node.rover_state_json['cameras']['navigation']['Front']['depth'] = activate
             else:
-                log_error(self.rover_node, "Error in camera NSV RGBD mode service response callback")
+                self.rover_node.node.get_logger().info("Error in camera NSV RGBD mode service response callback")
 
         except Exception as e:
-            log_error(self.rover_node, "Error in camera NAV RGBD mode service call: " + str(e)) 
+            self.rover_node.node.get_logger().info("Error in camera NAV RGBD mode service call: " + str(e)) 
     
     
 # ----------------------------------------------------------------------------------------------
@@ -349,13 +349,4 @@ class NewModel:
         if not msg.data:
             self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['data_rate'] = "0.0"
 
-# ----------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------
-# LOGS
-
-def log_error(node, error_message):
-    node.rover_state_json['rover']['status']['errors'] = node.rover_state_json['rover']['status']['errors'].append(error_message)
-
-def log_warning(node, warning_message):
-    node.rover_state_json['rover']['status']['warnings'] = node.rover_state_json['rover']['status']['warnings'].append(warning_message)
 

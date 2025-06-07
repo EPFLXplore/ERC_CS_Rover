@@ -374,6 +374,6 @@ class Navigation:
     Forward the speed of the rover to NAV
     '''
     def change_speed_rover(self, msg):
-        if(msg.data <= 0.5 or msg.data >= 2.5): return
+        if(msg.data <= 0.5 or msg.data >= 2.31): return
         
-        self.rover_node.speed_rover_pub(msg)
+        self.rover_node.speed_rover_pub.publish(msg)
