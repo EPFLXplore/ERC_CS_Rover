@@ -1,7 +1,8 @@
 {
   "rover": {
     "hardware": {
-      "stats_hd": {}
+      "stats_hd": {},
+      "stats_nav": {}
     },
     "software": {
       "nodes": {

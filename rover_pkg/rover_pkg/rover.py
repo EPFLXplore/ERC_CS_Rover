@@ -99,6 +99,7 @@ class RoverNode():
         self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, qos_profile=self.qos_profile)
         self.node.create_subscription(Float32,    self.cs_names['cs_pubsub_speed_rover'],  self.model.Nav.change_speed_rover, 10)
         self.speed_rover_pub = self.node.create_publisher(Float32, self.rover_names["rover_change_nav_speed"], 1)
+        self.node.create_subscription(String, '/NAV/jetson_stats', self.jetson_stats_nav, 10)
 
         # -- HD messages --
         self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, 
@@ -360,6 +361,9 @@ class RoverNode():
     
     def jetson_stats_hd(self, msg):
         self.rover_state_json['rover']['hardware']['stats_hd'] = json.loads(msg.data)
+        
+    def jetson_stats_nav(self, msg):
+        self.rover_state_json['rover']['hardware']['stats_nav'] = json.loads(msg.data)
                 
 
     def run(self):
