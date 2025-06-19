@@ -17,8 +17,14 @@ class HandlingDevice:
         self.result = None
         self.counter_cancel = 0
 
-        # Switches
+        # Small Switches
         self.switches = [value for key, value in vars(HDGoal).items() if key.startswith("BUTTON")]
+        
+        # Big Rotation Switches
+        self.big_rotation_switches = [value for key, value in vars(HDGoal).items() if key.startswith("BIG_ROTATION_BUTTON")]
+        
+        # Small Rotation Switches
+        self.small_rotation_switches = [value for key, value in vars(HDGoal).items() if key.startswith("SMALL_ROTATION_BUTTON")]
         
         # Predefined poses
         self.predefined_poses = [HDGoal.FRONT_PANEL, HDGoal.RANGEMENT, HDGoal.HOME, HDGoal.ZERO, 
@@ -173,9 +179,19 @@ class HandlingDevice:
             msg_goal.target = HDGoal.TOOL_PICKUP
             msg_goal.tool = action
             
-        # Switches
+        # Small Switches
         elif action in self.switches:
             msg_goal.target = HDGoal.BUTTON_TASK
+            msg_goal.switch_name = action
+            
+        # Big Rotation switch
+        elif action in self.big_rotation_switches:
+            msg_goal.target = HDGoal.BIG_ROTATION_BUTTON_TASK
+            msg_goal.switch_name = action
+            
+        # Small Rotation switch
+        elif action in self.small_rotation_switches:
+            msg_goal.target = HDGoal.SMALL_ROTATION_BUTTON_TASK
             msg_goal.switch_name = action
             
         # Brugg probes
