@@ -169,38 +169,50 @@ class HandlingDevice:
         goal = NewHDGoal.Goal()
         msg_goal = HDGoal()
         
-        # Predefined poses
-        if action in self.predefined_poses:
-            msg_goal.target = HDGoal.NAMED_POSE
-            msg_goal.predefined_pose = action
+        # Not maintenance task, single task
+        if len(action) == 1:
+        
+            # Predefined poses
+            if action in self.predefined_poses:
+                msg_goal.target = HDGoal.NAMED_POSE
+                msg_goal.predefined_pose = action[0]
 
-        # Tools
-        elif action in self.tools:
-            msg_goal.target = HDGoal.TOOL_PICKUP
-            msg_goal.tool = action
+            # Tools
+            elif action in self.tools:
+                msg_goal.target = HDGoal.TOOL_PICKUP
+                msg_goal.tool = action[0]
+                
+            # Brugg probes
+            elif action in self.probes_brugg:
+                msg_goal.target = HDGoal.BRUGG_PROBE
+                msg_goal.probe_number = action[0]
+                
+            else:
+                msg_goal.target = action[0]
             
-        # Small Switches
-        elif action in self.switches:
-            msg_goal.target = HDGoal.BUTTON_TASK
-            msg_goal.switch_name = action
-            
-        # Big Rotation switch
-        elif action in self.big_rotation_switches:
-            msg_goal.target = HDGoal.BIG_ROTATION_BUTTON_TASK
-            msg_goal.switch_name = action
-            
-        # Small Rotation switch
-        elif action in self.small_rotation_switches:
-            msg_goal.target = HDGoal.SMALL_ROTATION_BUTTON_TASK
-            msg_goal.switch_name = action
-            
-        # Brugg probes
-        elif action in self.probes_brugg:
-            msg_goal.target = HDGoal.BRUGG_PROBE
-            msg_goal.probe_number = action
-            
+        # Maintenance task, multiple tasks    
         else:
-            msg_goal.target = action
+            
+            msg_goal.target = HDGoal.ROTATION_BUTTON_TASK
+            msg_goal.maintenance_objects = action 
+            
+            '''
+            # Small Switches
+            if action in self.switches:
+                msg_goal.target = HDGoal.BUTTON_TASK
+                msg_goal.switch_name = action
+                
+            # Big Rotation switch
+            elif action in self.big_rotation_switches:
+                msg_goal.target = HDGoal.BIG_ROTATION_BUTTON_TASK
+                msg_goal.switch_name = action
+                
+            # Small Rotation switch
+            elif action in self.small_rotation_switches:
+                msg_goal.target = HDGoal.SMALL_ROTATION_BUTTON_TASK
+                msg_goal.switch_name = action 
+            '''                    
+
 
         goal.goal = msg_goal
         return goal
