@@ -86,7 +86,7 @@ class RoverNode():
         # publisher of the rover state with the timer
         self.rover_state_pub = self.node.create_publisher(String, 
                                                           self.rover_names["rover_pubsub_state"], 1)
-        self.timer = self.node.create_timer(0.1, self.timer_callback)
+        self.timer = self.node.create_timer(0.5, self.timer_callback)
 
         # ==========================================================
         #              PUBLISHERS and SUBSCRIBERS

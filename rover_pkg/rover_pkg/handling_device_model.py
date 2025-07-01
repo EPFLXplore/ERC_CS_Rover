@@ -33,9 +33,6 @@ class HandlingDevice:
         # Tools
         self.tools = [HDGoal.CLAM_TOOL]
         
-        # Probes Brugg
-        self.probes_brugg = [HDGoal.BRUGG_PROBE_1, HDGoal.BRUGG_PROBE_2, HDGoal.BRUGG_PROBE_3]
-
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
     def reset_informations(self):
@@ -56,13 +53,21 @@ class HandlingDevice:
     def make_action(self, goal_handle_cs):
         self.goal_handle_cs = goal_handle_cs
         self.rover_node.node.get_logger().info("HD action starting... ")
-
-        # Create action for HD
-        goal = self.createHdGoal(goal_handle_cs.request.action)
+        
+        # Create all goals to be run sequentially
+        actions = goal_handle_cs.request.actions
+        goals = NewHDGoal.Goal()
+        array_goals = []
+        
+        for action in actions:
+            goal = self.createHdGoal(action)
+            array_goals.append(goal)
+        
+        goals.goals = array_goals
 
         # Start the second action and add the callback
         self.rover_node.hd_action_client.wait_for_server()
-        future_c = self.rover_node.hd_action_client.send_goal_async(goal, 
+        future_c = self.rover_node.hd_action_client.send_goal_async(goals, 
                                 self.feedback_callback)
         
         future_c.add_done_callback(self.hd_response_callback)
@@ -166,9 +171,8 @@ class HandlingDevice:
 
     
     def createHdGoal(self, action):
-        goal = NewHDGoal.Goal()
-        msg_goal = HDGoal()
-        
+        msg_goal = HDGoal()            
+            
         # Predefined poses
         if action in self.predefined_poses:
             msg_goal.target = HDGoal.NAMED_POSE
@@ -194,16 +198,10 @@ class HandlingDevice:
             msg_goal.target = HDGoal.SMALL_ROTATION_BUTTON_TASK
             msg_goal.switch_name = action
             
-        # Brugg probes
-        elif action in self.probes_brugg:
-            msg_goal.target = HDGoal.BRUGG_PROBE
-            msg_goal.probe_number = action
-            
         else:
             msg_goal.target = action
 
-        goal.goal = msg_goal
-        return goal
+        return msg_goal
     
     def result_callback(self, future):
         self.result = future.result().result
