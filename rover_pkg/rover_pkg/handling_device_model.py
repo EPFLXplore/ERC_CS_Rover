@@ -103,7 +103,7 @@ class HandlingDevice:
 
     # Accept or reject the goal of CS
     def action_status(self, goal):
-        if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':
+        if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] != 'Auto':
             return GoalResponse.REJECT
         
         self.result = None
@@ -162,7 +162,7 @@ class HandlingDevice:
             self.cancel_hd = True
             self.running = False
             self.rover_node.node.get_logger().info('HD Goal rejected from HD')
-            return self.result_hd_action(self.result)
+            return self.no_result()
 
         self.rover_node.node.get_logger().info('HD Goal accepted from HD')
         
