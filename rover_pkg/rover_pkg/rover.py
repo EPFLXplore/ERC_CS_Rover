@@ -143,7 +143,6 @@ class RoverNode():
                                                        self.rover_names["rover_change_hd_mode"], callback_group=MutuallyExclusiveCallbackGroup())
 
         # client to change mode of drill device
-        # TODO NEXT YEAR REMOVE THE DRILLMODE SERVICE
         self.drill_service = self.node.create_client(DrillMode, 
                                                        self.science_names["drill_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())    
 
@@ -375,8 +374,6 @@ class RoverNode():
         executor.add_node(self.health)
         executor.spin()
         rclpy.shutdown()
-
-
 
 def main():
     rover = RoverNode()
