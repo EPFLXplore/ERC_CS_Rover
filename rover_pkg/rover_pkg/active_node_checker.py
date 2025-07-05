@@ -1,26 +1,38 @@
-import rclpy
 from rclpy.node import Node
-import time
+
+'''
+Author: Giovanni Ranieri & Matas Jones
+Year: 2024-25
+Description: This node determines if nodes are running, and updates the JSON accordingly.
+'''
 
 known_node_names = {
+    
+    # Rover nodes
     "ROVER": ("rover", "node_rover", True),
     "HealthNode": ("rover", "health_node", True),
+    
+    # Navigation nodes
     "NAV_cmd_vel_manager": ("navigation", "wheels_control", True),
     "NAV_displacement_cmds": ("navigation", "wheels_displacement", True),
     "NAV_gamepad_interface": ("navigation", "wheels_gamepad", True),
     "NAV_motor_cmds": ("navigation", "wheels_commands", True),
     "NavCSInterfacing": ("navigation", "navigation_interface", True),
 
+    # Drill nodes
     "DrillCSInterface": ("drill", "drill_fms", True),
     "SC_motor_cmds": ("drill", "drill_commands", True),
 
+    # Handling Device nodes
     "HDCSInterfacing": ("handling_device", "handling_device_interface", True),
     "MotorController": ("handling_device", "motor_control", True),
     "kinematics_task_executor": ("handling_device", "task_executor", True),
     "perception_node": ("handling_device", "perception", True),
     
+    # Electronics nodes
     "costco_publisher": ("electronics", "avionics", True),
 
+    # Cameras
     "/ROVER/camera_cs_0": ("rover", "Behind", False),
     "/ROVER/camera_cs_1": ("rover", "Left", False),
     "/ROVER/camera_cs_2": ("rover", "Drill", False),

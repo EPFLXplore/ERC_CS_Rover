@@ -8,9 +8,10 @@ from rover_pkg.elec_model import Elec
 from .states import SubSystems
     
 '''
-=============== ROS Model for subsystems =================
-Authors: Ugo Balducci, Giovanni Ranieri
-Updated: 2024-2025
+Authors: Ugo Balducci & Giovanni Ranieri
+Year: 2023-2025
+Description: General Model for all subsystems. Implements generic functions for cameras and changing mode for
+subsystems.
 '''
     
 class NewModel:
@@ -35,18 +36,15 @@ class NewModel:
         
         self.rover_node.node.create_subscription(Float32, "/HD/bw_camera_hd_0", self.hd_data_rates_0, 10)
 
-    # Change the mode of a subsystem. If everything went well, it actionates the leds
+    '''
+    Function handling the change of mode of a subsystem from CS.
+    The service is forwarded to the subsystem and the result is then sent back to the CS.
+    If everything goes well, the leds are updated.
+    '''
     async def change_mode_system_service(self, request, response):
 
         system = request.system
         mode = request.mode
-    
-        '''
-        Because services are run asynchronously, the idea would be to have a way of waiting the second
-        request to be done, and then say to the CS it's done. For actions it's done in this way. For
-        services we don't care. We automatically send to the CS that the request went well. But then
-        if something went wrong on the subsystem, the CS is notified and the mode is set to off
-        '''
         
         # --------------------------------------------------------------------
         # --------------------------------------------------------------------
@@ -85,6 +83,9 @@ class NewModel:
             response.error_message = "error_message"
             return response    
     
+    '''
+    Utility function
+    '''
     def send_nav_service(self, system, mode):
         req = ChangeModeSystem.Request()
         req.system = system
@@ -93,6 +94,9 @@ class NewModel:
         future = self.rover_node.nav_service.call_async(req)
         future.add_done_callback(lambda f: self.service_callback_nav(f, mode))
         
+    '''
+    Utility function
+    '''
     def send_hd_service(self, system, mode):
         req = ChangeModeSystem.Request()
         req.system = system
@@ -101,7 +105,9 @@ class NewModel:
         future = self.rover_node.hd_mode_service.call_async(req)
         future.add_done_callback(lambda f: self.service_callback_hd(f, mode))
             
-
+    '''
+    Function callback for changing navigation mode
+    '''
     def service_callback_nav(self, future, mode):
         try:
             response = future.result()
@@ -114,7 +120,10 @@ class NewModel:
                 self.rover_node.node.get_logger().info("Error in nav service response callback: " + response.error_message)
         except Exception as e:
             self.rover_node.node.get_logger().info("Error in nav service call: " + str(e))
-       
+    
+    '''
+    Function callback for changing HD mode
+    '''
     def service_callback_hd(self, future, mode):
         try:
             response = future.result()
@@ -126,7 +135,10 @@ class NewModel:
                 self.rover_node.node.get_logger().info("Error in hd service response callback: " + response.error_message)
         except Exception as e:
             self.rover_node.node.get_logger().info("Error in hd service call: " + str(e))
-            
+    
+    '''
+    Function callback for changing drill mode
+    '''   
     def service_callback_drill(self, future, mode, response):
         try:
             response_drill = future.result()
@@ -139,6 +151,9 @@ class NewModel:
         except Exception as e:
             self.rover_node.node.get_logger().info("Error in drill service call: " + str(e))  
 
+    '''
+    Function callback for changing a camera mode
+    '''
     def service_callback_camera(self, future, subsystem, index, activate):
         try:
             response_camera = future.result()
@@ -150,7 +165,10 @@ class NewModel:
         except Exception as e:
             self.rover_node.node.get_logger().info("Error in camera service call: " + str(e)) 
     
-    # Change the mode of a camera
+    '''
+    Function handling the change of mode of a camera
+    The service is forwarded to the right camera node and the result is then sent back to the CS.
+    '''
     def change_mode_camera_service(self, request, response):
         system = request.subsystem
         index = request.camera_name
@@ -221,7 +239,9 @@ class NewModel:
             return response
         
 
-    # change to RGBD camera mode for HD
+    '''
+    Function handling the depth of the HD camera.
+    '''
     def change_mode_camera_HD_service(self, request, response):
         
         req = SetBool.Request()
@@ -233,7 +253,9 @@ class NewModel:
         response.success = True
         return response
     
-    # change to RGBD camera mode for NAV
+    '''
+    Function handling the depth of the NAV camera.
+    '''
     def change_mode_camera_NAV_service(self, request, response):
         
         req = SetBool.Request()
