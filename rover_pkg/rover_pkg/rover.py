@@ -1,12 +1,3 @@
-'''
-=============== Node for interfacing between Rover and CS =================
-Authors: Ugo Balducci, Giovanni Ranieri
-Updated: 2024-2025
-
-The main purpose of this node is to act as an orchestrator for the software of the rover.
-The Rover node manages what is sent across the different subsystems. 
-'''
-
 import time, yaml
 import rclpy
 from rclpy.action import ActionServer, ActionClient
@@ -31,6 +22,15 @@ import json
 from .model import NewModel
 from .network_monitoring import NetworkMonitoring
 from .active_node_checker import ActiveNodeChecker
+
+'''
+=============== Node for interfacing between Rover and CS =================
+Authors: Ugo Balducci & Giovanni Ranieri
+Updated: 2023-2025
+
+The main purpose of this node is to act as an orchestrator for the software of the rover.
+The Rover node manages what is sent across the different subsystems. 
+'''
 
 class RoverNode():
 
@@ -61,14 +61,13 @@ class RoverNode():
         with open('/home/xplore/dev_ws/src/custom_msg/config/nav_interface_names.yaml', 'r') as file:
             self.nav_names = yaml.safe_load(file)["/**"]["ros__parameters"]
 
-        # To be used for any camera
+        # Utility profile for some subscribers 
         self.qos_profile = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT, # BEST_EFFORT: message will attempt to send message but if it fails it will not try again
             durability=QoSDurabilityPolicy.VOLATILE, # VOLATILE: if no subscribers are listening, the message sent is not saved
             history=QoSHistoryPolicy.KEEP_LAST, # KEEP_LAST: only the last n = depth messages are stored in the queue
             depth=10,
         )
-
 
         # Parameters Launch file
         self.node.declare_parameter("network_node", False)
@@ -80,10 +79,10 @@ class RoverNode():
         # Potential Network Node (will be instancied only if necessary)
         self.network_monitor = None
 
-        # group ros
+        # Group ROS
         reentrant_callback_group = ReentrantCallbackGroup()
 
-        # publisher of the rover state with the timer
+        # Publisher of the rover state (2 Hz)
         self.rover_state_pub = self.node.create_publisher(String, 
                                                           self.rover_names["rover_pubsub_state"], 1)
         self.timer = self.node.create_timer(0.5, self.timer_callback)
@@ -92,36 +91,65 @@ class RoverNode():
         #              PUBLISHERS and SUBSCRIBERS
         # ==========================================================
 
-        # -- NAV messages --
+        ## ------------ NAV messages --------------
+        
+        # Forward the gamepad commands to navigation subsystem
         self.nav_cmd_pub = self.node.create_publisher(Joy, self.rover_names["rover_pubsub_nav_gamepad"], 1)
+        
+        # Listens to incoming gamepad commands from CS
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
         #self.node.create_subscription(Odometry,         '/odometry/filtered',                self.model.Nav.nav_odometry  , 10)
+        
+        # Listens to navigation motor status
         self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, qos_profile=self.qos_profile)
+        
+        # Listens to change of speed of motors from CS
         self.node.create_subscription(Float32,    self.cs_names['cs_pubsub_speed_rover'],  self.model.Nav.change_speed_rover, 10)
+        
+        # Forward the change of speed of motors from CS to navigation subsystem
         self.speed_rover_pub = self.node.create_publisher(Float32, self.rover_names["rover_change_nav_speed"], 1)
+        
+        # Listen to jetson stats from navigation subystem
         self.node.create_subscription(String, '/NAV/jetson_stats', self.jetson_stats_nav, 10)
+        
 
-        # -- HD messages --
+        ## ------------ HDS messages --------------
+        
+        # Forward the gamepad commands to HD subsystem for inverse kinematics mode
         self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, 
                                                              self.rover_names["rover_hd_man_inv_topic"], 1)
+        
+        # Forward the gamepad commands to HD subsystem for direct kinematics mode
         self.hd_cmd_direct_pub = self.node.create_publisher(Float32MultiArray, 
                                                             self.rover_names["rover_hd_man_dir_topic"], 1)
+        
+        # Listen to jetson stats from HD subystem
         self.node.create_subscription(String, '/HD/jetson_stats', self.jetson_stats_hd, 10)
+        
+        # Listens to incoming gamepad commands from CS
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
+        
+        # Listens to HD motor status
         self.node.create_subscription(
             OldMotorStatus, self.hd_names["hd_old_motor_status"], self.model.HD.hd_motor_cmds, 10)        
 
 
-        # -- SC messages --
+        ## ------------ Drill messages --------------
+        
+        # Listens to Drill motor status
         self.node.create_subscription(ScMotorStatus, 
                                       self.science_names["science_pubsub_motor_status"], self.model.Drill.update_motor_status, 10)
+        
+        # Listens to FSM status
         self.node.create_subscription(ScFSMStatusDrill, 
                                       self.science_names["science_pubsub_fms_status"], self.model.Drill.update_drill_status, 10)
         
-        # -- Others --
+        
+        ## ------------ Elec messages --------------
+        
+        # Publisher for moving the front camera of navigation, directly from CS
         self.last_increment = 0
         self.cam_cmd_pub = self.node.create_publisher(ServoRequest, self.el_names["SERVO_REQ_TOPIC"], 1)
-        
         self.switching_nav = False
         self.switching_hd = False
         self.last_hd_switch_time = None
@@ -143,7 +171,6 @@ class RoverNode():
                                                        self.rover_names["rover_change_hd_mode"], callback_group=MutuallyExclusiveCallbackGroup())
 
         # client to change mode of drill device
-        # TODO NEXT YEAR REMOVE THE DRILLMODE SERVICE
         self.drill_service = self.node.create_client(DrillMode, 
                                                        self.science_names["drill_mode_srv"], callback_group=MutuallyExclusiveCallbackGroup())    
 
@@ -218,6 +245,7 @@ class RoverNode():
         self.node.create_subscription(Bool, '/NAV/state_camera_nav_2', self.model.nav_states_2, 10)
         
         self.node.create_subscription(Bool, '/HD/state_camera_hd_0', self.model.hd_states_0, 10)
+
 
         # ==========================================================
         #                       ACTIONS
@@ -375,8 +403,6 @@ class RoverNode():
         executor.add_node(self.health)
         executor.spin()
         rclpy.shutdown()
-
-
 
 def main():
     rover = RoverNode()

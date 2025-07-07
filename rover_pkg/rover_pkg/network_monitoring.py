@@ -2,6 +2,13 @@ from rclpy.node import Node
 import requests
 from requests.auth import HTTPBasicAuth
 
+'''
+Author: Giovanni Ranieri
+Year: 2024-25
+Description: This node monitor the network using the REST API provided by RouterOS.
+We continuously ask the API to send some informations about the network.
+'''
+
 class NetworkMonitoring(Node):
     def __init__(self, rover_state, node):
 

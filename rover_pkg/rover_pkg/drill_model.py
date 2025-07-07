@@ -3,31 +3,40 @@ from std_msgs.msg import Bool
 from custom_msg.action import DrillCmd
 from .states import SubSystems, Errors, LedMode
 
+'''
+Author: Giovanni Ranieri
+Year: 2024-25
+Description: Drill Model. This class handles the drill actions, feedback, and state management.
+'''
+
 class Drill:
     def __init__(self, rover_node):
         self.rover_node = rover_node
-        
-        self.in_fault = False
 
+        # List of action for the drill. This list has to be the same as the one in the Drill FSM project.
         self.modes = {
             0: 'STOPPED',
             1: 'IDLE', 
             2: 'DRILLSTART',
             3: 'EXTEND',
             4: 'RETURN',
-            5: 'RELEASE',
+            5: 'RELEASE', 
             6: 'OPEN',
             7: 'CLOSE',
-            8: 'WAIT',
-            9: 'SEMI_RETURN'
+            8: 'SEMI_RETURN',
+            9: 'STEP_DOWN',
+            10: 'STEP_UP'
         }
 
+        # Standard variables
         self.feedback = None
         self.running = False
         self.cancel_drill = False
         self.result = None
         self.counter_cancel = 0
+        self.in_fault = False
 
+        # Subscription for the subsystem state
         self.rover_node.node.create_subscription(Bool, self.rover_node.science_names['status_system'], self.handle_state, 10)
     
     def reset_informations(self):
@@ -40,6 +49,10 @@ class Drill:
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['state'] = False
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['state'] = False
 
+    '''
+    Function handling the state of the drill's subsystem. 
+    If the state is 1, it means the drill is on, otherwise it is off.
+    '''
     def handle_state(self, msg):
         if msg.data == 1:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On'
@@ -63,12 +76,11 @@ class Drill:
 
     '''
     Function handling the request from CS.
+    It forwards the request to the drill action server and waits for the result.
     '''
     def make_action(self, goal_handle_cs):
         self.goal_handle_cs = goal_handle_cs
         self.rover_node.node.get_logger().info("Drill action starting... ")
-
-        # SEND ACTION TO DRILL
 
         self.rover_node.drill_action_client.wait_for_server()
         future_c = self.rover_node.drill_action_client.send_goal_async(self.goal_handle_cs.request, 
@@ -76,6 +88,7 @@ class Drill:
         
         future_c.add_done_callback(self.drill_response_callback)
         
+        # Hard wait until the drill action is finished
         while self.running:
             continue
 
@@ -92,8 +105,7 @@ class Drill:
     def drill_response_callback(self, future):
         self.goal_handle_drill = future.result()
 
-        # GOAL REJECTED FROM DRILL - FORWARD TO CS (return is sufficient? need to test)
-
+        # If the drill rejects the goal, we cancel the overall action, else we accept it.
         if not self.goal_handle_drill.accepted:
             self.cancel_drill = True
             self.running = False
@@ -122,11 +134,13 @@ class Drill:
     '''
     def feedback_callback(self, feedback):
 
+        # If the action is canceled, we need to cancel the goal drill
         if self.cancel_drill and self.counter_cancel == 0:
             self.counter_cancel = self.counter_cancel + 1
             future_drill = self.goal_handle_drill.cancel_goal_async()
             future_drill.add_done_callback(self.cancel_drill_action)
         
+        # else we just update the feedback
         else:
             self.feedback = feedback.feedback
             self.update_drill_feedback(self.feedback)
@@ -142,13 +156,19 @@ class Drill:
     
     '''
     Cancel action from ROVER.
+    When the cancel action from CS is called, this callback is triggered when the drill action server
+    sends the cancel response.
+    It checks if the cancel response is successful and updates the rover state JSON accordingly.
+    If the cancel is successful, it sets the action from CS to canceled and stops the running state
     '''
     def cancel_drill_action(self, future):
         cancel_response = future.result()
         if len(cancel_response.goals_canceling) > 0:
             self.rover_node.node.get_logger().info('Drill Goal successfully canceled')
         
-            # TODO DO LIKE HD!!
+            # NEWWWW
+            self.goal_handle_cs.canceled()
+            self.running = False
         else:
             self.rover_node.node.get_logger().error('Drill Goal failed to cancel...')
             # if enter here.. bad for us
@@ -157,6 +177,10 @@ class Drill:
     # ------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------
 
+    '''
+    Function callback for the drill motors status.
+    It updates the drill state in the rover state JSON.
+    '''
     def update_motor_status(self, msg):
         
         if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
@@ -179,6 +203,11 @@ class Drill:
                 self.in_fault = False
 
 
+    '''
+    Function handling the drill FSM state.
+    It could be directly integrated in the drill status feedback update_motor_status(), becoming
+    a more generic function.
+    '''
     def update_drill_status(self, msg):
         if self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] == 'Off':
             self.rover_node.rover_state_json['drill']['state']['state_fsm'] = 'IDLE'
@@ -186,11 +215,17 @@ class Drill:
 
         self.rover_node.rover_state_json['drill']['state']['state_fsm'] = self.modes[msg.mode]
 
+    '''
+    Utility function
+    '''
     def update_drill_feedback(self, feedback): 
         self.rover_node.rover_state_json['drill']['state']['current_status'] = feedback.current_status
         self.rover_node.rover_state_json['drill']['state']['warning_type'] = feedback.warning_type
 
 
+    '''
+    Utility function
+    '''
     def result_drill_action(self, resultt):
         result = DrillCmd.Result()
         self.rover_node.rover_state_json['drill']['state']['current_status'] = resultt.result

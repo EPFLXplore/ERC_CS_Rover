@@ -2,6 +2,12 @@ from custom_msg.msg import MassPacket, FourInOne, LEDMessage, BMS, DustData
 from enum import Enum
 from .states import SubSystems, Errors, LedMode
 
+'''
+Author: Giovanni Ranieri
+Year: 2024-25
+Description: Elec Model. This class handles the elec feedback, and state management.
+'''
+
 class Elec:
     def __init__(self, rover_node):
         self.rover_node = rover_node
@@ -29,6 +35,7 @@ class Elec:
             2: LedMode.AUTO,
         }
 
+        # Pub-Sub system for electronic subsystems, with sensors and led system
         self.led_pub = self.rover_node.node.create_publisher(LEDMessage, 
                                                              self.rover_node.el_names["LED_COM_TOPIC"], 1)
 

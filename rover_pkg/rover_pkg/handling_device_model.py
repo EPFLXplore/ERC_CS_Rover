@@ -5,18 +5,28 @@ from custom_msg.msg import HDGoal
 from std_msgs.msg import String
 from rclpy.action import GoalResponse, CancelResponse
 
+'''
+Author: Giovanni Ranieri
+Year: 2024-25
+Description: Handling Device Model. This class handles the HDS actions, feedback, and state management.
+'''
+
 class HandlingDevice:
     def __init__(self, rover_node):
         self.rover_node = rover_node
         
+        # Standard variables
         self.in_fault = False
-
         self.running = False
         self.feedback = None
         self.cancel_hd = False
         self.result = None
         self.counter_cancel = 0
 
+        ## ---------------------------
+        # List of action names for the Handling Device, stored in the HDGoal message.
+        ## ---------------------------
+        
         # Small Switches
         self.switches = [value for key, value in vars(HDGoal).items() if key.startswith("BUTTON")]
         
@@ -29,10 +39,10 @@ class HandlingDevice:
         # Predefined poses
         self.predefined_poses = [HDGoal.FRONT_PANEL, HDGoal.RANGEMENT, HDGoal.HOME, HDGoal.ZERO, 
                                  HDGoal.COBRA, HDGoal.ABOVE_GROUND]
-        
         # Tools
         self.tools = [HDGoal.CLAM_TOOL]
         
+        # Subscription for the subsystem state
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
     def reset_informations(self):
@@ -50,6 +60,11 @@ class HandlingDevice:
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = False
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = "NotReadyToSwitchOn"
     
+    '''
+    Function handling the request from CS.
+    It forwards the request to the HD action server and waits for the result.
+    HD is special because we can send multiple actions at the same time.
+    '''
     def make_action(self, goal_handle_cs):
         self.goal_handle_cs = goal_handle_cs
         self.rover_node.node.get_logger().info("HD action starting... ")
@@ -65,7 +80,6 @@ class HandlingDevice:
         
         goals.goals = array_goals
 
-        # Start the second action and add the callback
         self.rover_node.hd_action_client.wait_for_server()
         future_c = self.rover_node.hd_action_client.send_goal_async(goals, 
                                 self.feedback_callback)
@@ -73,11 +87,10 @@ class HandlingDevice:
         future_c.add_done_callback(self.hd_response_callback)
         self.running = True
         
-        # Wait for the action to finish
+        # Hard wait until the HD action is finished
         while self.running:
             continue
 
-        # If the action was not canceled, we need to set the result
         if not self.cancel_hd:
             self.rover_node.node.get_logger().info('FINISHED')
             return self.result_hd_action(self.result)
@@ -85,6 +98,9 @@ class HandlingDevice:
             self.rover_node.node.get_logger().info('CANCELED')
             return self.no_result()
     
+    '''
+    Function forwarding the feedback from HD to CS. Handle also the cancellation from CS
+    '''
     def feedback_callback(self, feedback):
         
         # If the action is canceled, we need to cancel the goal HD
@@ -101,7 +117,9 @@ class HandlingDevice:
             self.update_hd_feedback(self.feedback)
     
 
-    # Accept or reject the goal of CS
+    '''
+    Function pre-handling the request from CS. Accept or Reject
+    '''
     def action_status(self, goal):
         if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] != 'Auto':
             return GoalResponse.REJECT
@@ -128,7 +146,7 @@ class HandlingDevice:
         self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
         return result
     
-     # Create an empty result
+    # Create an empty result
     def no_result(self):
         result = HDManipulation.Result()
         result.result = "result_action.result"
@@ -138,7 +156,13 @@ class HandlingDevice:
         self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
         return result
     
-    # Callback for the cancelation of the HD action
+    '''
+    Cancel action from ROVER.
+    When the cancel action from CS is called, this callback is triggered when HD action server
+    sends the cancel response.
+    It checks if the cancel response is successful and updates the rover state JSON accordingly.
+    If the cancel is successful, it sets the action from CS to canceled and stops the running state
+    '''
     def cancel_hd_action(self, future):
         cancel_response = future.result()
         if len(cancel_response.goals_canceling) > 0:
@@ -153,11 +177,12 @@ class HandlingDevice:
             # if enter here.. bad for us lol
     
     '''
-    Function handling the response of the request to the Drill.
+    Function handling the response of the request to HD.
     '''
     def hd_response_callback(self, future):
         self.goal_handle_hd = future.result()
 
+        # If HD rejects the goal, we cancel the overall action, else we accept it.
         if not self.goal_handle_hd.accepted:
             self.cancel_hd = True
             self.running = False
@@ -170,6 +195,10 @@ class HandlingDevice:
         get_result_future.add_done_callback(self.result_callback)
 
     
+    '''
+    Function creating a goal element for 1 action. 
+    It checks which action it is and create the message
+    '''
     def createHdGoal(self, action):
         msg_goal = HDGoal()            
             
@@ -203,6 +232,9 @@ class HandlingDevice:
 
         return msg_goal
     
+    '''
+    Function handling the result of the action to HD. Return the result and the status to the CS as an object
+    '''
     def result_callback(self, future):
         self.result = future.result().result
         self.feedback = None
@@ -223,12 +255,20 @@ class HandlingDevice:
 
     # -----------------------------------------------------------------------------
 
+    '''
+    Function handling the state of the HD's subsystem. 
+    If the state is 1, it means HD is on, otherwise it is off.
+    '''
     def handle_state(self, msg):
         self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = msg.data
 
         if msg.data == 'Off' and self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] != 'Off':
            self.reset_informations()
 
+    '''
+    Function callback for HD motors status.
+    It updates HD state in the rover state JSON.
+    '''
     def hd_motor_cmds(self, msg):
         
         if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Off':

@@ -6,12 +6,18 @@ from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String
 from .states import SubSystems, Errors, LedMode
 
+'''
+Author: Giovanni Ranieri
+Year: 2024-25
+Description: Navigation Model. This class handles the navigation actions, feedback, and state management.
+'''
+
 class Navigation:
     def __init__(self, rover_node):
         self.rover_node = rover_node
         
+        # Standard variables
         self.in_fault = False
-
         self.feedback = None
         self.running = False
         self.cancel_nav = False
@@ -27,11 +33,14 @@ class Navigation:
         self.driving_wheel_ang = [0,0,0,0]
         self.steering_wheel_state = [0,0,0,0]
         self.driving_wheel_state = [0,0,0,0]
-
-        self.rover_node.node.create_subscription(String, self.rover_node.nav_names['system_status'], self.handle_state, 10)
-
+        
+        # Hardware values for the ERC 2025. Please consider to update them for new rovers.
+        # They are used for the display at the CS.
         self.wheels_radius = 0.1325 # in [m]
         self.gear_ratio = 1.0/53.0
+
+        # Subscription for the subsystem state
+        self.rover_node.node.create_subscription(String, self.rover_node.nav_names['system_status'], self.handle_state, 10)
     
     def reset_informations(self):
         #self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, 0)
@@ -83,12 +92,17 @@ class Navigation:
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['node'] = False
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['depth'] = False
 
+    '''
+    Function handling the state of the navigation subsystem. 
+    If the state is 1, it means the navigation is activated, otherwise it is off.
+    '''
     def handle_state(self, msg):
         self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = msg.data
         
         if msg.data == 'Off' and self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] != 'Off':
             self.reset_informations()
 
+    
     def nav_odometry(self, odometry):
 
         self.position = [odometry.pose.pose.position.x, odometry.pose.pose.position.y, odometry.pose.pose.position.z]
@@ -115,6 +129,10 @@ class Navigation:
         # self.rover_node.rover_state_json['navigation']['localization']['angular_velocity']["z"] = round(self.angVel[2], 2)
 
 
+    '''
+    Function callback for the navigation motors status.
+    It updates the navigation state in the rover state JSON.
+    '''
     def nav_wheel(self, msg):
         """
         FRONT_LEFT_DRIVE = 0
