@@ -190,13 +190,13 @@ class HandlingDevice:
             
         # Big Rotation switch
         elif action in self.big_rotation_switches:
-            msg_goal.target = HDGoal.BIG_ROTATION_BUTTON_TASK
-            msg_goal.switch_name = action
+            msg_goal.target = HDGoal.ROTATION_BUTTON_TASK
+            msg_goal.maintenance_objects = [action]
             
         # Small Rotation switch
         elif action in self.small_rotation_switches:
-            msg_goal.target = HDGoal.SMALL_ROTATION_BUTTON_TASK
-            msg_goal.switch_name = action
+            msg_goal.target = HDGoal.ROTATION_BUTTON_TASK
+            msg_goal.maintenance_objects = [action]
             
         else:
             msg_goal.target = action
