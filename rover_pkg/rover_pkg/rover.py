@@ -86,6 +86,7 @@ class RoverNode():
         self.rover_state_pub = self.node.create_publisher(String, 
                                                           self.rover_names["rover_pubsub_state"], 1)
         self.timer = self.node.create_timer(0.5, self.timer_callback)
+        self.tmp_test = None
 
         # ==========================================================
         #              PUBLISHERS and SUBSCRIBERS
@@ -296,9 +297,15 @@ class RoverNode():
             
     # timer callback for sending rover state continuously
     def timer_callback(self):
+        current_time = time.time()
         msg = String()
         msg.data = json.dumps(self.rover_state_json)
         self.rover_state_pub.publish(msg)
+        if self.tmp_test is None or (current_time - self.tmp_test) > 3:
+            self.node.get_logger().info("publisher rover node dead or init node")
+            self.tmp_test = current_time
+        
+        self.tmp_test = time.time()
 
     # Transfer the gamepad commands for navigation
     def transfer_gamepad_cmd_nav(self, msg):
