@@ -120,14 +120,26 @@
         "node": false,
         "data_rate": "0.0"
       },
-      "Drill": {
-        "name": "Drill",
+      "UpRight": {
+        "name": "UpRight",
         "status": false,
         "node": false,
         "data_rate": "0.0"
       },
-      "Behind": {
-        "name": "Behind",
+      "UpLeft": {
+        "name": "UpLeft",
+        "status": false,
+        "node": false,
+        "data_rate": "0.0"
+      },
+      "Other1": {
+        "name": "Other1",
+        "status": false,
+        "node": false,
+        "data_rate": "0.0"
+      },
+      "Other2": {
+        "name": "Other2",
         "status": false,
         "node": false,
         "data_rate": "0.0"

@@ -180,20 +180,28 @@ class NewModel:
             req.data = True if activate else False
 
             match index:
-                case "Left":
-                    future = self.rover_node.camera_cs_service_0.call_async(req)
-                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
-
-                case "Right":
+                case "Left": # GOOD DO NOT TOUCH
                     future = self.rover_node.camera_cs_service_1.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
 
-                case "Drill":
+                case "UpRight": # GOOD DO NOT TOUCH
+                    future = self.rover_node.camera_cs_service_0.call_async(req)
+                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
+
+                case "Right": # GOOD DO NOT TOUCH
                     future = self.rover_node.camera_cs_service_2.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
                     
-                case "Behind":
+                case "UpLeft": # GOOD DO NOT TOUCH
                     future = self.rover_node.camera_cs_service_3.call_async(req)
+                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
+                    
+                case "Other1": # GOOD DO NOT TOUCH
+                    future = self.rover_node.camera_cs_service_4.call_async(req)
+                    future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
+                    
+                case "Other2": # GOOD DO NOT TOUCH
+                    future = self.rover_node.camera_cs_service_5.call_async(req)
                     future.add_done_callback(lambda f: self.service_callback_camera(f, system, index, activate))
             
 
@@ -295,16 +303,16 @@ class NewModel:
 # DATA RATES CAMERAS
 
     def cs_data_rates_0(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['UpRight']['data_rate'] = msg.data 
 
     def cs_data_rates_1(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = msg.data 
 
     def cs_data_rates_2(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Drill']['data_rate'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = msg.data 
         
     def cs_data_rates_3(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['UpLeft']['data_rate'] = msg.data 
         
     def nav_data_rates_0(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['data_rate'] = msg.data 
@@ -324,28 +332,40 @@ class NewModel:
 # STATE CAMERAS
 
     def cs_states_0(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Left']['status'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['UpRight']['status'] = msg.data 
+        
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['rover']['UpRight']['data_rate'] = "0.0"
+
+    def cs_states_1(self, msg):
+        self.rover_node.rover_state_json['cameras']['rover']['Left']['status'] = msg.data
         
         if not msg.data:
             self.rover_node.rover_state_json['cameras']['rover']['Left']['data_rate'] = "0.0"
 
-    def cs_states_1(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Right']['status'] = msg.data
+    def cs_states_2(self, msg):
+        self.rover_node.rover_state_json['cameras']['rover']['Right']['status'] = msg.data 
         
         if not msg.data:
             self.rover_node.rover_state_json['cameras']['rover']['Right']['data_rate'] = "0.0"
-
-    def cs_states_2(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Drill']['status'] = msg.data 
-        
-        if not msg.data:
-            self.rover_node.rover_state_json['cameras']['rover']['Drill']['data_rate'] = "0.0"
             
     def cs_states_3(self, msg):
-        self.rover_node.rover_state_json['cameras']['rover']['Behind']['status'] = msg.data 
+        self.rover_node.rover_state_json['cameras']['rover']['UpLeft']['status'] = msg.data 
         
         if not msg.data:
-            self.rover_node.rover_state_json['cameras']['rover']['Behind']['data_rate'] = "0.0"
+            self.rover_node.rover_state_json['cameras']['rover']['UpLeft']['data_rate'] = "0.0"
+            
+    def cs_states_4(self, msg):
+        self.rover_node.rover_state_json['cameras']['rover']['Other1']['status'] = msg.data 
+        
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['rover']['Other1']['data_rate'] = "0.0"
+            
+    def cs_states_5(self, msg):
+        self.rover_node.rover_state_json['cameras']['rover']['Other2']['status'] = msg.data 
+        
+        if not msg.data:
+            self.rover_node.rover_state_json['cameras']['rover']['Other2']['data_rate'] = "0.0"
         
     def nav_states_0(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['status'] = msg.data 
