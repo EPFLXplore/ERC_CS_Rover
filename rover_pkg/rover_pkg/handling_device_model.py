@@ -42,6 +42,11 @@ class HandlingDevice:
         # Tools
         self.tools = [HDGoal.CLAM_TOOL]
         
+        # Models
+        self.models_elements = [HDGoal.MODEL_BIG_ROTATION_BUTTON_1, HDGoal.MODEL_BIG_ROTATION_BUTTON_2, HDGoal.MODEL_SMALL_ROTATION_BUTTON_1, 
+                                HDGoal.MODEL_SMALL_ROTATION_BUTTON_2, HDGoal.MODEL_SMALL_ROTATION_BUTTON_3, HDGoal.MODEL_SMALL_ROTATION_BUTTON_4, 
+                                HDGoal.MODEL_SMALL_ROTATION_BUTTON_5]
+        
         # Subscription for the subsystem state
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
@@ -226,6 +231,11 @@ class HandlingDevice:
         elif action in self.small_rotation_switches:
             msg_goal.target = HDGoal.ROTATION_BUTTON_TASK
             msg_goal.maintenance_objects = [action]
+            
+        # Direct Approach to switch with model
+        elif action in self.models_elements:
+            msg_goal.target = HDGoal.MODEL_ROTATION_BUTTON_TASK
+            msg_goal.model_element = action
             
         else:
             msg_goal.target = action
