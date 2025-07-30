@@ -5,6 +5,12 @@ FROM ghcr.io/epflxplore/docker_commons:humble-jetson
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+RUN rm /usr/share/keyrings/ros-archive-keyring.gpg
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+RUN apt update && apt install ros2-apt-source  
+RUN rm /etc/apt/sources.list.d/ros2.list
+RUN rm /usr/share/keyrings/ros-archive-keyring.gpg
+
 # Install Rover packages
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y curl
@@ -22,7 +28,7 @@ WORKDIR /home/$USERNAME
 
 RUN pip install numpy
 RUN pip install aiohttp aiortc aiohttp_cors
-RUN pip install ping3 tornado requests pyrealsense2
+RUN pip install ping3 tornado requests pyrealsense2 bson pymongo
 
 # Set a diretory to store the project
 WORKDIR /home/$USERNAME/dev_ws/src

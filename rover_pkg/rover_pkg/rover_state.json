@@ -180,29 +180,7 @@
     "localization": {
       "position": {
         "x": "0.0",
-        "y": "0.0",
-        "z": "0.0"
-      },
-      "orientation": {
-        "x": "0.0",
-        "y": "0.0",
-        "z": "0.0",
-        "w": "0.0"
-      },
-      "gps_coordinates": {
-        "latitude": "0.0",
-        "longitude": "0.0",
-        "altitude": "0.0"
-      },
-      "linear_velocity": {
-        "x": "0.0",
-        "y": "0.0",
-        "z": "0.0"
-      },
-      "angular_velocity": {
-        "x": "0.0",
-        "y": "0.0",
-        "z": "0.0"
+        "y": "0.0"
       }
     },
     "wheels": {
@@ -245,49 +223,7 @@
         "driving_wheel_state": false,
         "steering_fault": false,
         "driving_fault": false
-      },
-      "pivot": {
-        "angle": "0.0"
       }
-    },
-    "obstacle_detection": {
-      "obstacles": [
-        {
-          "position": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          },
-          "size": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          },
-          "rotation": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          }
-        }
-      ],
-      "is_blocked": false
-    },
-    "state": {
-      "points": [],
-      "current_goal": {
-        "position": {
-          "x": "0.0",
-          "y": "0.0",
-          "z": "0.0"
-        },
-        "orientation": {
-          "x": "0.0",
-          "y": "0.0",
-          "z": "0.0",
-          "w": "0.0"
-        }
-      },
-      "distance_to_goal": "0.0"
     }
   },
   "handling_device": {
@@ -341,36 +277,6 @@
         "torque": "0.0",
         "mode_motor": "NotReadyToSwitchOn" 
       }
-    },
-    "vision": {
-      "objects": [
-        {
-          "name": "panel",
-          "position": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          },
-          "rotation": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          }
-        },
-        {
-          "name": "bar",
-          "position": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          },
-          "rotation": {
-            "x": "0.0",
-            "y": "0.0",
-            "z": "0.0"
-          }
-        }
-      ]
     },
     "state": {
       "current_command": "NONE",

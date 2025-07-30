@@ -17,8 +17,8 @@ from custom_msg.action import HDManipulation, DrillCmd, NAVReachGoal, NewHDGoal
 from custom_msg.srv import ChangeModeSystem, DrillMode, ChangeModeCamera #ChangeModeHDCamera
 from nav2_msgs.action import NavigateToPose
 
-from bson import json_util
 import json
+from bson import json_util
 from .model import NewModel
 from .network_monitoring import NetworkMonitoring
 from .active_node_checker import ActiveNodeChecker
