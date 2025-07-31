@@ -34,7 +34,7 @@ class NetworkMonitoring(Node):
             for idx, device in enumerate(self.wireless_connection):
                 
                 # Signal strength of Antenna mast
-                if(device.get('mac-address') == "D4:01:C3:DC:B9:77"):
+                if(device.get('mac-address') == "D4:01:C3:DC:B9:78"):
                     self.rover_state['rover']['network']['signal_strength'] = device.get('signal')
                     break
 
