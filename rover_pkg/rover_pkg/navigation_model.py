@@ -91,6 +91,15 @@ class Navigation:
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['status'] = False
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['node'] = False
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['depth'] = False
+        
+        # Jetson Stats
+        self.rover_node.rover_state_json['rover']['hardware']['stats_nav']['ram'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_nav']['load_gpu'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_nav']['fan_rpm'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_nav']['power_tot'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_nav']['temp_cpu'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_nav']['temp_gpu'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_nav']['utilization_cpus'] = [0, 0, 0, 0, 0, 0, 0, 0]
 
     '''
     Function handling the state of the navigation subsystem. 

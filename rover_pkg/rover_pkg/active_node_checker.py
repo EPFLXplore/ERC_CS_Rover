@@ -30,13 +30,14 @@ known_node_names = {
     "perception_node": ("handling_device", "perception", True),
     
     # Electronics nodes
-    "costco_publisher": ("electronics", "avionics", True),
+    "avionics_costco": ("electronics", "avionics", True),
+    "python_publisher": ("electronics", "bms", True),
 
     # Cameras
-    "/ROVER/camera_cs_0": ("rover", "UpRight", False),
-    "/ROVER/camera_cs_1": ("rover", "Left", False),
+    "/ROVER/camera_cs_0": ("rover", "Left", False),
+    "/ROVER/camera_cs_1": ("rover", "UpLeft", False),
     "/ROVER/camera_cs_2": ("rover", "Right", False),
-    "/ROVER/camera_cs_3": ("rover", "UpLeft", False),
+    "/ROVER/camera_cs_3": ("rover", "UpRight", False),
     "/ROVER/camera_cs_4": ("rover", "Other1", False),
     "/ROVER/camera_cs_5": ("rover", "Other2", False),
     
@@ -73,8 +74,8 @@ class ActiveNodeChecker(Node):
             self.json['rover']['status']['systems']['handling_device']['status'] = 'Off'
             self.model.HD.reset_informations()
             
-        # if "costco_publisher" not in node_list:
-        #     self.model.Elec.reset_informations()
+        if "costco_publisher" not in node_list or "python_publisher" not in node_list:
+            self.model.Elec.reset_informations()
         
         '''
         For each name, pass it through a dictionary of known node name, 

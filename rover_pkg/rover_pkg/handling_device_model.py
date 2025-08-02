@@ -64,6 +64,16 @@ class HandlingDevice:
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['torque'] = '0.0'
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['state'] = False
                 self.rover_node.rover_state_json['handling_device']['joints'][f'joint_{i+1}']['mode_motor'] = "NotReadyToSwitchOn"
+                
+        
+        # Jetson Stats
+        self.rover_node.rover_state_json['rover']['hardware']['stats_hd']['ram'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_hd']['load_gpu'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_hd']['fan_rpm'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_hd']['power_tot'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_hd']['temp_cpu'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_hd']['temp_gpu'] = 0
+        self.rover_node.rover_state_json['rover']['hardware']['stats_hd']['utilization_cpus'] = [0, 0, 0, 0, 0, 0, 0, 0]
     
     '''
     Function handling the request from CS.

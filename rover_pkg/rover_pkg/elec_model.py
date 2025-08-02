@@ -135,9 +135,9 @@ class Elec:
         }
 
     def mass_callback(self, msg):
-        if (msg.id == 3):
+        if (msg.id == 5):
             self.rover_node.rover_state_json['electronics']['sensors']['mass_sensors']["mass_drill"] = round(msg.mass, 3)   
-        elif (msg.id == 4):
+        elif (msg.id == 7):
             self.rover_node.rover_state_json['electronics']['sensors']['mass_sensors']["mass_container"] = round(msg.mass, 3)
         
     
