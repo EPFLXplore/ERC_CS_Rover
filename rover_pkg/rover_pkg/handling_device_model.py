@@ -42,6 +42,10 @@ class HandlingDevice:
         # Tools
         self.tools = [HDGoal.CLAM_TOOL]
         
+        # Small Tasks
+        self.small_tasks = [HDGoal.TURN_JSIX_POS_3, HDGoal.TURN_JSIX_POS_4, HDGoal.TURN_JSIX_POS_9,
+                            HDGoal.TURN_JSIX_NEG_3, HDGoal.TURN_JSIX_NEG_4, HDGoal.TURN_JSIX_NEG_9]
+        
         # Models
         self.models_elements = [HDGoal.MODEL_BIG_ROTATION_BUTTON_1, HDGoal.MODEL_BIG_ROTATION_BUTTON_2, HDGoal.MODEL_SMALL_ROTATION_BUTTON_1, 
                                 HDGoal.MODEL_SMALL_ROTATION_BUTTON_2, HDGoal.MODEL_SMALL_ROTATION_BUTTON_3, HDGoal.MODEL_SMALL_ROTATION_BUTTON_4, 
@@ -247,6 +251,11 @@ class HandlingDevice:
             msg_goal.target = HDGoal.MODEL_ROTATION_BUTTON_TASK
             msg_goal.model_element = action
             
+        # Small Tasks
+        elif action in self.small_tasks:
+            msg_goal.target = HDGoal.TURN_J6
+            msg_goal.rotation_degree = int(action[8:10]) # Retrieve the 30, 45 or 90
+            msg_goal.clockwise_or_not = action[11:] # Retrieve the pos or neg orientation
         else:
             msg_goal.target = action
 
