@@ -4,7 +4,7 @@ class SubSystems(Enum):
     NAVIGATION = 0,
     HANDLING_DEVICE = 1,
     DRILL = 2,
-    AVIONICS = 3
+    AVIONICS = 3,
     
 '''
 Led System

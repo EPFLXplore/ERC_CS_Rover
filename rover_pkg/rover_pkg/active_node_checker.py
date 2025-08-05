@@ -61,21 +61,25 @@ class ActiveNodeChecker(Node):
 
         # get_node_names returns a vector of all the available nodes in the ROS graph
         node_list = self.get_node_names()
-
+        
         if "NAV_motor_cmds" not in node_list:
             self.json['rover']['status']['systems']['navigation']['status'] = 'Off'
-            self.model.Nav.reset_informations()
+            if not self.model.rover_node.emergency_state:
+                self.model.Nav.reset_informations()
 
         if "SC_motor_cmds" not in node_list:
             self.json['rover']['status']['systems']['drill']['status'] = 'Off'
-            self.model.Drill.reset_informations()
+            if not self.model.rover_node.emergency_state:
+                self.model.Drill.reset_informations()
             
         if "HDCSInterfacing" not in node_list:
             self.json['rover']['status']['systems']['handling_device']['status'] = 'Off'
-            self.model.HD.reset_informations()
+            if not self.model.rover_node.emergency_state:
+                self.model.HD.reset_informations()
             
-        if "costco_publisher" not in node_list or "python_publisher" not in node_list:
-            self.model.Elec.reset_informations()
+        if "costco_publisher" not in node_list:
+            if not self.model.rover_node.emergency_state:
+                self.model.Elec.reset_informations()
         
         '''
         For each name, pass it through a dictionary of known node name, 

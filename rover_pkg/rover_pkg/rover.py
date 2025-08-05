@@ -73,6 +73,9 @@ class RoverNode():
         self.node.declare_parameter("network_node", False)
         self.network_node = self.node.get_parameter("network_node").get_parameter_value().bool_value
 
+        # Emergency state boolean: True means the CS requested an emergency
+        self.emergency_state = False
+
         # Create the models
         self.model = NewModel(self)
 

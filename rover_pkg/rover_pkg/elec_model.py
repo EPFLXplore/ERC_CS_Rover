@@ -1,6 +1,8 @@
 from custom_msg.msg import MassPacket, FourInOne, LEDMessage, BMS, DustData
 from enum import Enum
 from .states import SubSystems, LedMode
+import threading, time
+from rclpy.callback_groups import ReentrantCallbackGroup
 
 '''
 Author: Giovanni Ranieri
@@ -42,6 +44,9 @@ class Elec:
         # Pub-Sub system for electronic subsystems, with sensors and led system
         self.led_pub = self.rover_node.node.create_publisher(LEDMessage, 
                                                              self.rover_node.el_names["LED_COM_TOPIC"], 1)
+        
+        self.led_sub = self.rover_node.node.create_subscription(LEDMessage, 
+                                                             self.rover_node.el_names["LED_COM_TOPIC"], self.leds_callback, 10, callback_group=ReentrantCallbackGroup())
 
         self.rover_node.node.create_subscription(MassPacket, 
                                                   self.rover_node.el_names["MASS_TOPIC"], self.mass_callback, 1)
@@ -56,6 +61,8 @@ class Elec:
 
 
     def reset_informations(self):
+        self.send_led_commands(SubSystems.AVIONICS, LedMode.OFF)
+        
         self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor']["pm1_0_std"] = "0",
         self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor']["pm2_5_std"] =  "0",
         self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor']["pm10_std"] =  "0",
@@ -112,7 +119,6 @@ class Elec:
         
         led = LEDMessage()
         led.system = int(subsystem.value[0])
-        self.rover_node.node.get_logger().info(f"{self.modes_hd[mode].value[0]}")
 
         match subsystem:
             case SubSystems.NAVIGATION:
@@ -163,5 +169,13 @@ class Elec:
             "current": msg.current,
             "state": msg.status
         }
-
-
+        
+    def leds_callback(self, msg):
+        # If we are in emergency motors or shutdown, we don't want to update the leds after that
+        if msg.state == 4 or msg.state == 5:
+            self.rover_node.node.get_logger().info(f"dddd")
+            self.rover_node.emergency_state = True
+            
+            time.sleep(10)
+            
+            self.rover_node.emergency_state = False

@@ -157,13 +157,10 @@ class NewModel:
     def service_callback_camera(self, future, subsystem, index, activate):
         try:
             response_camera = future.result()
-            self.rover_node.node.get_logger().info("d") 
             if response_camera.success == True:
-                self.rover_node.node.get_logger().info("ddd")  
                 self.rover_node.rover_state_json['cameras'][subsystem][index]['status'] = activate
                 
                 if not activate:
-                    self.rover_node.node.get_logger().info("ff") 
                     self.rover_node.rover_state_json['cameras'][subsystem][index]['data_rate'] = 0.0
             else:
                 self.rover_node.node.get_logger().info("Error in camera service response callback: " + response_camera.error_message)
