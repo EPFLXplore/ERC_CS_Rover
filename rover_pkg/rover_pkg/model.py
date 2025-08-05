@@ -113,7 +113,7 @@ class NewModel:
             response = future.result()
             if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Ackermann' if (mode == 1) else ('Omni' if (mode == 2) else 'Off'))
-                #self.Elec.send_led_commands(SubSystems.NAVIGATION, mode)
+                self.Elec.send_led_commands_model(SubSystems.NAVIGATION, mode)
                 self.rover_node.switching_nav = False  # Update shared attribute instead of local variable
 
             else:
@@ -129,7 +129,7 @@ class NewModel:
             response = future.result()
             if response.error_type == 0 and response.new_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] = 'Auto' if (mode == 3) else ('Manual Inverse' if (mode == 2) else ('Manual Direct' if (mode == 1) else 'Off'))
-                #elf.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, mode)
+                self.Elec.send_led_commands_model(SubSystems.HANDLING_DEVICE, mode)
                 self.rover_node.switching_hd = False
             else:
                 self.rover_node.node.get_logger().info("Error in hd service response callback: " + response.error_message)
@@ -144,7 +144,7 @@ class NewModel:
             response_drill = future.result()
             if response_drill.error_type == 0 and response_drill.system_mode == mode:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
-                #self.Elec.send_led_commands(SubSystems.DRILL, mode)
+                self.Elec.send_led_commands_model(SubSystems.DRILL, mode)
             else:
                 self.rover_node.node.get_logger().info("Error in drill service response callback: " + response.error_message)
 

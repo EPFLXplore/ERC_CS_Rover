@@ -1,6 +1,6 @@
 from custom_msg.msg import MassPacket, FourInOne, LEDMessage, BMS, DustData
 from enum import Enum
-from .states import SubSystems, Errors, LedMode
+from .states import SubSystems, LedMode
 
 '''
 Author: Giovanni Ranieri
@@ -31,8 +31,12 @@ class Elec:
         
         self.modes_drill = {
             0: LedMode.OFF,
+            1: LedMode.AUTO,
+        }
+        
+        self.modes_avionics = {
+            0: LedMode.OFF,
             1: LedMode.MANUAL,
-            2: LedMode.AUTO,
         }
 
         # Pub-Sub system for electronic subsystems, with sensors and led system
@@ -84,39 +88,43 @@ class Elec:
     '''
     Function that sends the right color to the led system.
     '''
-    def send_led_commands(self, subsystem, mode):
+    def send_led_commands(self, subsystem: SubSystems, mode: LedMode):
         
         led = LEDMessage()
-        led.system = subsystem.value
+        led.system = int(subsystem.value[0])
 
         match subsystem:
             case SubSystems.NAVIGATION:
-                led.mode = self.modes_nav[mode].value[0]
+                led.state = int(mode.value[0])
             case SubSystems.HANDLING_DEVICE:
-                led.mode = self.modes_hd[mode].value[0]
+                led.state = int(mode.value[0])
             case SubSystems.DRILL:
-                led.mode = self.modes_drill[mode].value[0]
+                led.state = int(mode.value[0])
+            case SubSystems.AVIONICS:
+                led.state = int(mode.value[0])
         
         self.led_pub.publish(led)
         
     '''
-    Function that sends an error to the led system. If the error is the emergency
-    or the reset motors, the subsystem is not needed. 
+    Function that sends the right color to the led system without knowing the mapping of mode
     '''
-    def send_led_errors(self, subsystem, error_type):
-        if error_type == Errors.EMERGENCY_SHUTDOWN:
-            led = LEDMessage()
-            led.mode = LedMode.EMERGENGY_SHUTDOWN.value
-            self.led_pub.publish(led)
-        elif error_type == Errors.RESET_MOTORS:
-            led = LEDMessage()
-            led.mode = LedMode.RESET_MOTORS.value
-            self.led_pub.publish(led)
-        elif error_type == Errors.FAULT:
-            led = LEDMessage()
-            led.system = subsystem.value
-            led.mode = LedMode.FAULT.value
-            self.led_pub.publish(led)
+    def send_led_commands_model(self, subsystem: SubSystems, mode: int):
+        
+        led = LEDMessage()
+        led.system = int(subsystem.value[0])
+        self.rover_node.node.get_logger().info(f"{self.modes_hd[mode].value[0]}")
+
+        match subsystem:
+            case SubSystems.NAVIGATION:
+                led.state = int(self.modes_nav[mode].value[0])
+            case SubSystems.HANDLING_DEVICE:
+                led.state = int(self.modes_hd[mode].value[0])
+            case SubSystems.DRILL:
+                led.state = int(self.modes_drill[mode].value[0])
+            case SubSystems.AVIONICS:
+                led.state = int(self.modes_avionics[mode].value[0])
+        
+        self.led_pub.publish(led)
     
     def dust_sensor_callback(self, msg):
         self.rover_node.rover_state_json['electronics']['sensors']['dust_sensor'] = {

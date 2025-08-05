@@ -355,8 +355,8 @@ class RoverNode():
         
     # Transfer the gamepad commands for the navigation camera
     def transfer_gamepad_cmd_camera(self, msg):
-        increase = msg.buttons[2]
-        decrease = msg.buttons[3]
+        increase = msg.buttons[2] # +1
+        decrease = msg.buttons[3] # -1
         
         if increase == 0 and decrease == 0:
             self.last_increment = 0
@@ -367,11 +367,11 @@ class RoverNode():
         angle.id = 1 
         angle.zero_in = False
         if increase == 1:
-            angle.increment = 13
+            angle.increment = 20
             self.cam_cmd_pub.publish(angle)
             self.last_increment = 1
         elif decrease == -1:
-            angle.increment = -13
+            angle.increment = -20
             self.cam_cmd_pub.publish(angle)
             self.last_increment = 1
             

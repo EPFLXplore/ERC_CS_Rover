@@ -4,7 +4,7 @@ from custom_msg.action import NAVReachGoal
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String
-from .states import SubSystems, Errors, LedMode
+from .states import SubSystems, LedMode
 
 '''
 Author: Giovanni Ranieri
@@ -43,7 +43,7 @@ class Navigation:
         self.rover_node.node.create_subscription(String, self.rover_node.nav_names['system_status'], self.handle_state, 10)
     
     def reset_informations(self):
-        #self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, 0)
+        self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.OFF)
 
         # front_left wheel
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
@@ -217,21 +217,18 @@ class Navigation:
             
             # If the state is not in fault we update
             if not self.in_fault:
-                #self.rover_node.model.Elec.send_led_errors(SubSystems.NAVIGATION, Errors.FAULT.value)
+                self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.FAULT)
                 self.in_fault = True
         else:
             
             # If the state was in fault we update
             if self.in_fault:
                 if self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Ackermann':
-                    pass
-                    #self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, 1)
+                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.MANUAL)
                 elif self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Omni':
-                    pass
-                    #self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, 2)
+                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.MANUAL)
                 elif self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] == 'Auto':
-                    pass
-                    #self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, 3)
+                    self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.AUTO)
                 
                 self.in_fault = False
 

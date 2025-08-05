@@ -1,14 +1,10 @@
 from enum import Enum
 
 class SubSystems(Enum):
-    NAVIGATION = 0
-    HANDLING_DEVICE = 1
-    DRILL = 2
-
-class Errors(Enum):
-    FAULT = 0
-    RESET_MOTORS = 1
-    EMERGENCY_SHUTDOWN = 2
+    NAVIGATION = 0,
+    HANDLING_DEVICE = 1,
+    DRILL = 2,
+    AVIONICS = 3
     
 '''
 Led System
@@ -25,6 +21,4 @@ class LedMode(Enum):
     OFF = 0,
     MANUAL = 1,
     AUTO = 2,
-    FAULT = 3,
-    RESET_MOTORS = 4,
-    EMERGENGY_SHUTDOWN = 5
+    FAULT = 3

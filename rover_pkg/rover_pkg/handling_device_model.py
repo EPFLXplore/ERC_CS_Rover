@@ -1,5 +1,5 @@
 from custom_msg.action import HDManipulation, NewHDGoal
-from .states import SubSystems, Errors, LedMode
+from .states import SubSystems, LedMode
 import math
 from custom_msg.msg import HDGoal
 from std_msgs.msg import String
@@ -38,10 +38,7 @@ class HandlingDevice:
         
         # Predefined poses
         self.predefined_poses = [HDGoal.FRONT_PANEL, HDGoal.RANGEMENT, HDGoal.HOME, HDGoal.ZERO, 
-                                 HDGoal.COBRA, HDGoal.ABOVE_GROUND]
-        # Tools
-        self.tools = [HDGoal.CLAM_TOOL]
-        
+                                 HDGoal.COBRA, HDGoal.ABOVE_GROUND]        
         # Small Tasks
         self.small_tasks = [HDGoal.TURN_JSIX_POS_3, HDGoal.TURN_JSIX_POS_4, HDGoal.TURN_JSIX_POS_9,
                             HDGoal.TURN_JSIX_NEG_3, HDGoal.TURN_JSIX_NEG_4, HDGoal.TURN_JSIX_NEG_9]
@@ -55,7 +52,7 @@ class HandlingDevice:
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
     def reset_informations(self):
-        #self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, 0)
+        self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.OFF)
         self.rover_node.rover_state_json['handling_device']['state']['current_command'] = "NONE"
         self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
         self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['status'] = False
@@ -225,11 +222,6 @@ class HandlingDevice:
         if action in self.predefined_poses:
             msg_goal.target = HDGoal.NAMED_POSE
             msg_goal.predefined_pose = action
-
-        # Tools
-        elif action in self.tools:
-            msg_goal.target = HDGoal.TOOL_PICKUP
-            msg_goal.tool = action
             
         # Small Switches
         elif action in self.switches:
@@ -335,21 +327,18 @@ class HandlingDevice:
                     
                     # If the state is not in fault we update
                     if not self.in_fault:
-                        #self.rover_node.model.Elec.send_led_errors(SubSystems.HANDLING_DEVICE, Errors.FAULT.value)
+                        self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.FAULT)
                         self.in_fault = True
                 else:
                     
                     # If the state was in fault we update
                     if self.in_fault:
                         if self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Manual Direct':
-                            pass
-                            #self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, 1)
+                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.MANUAL)
                         elif self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Manual Inverse':
-                            pass
-                            #self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, 2)
+                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.MANUAL)
                         elif self.rover_node.rover_state_json['rover']['status']['systems']['handling_device']['status'] == 'Auto':
-                            pass
-                            #self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, 3)
+                            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.AUTO)
                         
                         self.in_fault = False
 
