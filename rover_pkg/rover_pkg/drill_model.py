@@ -40,7 +40,8 @@ class Drill:
         self.rover_node.node.create_subscription(Bool, self.rover_node.science_names['status_system'], self.handle_state, 10)
     
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, LedMode.OFF)
+        if not self.rover_node.emergency_state:
+            self.rover_node.model.Elec.send_led_commands(SubSystems.DRILL, LedMode.OFF)
 
         self.rover_node.rover_state_json['drill']['motors']['motor_module']['position'] = "0.0"
         self.rover_node.rover_state_json['drill']['motors']['motor_drill']['speed'] = "0.0"
@@ -58,6 +59,7 @@ class Drill:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On'
         else:
             self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'Off'
+            self.reset_informations()
 
     '''
     Function pre-handling the request from CS. Accept or Reject

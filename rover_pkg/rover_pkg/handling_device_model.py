@@ -52,7 +52,9 @@ class HandlingDevice:
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
 
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.OFF)
+        if not self.rover_node.emergency_state:
+            self.rover_node.model.Elec.send_led_commands(SubSystems.HANDLING_DEVICE, LedMode.OFF)
+            
         self.rover_node.rover_state_json['handling_device']['state']['current_command'] = "NONE"
         self.rover_node.rover_state_json['handling_device']['state']['task'] = "NONE" 
         self.rover_node.rover_state_json['cameras']['handling_device']['Gripper']['status'] = False

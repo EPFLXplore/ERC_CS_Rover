@@ -43,7 +43,8 @@ class Navigation:
         self.rover_node.node.create_subscription(String, self.rover_node.nav_names['system_status'], self.handle_state, 10)
     
     def reset_informations(self):
-        self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.OFF)
+        if not self.rover_node.emergency_state:
+            self.rover_node.model.Elec.send_led_commands(SubSystems.NAVIGATION, LedMode.OFF)
 
         # front_left wheel
         self.rover_node.rover_state_json['navigation']['wheels']['front_left']['current_driving'] = "0.0"
