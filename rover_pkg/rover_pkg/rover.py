@@ -7,7 +7,6 @@ from std_srvs.srv       import SetBool
 import sys
 
 from sensor_msgs.msg import Joy
-from nav_msgs.msg import Odometry
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 
@@ -94,6 +93,10 @@ class RoverNode():
         # ==========================================================
         #              PUBLISHERS and SUBSCRIBERS
         # ==========================================================
+        
+        ## ------------ Cameras messages --------------
+        
+        self.node.create_subscription(Bool, self.cs_names["cs_take_screenshot_all_cameras"], self.screenshot_all_cameras, 10)
 
         ## ------------ NAV messages --------------
         
@@ -102,7 +105,6 @@ class RoverNode():
         
         # Listens to incoming gamepad commands from CS
         self.node.create_subscription(Joy, self.cs_names["cs_pubsub_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
-        #self.node.create_subscription(Odometry,         '/odometry/filtered',                self.model.Nav.nav_odometry  , 10)
         
         # Listens to navigation motor status
         self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, qos_profile=self.qos_profile)
@@ -231,6 +233,23 @@ class RoverNode():
                                                       '/ROVER/req_camera_hd_0', callback_group=MutuallyExclusiveCallbackGroup())
         
         self.node.create_subscription(Bool, '/ROVER/state_depth_camera_hd_0', self.model.hd_states_0, 10)
+        
+        # The 5 next clients are for screenshots during the Exploration Task
+        
+        self.camera_cs_screenshot_0 = self.node.create_client(SetBool, 
+                                                      '/ROVER/screenshot_camera_cs_0', callback_group=MutuallyExclusiveCallbackGroup())
+
+        self.camera_cs_screenshot_1 = self.node.create_client(SetBool, 
+                                                      '/ROVER/screenshot_camera_cs_1', callback_group=MutuallyExclusiveCallbackGroup())
+    
+        self.camera_cs_screenshot_2 = self.node.create_client(SetBool, 
+                                                      '/ROVER/screenshot_camera_cs_2', callback_group=MutuallyExclusiveCallbackGroup())
+        
+        self.camera_cs_screenshot_3 = self.node.create_client(SetBool, 
+                                                      '/ROVER/screenshot_camera_cs_3', callback_group=MutuallyExclusiveCallbackGroup()) 
+        
+        self.camera_nav_screenshot_0 = self.node.create_client(SetBool, 
+                                                      '/NAV/screenshot_camera_nav_0', callback_group=MutuallyExclusiveCallbackGroup())
 
 
         # ==========================================================
@@ -255,11 +274,9 @@ class RoverNode():
                                           callback_group=reentrant_callback_group,
                                           goal_callback=self.model.Drill.action_status, cancel_callback=self.model.Drill.cancel_goal_from_cs)
         
-        # The 3 next clients forward the action to the subsystem 
-        # exception with navigation because it's nav2 that handles the action
+        # The 2 next clients forward the action to the subsystem 
+        
         self.hd_action_client = ActionClient(self.node, NewHDGoal, self.rover_names["rover_hd_action_manipulation"])
-
-        #self.nav_action_client = ActionClient(self.node, NavigateToPose, self.rover_names["rover_action_nav_goal"])
 
         self.drill_action_client = ActionClient(self.node, DrillCmd, self.rover_names['rover_action_drill_state'])
 
@@ -377,6 +394,15 @@ class RoverNode():
             angle.increment = -20
             self.cam_cmd_pub.publish(angle)
             self.last_increment = 1
+            
+    def screenshot_all_cameras(self, msg):
+        if msg.data:
+            # Take a screenshot of all cameras
+            self.camera_cs_screenshot_0.call_async(SetBool.Request(data=True))
+            self.camera_cs_screenshot_1.call_async(SetBool.Request(data=True))
+            self.camera_cs_screenshot_2.call_async(SetBool.Request(data=True))
+            self.camera_cs_screenshot_3.call_async(SetBool.Request(data=True))
+            self.camera_nav_screenshot_0.call_async(SetBool.Request(data=True))
             
     
     def jetson_stats_hd(self, msg):
