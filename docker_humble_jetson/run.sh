@@ -48,6 +48,7 @@ docker run -it \
     -v /run/user/1000/at-spi:/run/user/1000/at-spi \
     -v /run/jtop.sock:/run/jtop.sock \
     -v /dev:/dev \
+    -v /home/xplore/photos_competition:/home/xplore/dev_ws/photos_competition \
     -v $PARENT_DIR:/home/xplore/dev_ws/src \
     -v rover_humble_jetson_home_volume:/home/xplore \
     ghcr.io/epflxplore/rover:humble-jetson \

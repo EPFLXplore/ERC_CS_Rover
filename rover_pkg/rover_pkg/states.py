@@ -21,4 +21,4 @@ class LedMode(Enum):
     OFF = 0,
     MANUAL = 1,
     AUTO = 2,
-    FAULT = 3
+    FAULT = 3,

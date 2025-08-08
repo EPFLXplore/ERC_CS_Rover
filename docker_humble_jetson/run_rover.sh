@@ -59,6 +59,7 @@ if [ "$container_status" == "false" ]; then
         -v $XAUTH:$XAUTH \
         -v /run/user/1000/at-spi:/run/user/1000/at-spi \
         -v /dev:/dev \
+        -v /home/xplore/photos_competition:/home/xplore/dev_ws/photos_competition \
         -v $parent_dir:/home/$USERNAME/dev_ws/src \
         -v rover_humble_jetson_home_volume:/home/$USERNAME \
         $IMAGE_NAME \
