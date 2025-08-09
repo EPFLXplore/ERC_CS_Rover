@@ -173,7 +173,6 @@ class Elec:
     def leds_callback(self, msg):
         # If we are in emergency motors or shutdown, we don't want to update the leds after that
         if msg.state == 4 or msg.state == 5:
-            self.rover_node.node.get_logger().info(f"dddd")
             self.rover_node.emergency_state = True
             
             time.sleep(10)

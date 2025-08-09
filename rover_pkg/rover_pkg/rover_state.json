@@ -43,16 +43,8 @@
           }
         },
         "drill": {
-          "drill_fms": {
-            "name": "Drill FSM",
-            "status": false
-          },
           "drill_commands": {
             "name": "Drill Commands",
-            "status": false
-          },
-          "drill_interface": {
-            "name": "Drill Interface",
             "status": false
           }
         },
@@ -78,10 +70,6 @@
           "avionics": {
             "name": "Avionics",
             "status": false
-          },
-          "bms": {
-            "name": "BMS",
-            "status": false
           }
         }
       }
@@ -92,16 +80,13 @@
     "status": {
       "systems": {
         "navigation": {
-          "status": "Off",
-          "message": "Navigation system is running"
+          "status": "Off"
         },
         "handling_device": {
-          "status": "Off",
-          "message": "Handling device is running"
+          "status": "Off"
         },
         "drill": {
-          "status": "Off",
-          "message": "Drill is running"
+          "status": "Off"
         }
       }
     }
@@ -297,10 +282,7 @@
       }
     },
     "state": {
-      "state_fsm": "IDLE",
-      "container": "CLOSE",
-      "current_status": "",
-      "warning_type": "0"
+      "state_fsm": "IDLE"
     }
   },
   "electronics": {

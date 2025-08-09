@@ -20,7 +20,6 @@ known_node_names = {
     "NavCSInterfacing": ("navigation", "navigation_interface", True),
 
     # Drill nodes
-    "DrillCSInterface": ("drill", "drill_fms", True),
     "SC_motor_cmds": ("drill", "drill_commands", True),
 
     # Handling Device nodes
@@ -31,7 +30,6 @@ known_node_names = {
     
     # Electronics nodes
     "avionics_costco": ("electronics", "avionics", True),
-    "python_publisher": ("electronics", "bms", True),
 
     # Cameras
     "/ROVER/camera_cs_0": ("rover", "Left", False),

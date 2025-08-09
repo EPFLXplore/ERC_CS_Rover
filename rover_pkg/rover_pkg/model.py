@@ -29,6 +29,8 @@ class NewModel:
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_1", self.cs_data_rates_1, 10)
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_2", self.cs_data_rates_2, 10)
         self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_3", self.cs_data_rates_3, 10)
+        self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_4", self.cs_data_rates_4, 10)
+        self.rover_node.node.create_subscription(Float32, "/ROVER/bw_camera_cs_5", self.cs_data_rates_5, 10)
         
         self.rover_node.node.create_subscription(Float32, "/NAV/bw_camera_nav_0", self.nav_data_rates_0, 10)
         self.rover_node.node.create_subscription(Float32, "/NAV/bw_camera_nav_1", self.nav_data_rates_1, 10)
@@ -117,7 +119,7 @@ class NewModel:
                 self.rover_node.switching_nav = False  # Update shared attribute instead of local variable
 
             else:
-                self.rover_node.node.get_logger().info("Error in nav service response callback: " + response.error_message)
+                self.rover_node.node.get_logger().info("Error in nav service response callback")
         except Exception as e:
             self.rover_node.node.get_logger().info("Error in nav service call: " + str(e))
     
@@ -132,7 +134,7 @@ class NewModel:
                 self.Elec.send_led_commands_model(SubSystems.HANDLING_DEVICE, mode)
                 self.rover_node.switching_hd = False
             else:
-                self.rover_node.node.get_logger().info("Error in hd service response callback: " + response.error_message)
+                self.rover_node.node.get_logger().info("Error in hd service response callback")
         except Exception as e:
             self.rover_node.node.get_logger().info("Error in hd service call: " + str(e))
     
@@ -146,7 +148,7 @@ class NewModel:
                 self.rover_node.rover_state_json['rover']['status']['systems']['drill']['status'] = 'On' if (mode == 1) else 'Off'
                 self.Elec.send_led_commands_model(SubSystems.DRILL, mode)
             else:
-                self.rover_node.node.get_logger().info("Error in drill service response callback: " + response.error_message)
+                self.rover_node.node.get_logger().info("Error in drill service response callback")
 
         except Exception as e:
             self.rover_node.node.get_logger().info("Error in drill service call: " + str(e))  
@@ -163,7 +165,7 @@ class NewModel:
                 if not activate:
                     self.rover_node.rover_state_json['cameras'][subsystem][index]['data_rate'] = 0.0
             else:
-                self.rover_node.node.get_logger().info("Error in camera service response callback: " + response_camera.error_message)
+                self.rover_node.node.get_logger().info("Error in camera service response callback")
 
         except Exception as e:
             self.rover_node.node.get_logger().info("Error in camera service call: " + str(e)) 
@@ -316,6 +318,12 @@ class NewModel:
         
     def cs_data_rates_3(self, msg):
         self.rover_node.rover_state_json['cameras']['rover']['UpRight']['data_rate'] = msg.data 
+        
+    def cs_data_rates_4(self, msg):
+        self.rover_node.rover_state_json['cameras']['rover']['Other1']['data_rate'] = msg.data 
+        
+    def cs_data_rates_5(self, msg):
+        self.rover_node.rover_state_json['cameras']['rover']['Other2']['data_rate'] = msg.data 
         
     def nav_data_rates_0(self, msg):
         self.rover_node.rover_state_json['cameras']['navigation']['Front']['data_rate'] = msg.data 

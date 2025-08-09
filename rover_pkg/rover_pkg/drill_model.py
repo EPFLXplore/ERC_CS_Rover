@@ -144,7 +144,6 @@ class Drill:
         # else we just update the feedback
         else:
             self.feedback = feedback.feedback
-            self.update_drill_feedback(self.feedback)
 
     '''
     Cancel action from CS. Need to send cancellation to DRILL and forward cancellation
@@ -216,13 +215,6 @@ class Drill:
             return
 
         self.rover_node.rover_state_json['drill']['state']['state_fsm'] = self.modes[msg.mode]
-
-    '''
-    Utility function
-    '''
-    def update_drill_feedback(self, feedback): 
-        self.rover_node.rover_state_json['drill']['state']['current_status'] = feedback.current_status
-        self.rover_node.rover_state_json['drill']['state']['warning_type'] = feedback.warning_type
 
 
     '''
