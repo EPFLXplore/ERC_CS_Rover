@@ -86,7 +86,7 @@ class RoverNode():
 
         # Publisher of the rover state (2 Hz)
         self.rover_state_pub = self.node.create_publisher(String, 
-                                                          self.rover_names["rover_pubsub_state"], 1)
+                                                          self.rover_names["rover_pubsub_state"], 1, callback_group=MutuallyExclusiveCallbackGroup())
         self.timer = self.node.create_timer(0.5, self.timer_callback)
         self.tmp_test = None
 
