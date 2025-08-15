@@ -36,6 +36,9 @@ class HandlingDevice:
         # Small Rotation Switches
         self.small_rotation_switches = [value for key, value in vars(HDGoal).items() if key.startswith("SMALL_ROTATION_BUTTON")]
         
+        # Magnet and others
+        self.magnet_and_others = [HDGoal.ELECTROMAGNET]
+        
         # Predefined poses
         self.predefined_poses = [HDGoal.FRONT_PANEL, HDGoal.RANGEMENT, HDGoal.HOME, HDGoal.ZERO, 
                                  HDGoal.COBRA, HDGoal.ABOVE_GROUND]        
@@ -44,9 +47,7 @@ class HandlingDevice:
                             HDGoal.TURN_JSIX_NEG_3, HDGoal.TURN_JSIX_NEG_4, HDGoal.TURN_JSIX_NEG_9]
         
         # Models
-        self.models_elements = [HDGoal.MODEL_BIG_ROTATION_BUTTON_1, HDGoal.MODEL_BIG_ROTATION_BUTTON_2, HDGoal.MODEL_SMALL_ROTATION_BUTTON_1, 
-                                HDGoal.MODEL_SMALL_ROTATION_BUTTON_2, HDGoal.MODEL_SMALL_ROTATION_BUTTON_3, HDGoal.MODEL_SMALL_ROTATION_BUTTON_4, 
-                                HDGoal.MODEL_SMALL_ROTATION_BUTTON_5]
+        self.models_elements = [HDGoal.MODEL_BIG_ROTATION_BUTTON, HDGoal.MODEL_SMALL_ROTATION_BUTTON]
         
         # Subscription for the subsystem state
         self.rover_node.node.create_subscription(String, self.rover_node.hd_names['system_status'], self.handle_state, 10)
@@ -225,24 +226,14 @@ class HandlingDevice:
             msg_goal.target = HDGoal.NAMED_POSE
             msg_goal.predefined_pose = action
             
-        # Small Switches
-        elif action in self.switches:
-            msg_goal.target = HDGoal.BUTTON_TASK
-            msg_goal.switch_name = action
-            
-        # Big Rotation switch
-        elif action in self.big_rotation_switches:
-            msg_goal.target = HDGoal.ROTATION_BUTTON_TASK
+        # Aruco Element Alignment
+        elif action in self.switches or action in self.big_rotation_switches or action in self.small_rotation_switches or action in self.magnet_and_others:
+            msg_goal.target = HDGoal.ALIGN_OBJECT_WITH_ARUCO
             msg_goal.maintenance_objects = [action]
             
-        # Small Rotation switch
-        elif action in self.small_rotation_switches:
-            msg_goal.target = HDGoal.ROTATION_BUTTON_TASK
-            msg_goal.maintenance_objects = [action]
-            
-        # Direct Approach to switch with model
+        # Direct Approach to switch with SAM
         elif action in self.models_elements:
-            msg_goal.target = HDGoal.MODEL_ROTATION_BUTTON_TASK
+            msg_goal.target = HDGoal.ALIGN_OBJECT_WITH_SAM
             msg_goal.model_element = action
             
         # Small Tasks
@@ -251,6 +242,7 @@ class HandlingDevice:
             msg_goal.rotation_degree = int(action[8:10]) # Retrieve the 30, 45 or 90
             msg_goal.clockwise_or_not = action[11:] # Retrieve the pos or neg orientation
         else:
+            
             msg_goal.target = action
 
         return msg_goal

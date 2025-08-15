@@ -65,7 +65,7 @@ class RoverNode():
             reliability=QoSReliabilityPolicy.BEST_EFFORT, # BEST_EFFORT: message will attempt to send message but if it fails it will not try again
             durability=QoSDurabilityPolicy.VOLATILE, # VOLATILE: if no subscribers are listening, the message sent is not saved
             history=QoSHistoryPolicy.KEEP_LAST, # KEEP_LAST: only the last n = depth messages are stored in the queue
-            depth=10,
+            depth=5,
         )
 
         # Parameters Launch file
@@ -86,8 +86,8 @@ class RoverNode():
 
         # Publisher of the rover state (2 Hz)
         self.rover_state_pub = self.node.create_publisher(String, 
-                                                          self.rover_names["rover_pubsub_state"], 1, callback_group=MutuallyExclusiveCallbackGroup())
-        self.timer = self.node.create_timer(0.5, self.timer_callback)
+                                                          self.rover_names["rover_pubsub_state"], 1)
+        self.timer = self.node.create_timer(0.5, self.timer_callback, callback_group=MutuallyExclusiveCallbackGroup())
         self.tmp_test = None
 
         # ==========================================================
@@ -413,7 +413,7 @@ class RoverNode():
                 
 
     def run(self):
-        executor = rclpy.executors.MultiThreadedExecutor()
+        executor = rclpy.executors.MultiThreadedExecutor(num_threads=4)
         executor.add_node(self.node)
         if self.network_monitor != None:
             executor.add_node(self.network_monitor)

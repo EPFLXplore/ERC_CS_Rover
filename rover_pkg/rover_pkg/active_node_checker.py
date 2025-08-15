@@ -29,7 +29,7 @@ known_node_names = {
     "perception_node": ("handling_device", "perception", True),
     
     # Electronics nodes
-    "avionics_costco": ("electronics", "avionics", True),
+    "avionics_nexus": ("electronics", "avionics", True),
 
     # Cameras
     "/ROVER/camera_cs_0": ("rover", "Left", False),
@@ -75,7 +75,7 @@ class ActiveNodeChecker(Node):
             if not self.model.rover_node.emergency_state:
                 self.model.HD.reset_informations()
             
-        if "costco_publisher" not in node_list:
+        if "python_node" not in node_list:
             if not self.model.rover_node.emergency_state:
                 self.model.Elec.reset_informations()
         
