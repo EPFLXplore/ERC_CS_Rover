@@ -24,7 +24,8 @@ class HandlingDevice:
         self.counter_cancel = 0
 
         ## ---------------------------
-        # List of action names for the Handling Device, stored in the HDGoal message.
+        # List of action names for the Handling Device, stored in the HDGoal custom message.
+        # Put a prefix to predefined poses to retrieve them easily, like PREDEFINED_POSE_FRONT_PANEL
         ## ---------------------------
         
         # Small Switches
@@ -41,7 +42,7 @@ class HandlingDevice:
         
         # Predefined poses
         self.predefined_poses = [HDGoal.FRONT_PANEL, HDGoal.RANGEMENT, HDGoal.HOME, HDGoal.ZERO, 
-                                 HDGoal.COBRA, HDGoal.ABOVE_GROUND]        
+                                 HDGoal.COBRA, HDGoal.ABOVE_GROUND, HDGoal.ALIGN_METAL_BAR]        
         # Small Tasks
         self.small_tasks = [HDGoal.TURN_JSIX_POS_3, HDGoal.TURN_JSIX_POS_4, HDGoal.TURN_JSIX_POS_9,
                             HDGoal.TURN_JSIX_NEG_3, HDGoal.TURN_JSIX_NEG_4, HDGoal.TURN_JSIX_NEG_9]
