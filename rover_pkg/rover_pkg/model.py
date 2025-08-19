@@ -114,7 +114,7 @@ class NewModel:
         try:
             response = future.result()
             if response.error_type == 0 and response.new_mode == mode:
-                self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 2) else ('Ackermann' if (mode == 1) else ('Omni' if (mode == 2) else 'Off'))
+                self.rover_node.rover_state_json['rover']['status']['systems']['navigation']['status'] = 'Auto' if (mode == 3) else ('Ackermann' if (mode == 1) else ('Omni' if (mode == 2) else 'Off'))
                 self.Elec.send_led_commands_model(SubSystems.NAVIGATION, mode)
                 self.rover_node.switching_nav = False  # Update shared attribute instead of local variable
 
