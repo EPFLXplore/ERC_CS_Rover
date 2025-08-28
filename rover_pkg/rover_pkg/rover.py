@@ -65,7 +65,7 @@ class RoverNode():
             reliability=QoSReliabilityPolicy.BEST_EFFORT, # BEST_EFFORT: message will attempt to send message but if it fails it will not try again
             durability=QoSDurabilityPolicy.VOLATILE, # VOLATILE: if no subscribers are listening, the message sent is not saved
             history=QoSHistoryPolicy.KEEP_LAST, # KEEP_LAST: only the last n = depth messages are stored in the queue
-            depth=5,
+            depth=1,
         )
 
         # Parameters Launch file
@@ -101,10 +101,10 @@ class RoverNode():
         ## ------------ NAV messages --------------
         
         # Forward the gamepad commands to navigation subsystem
-        self.nav_cmd_pub = self.node.create_publisher(Joy, self.rover_names["rover_pubsub_nav_gamepad"], 1)
+        self.nav_cmd_pub = self.node.create_publisher(Joy, self.rover_names["rover_pubsub_nav_gamepad"], qos_profile=self.qos_profile)
         
         # Listens to incoming gamepad commands from CS
-        self.node.create_subscription(Joy, self.cs_names["cs_pubsub_nav_reachgoal"], self.transfer_gamepad_cmd_nav, 10)
+        self.node.create_subscription(Joy, self.cs_names["cs_pubsub_nav_reachgoal"], self.transfer_gamepad_cmd_nav, qos_profile=self.qos_profile)
         
         # Listens to navigation motor status
         self.node.create_subscription(MotorStatus,    self.nav_names['nav_motors_status'],  self.model.Nav.nav_wheel, qos_profile=self.qos_profile)
@@ -123,17 +123,17 @@ class RoverNode():
         
         # Forward the gamepad commands to HD subsystem for inverse kinematics mode
         self.hd_cmd_inverse_pub = self.node.create_publisher(Float32MultiArray, 
-                                                             self.rover_names["rover_hd_man_inv_topic"], 1)
+                                                             self.rover_names["rover_hd_man_inv_topic"], qos_profile=self.qos_profile)
         
         # Forward the gamepad commands to HD subsystem for direct kinematics mode
         self.hd_cmd_direct_pub = self.node.create_publisher(Float32MultiArray, 
-                                                            self.rover_names["rover_hd_man_dir_topic"], 1)
+                                                            self.rover_names["rover_hd_man_dir_topic"], qos_profile=self.qos_profile)
         
         # Listen to jetson stats from HD subystem
         self.node.create_subscription(String, '/HD/jetson_stats', self.jetson_stats_hd, 10)
         
         # Listens to incoming gamepad commands from CS
-        self.node.create_subscription(Joy, self.cs_names["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, 10)
+        self.node.create_subscription(Joy, self.cs_names["cs_pubsub_hd_gamepad"], self.transfer_gamepad_cmd_hd, qos_profile=self.qos_profile)
         
         # Listens to HD motor status
         self.node.create_subscription(

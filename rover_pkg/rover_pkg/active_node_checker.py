@@ -4,6 +4,14 @@ from rclpy.node import Node
 Author: Giovanni Ranieri & Matas Jones
 Year: 2024-25
 Description: This node determines if nodes are running, and updates the JSON accordingly.
+
+This node has to revised as it involves many challenges. The first one is how to you handle the caswe
+where some nodes can be still running even if the "if check" for one of the node is true. For example, you could
+have enable the cameras nav and have the NAV_Motor_cmds node off => so you do not want to reset in the json state 
+the status of cameras.
+
+A way of changing this is by using directly at the CS the get_node_list() in typescript if it is available, meaning
+you could check every node running without putting them inside the json state!
 '''
 
 known_node_names = {
@@ -75,9 +83,9 @@ class ActiveNodeChecker(Node):
             if not self.model.rover_node.emergency_state:
                 self.model.HD.reset_informations()
             
-        if "python_node" not in node_list:
-            if not self.model.rover_node.emergency_state:
-                self.model.Elec.reset_informations()
+        # if "python_node" not in node_list:
+        #     if not self.model.rover_node.emergency_state:
+        #         self.model.Elec.reset_informations()
         
         '''
         For each name, pass it through a dictionary of known node name, 

@@ -12,7 +12,7 @@ def generate_launch_description():
         package='rover_pkg',
         executable='rover',
         parameters=[
-            {'network_node': True},
+            {'network_node': False},
         ]
     )
 

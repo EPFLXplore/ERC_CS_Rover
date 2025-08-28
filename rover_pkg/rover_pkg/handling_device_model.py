@@ -43,9 +43,13 @@ class HandlingDevice:
         # Predefined poses
         self.predefined_poses = [HDGoal.FRONT_PANEL, HDGoal.RANGEMENT, HDGoal.HOME, HDGoal.ZERO, 
                                  HDGoal.COBRA, HDGoal.ABOVE_GROUND, HDGoal.ALIGN_METAL_BAR]        
-        # Small Tasks
-        self.small_tasks = [HDGoal.TURN_JSIX_POS_3, HDGoal.TURN_JSIX_POS_4, HDGoal.TURN_JSIX_POS_9,
+        # Small Tasks J6
+        self.small_tasks_j6 = [HDGoal.TURN_JSIX_POS_3, HDGoal.TURN_JSIX_POS_4, HDGoal.TURN_JSIX_POS_9,
                             HDGoal.TURN_JSIX_NEG_3, HDGoal.TURN_JSIX_NEG_4, HDGoal.TURN_JSIX_NEG_9]
+        
+        # Small Tasks probes
+        self.small_tasks_probe = [HDGoal.PROBE_UP_1, HDGoal.PROBE_UP_2, HDGoal.PROBE_UP_3,
+                             HDGoal.PROBE_SIDE_1, HDGoal.PROBE_SIDE_2, HDGoal.PROBE_SIDE_3]
         
         # Models
         self.models_elements = [HDGoal.MODEL_BIG_ROTATION_BUTTON, HDGoal.MODEL_SMALL_ROTATION_BUTTON]
@@ -237,11 +241,17 @@ class HandlingDevice:
             msg_goal.target = HDGoal.ALIGN_OBJECT_WITH_SAM
             msg_goal.model_element = action
             
-        # Small Tasks
-        elif action in self.small_tasks:
+        # Small Tasks J6
+        elif action in self.small_tasks_j6:
             msg_goal.target = HDGoal.TURN_J6
             msg_goal.rotation_degree = int(action[8:10]) # Retrieve the 30, 45 or 90
             msg_goal.clockwise_or_not = action[11:] # Retrieve the pos or neg orientation
+            
+        # Small Tasks Probe
+        elif action in self.small_tasks_probe:
+            msg_goal.target = HDGoal.PROBE
+            msg_goal.probe_orientation = action[6] # Retrieve the U or S for UP or SIDE
+            msg_goal.probe_number = int(action[8]) # Retrieve the number of probe position
         else:
             
             msg_goal.target = action
