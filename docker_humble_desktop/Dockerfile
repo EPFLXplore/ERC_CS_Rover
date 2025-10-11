@@ -5,6 +5,13 @@ FROM ghcr.io/epflxplore/docker_commons:humble-desktop as build-rover
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+
+RUN rm /usr/share/keyrings/ros-archive-keyring.gpg
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+RUN apt update && apt install ros2-apt-source  
+RUN rm /etc/apt/sources.list.d/ros2.list
+RUN rm /usr/share/keyrings/ros-archive-keyring.gpg
+
 # Install Rover packages
 RUN apt-get update && apt-get upgrade -y
 RUN apt install -y curl 
