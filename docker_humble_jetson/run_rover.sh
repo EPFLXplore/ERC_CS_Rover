@@ -4,7 +4,9 @@ XAUTH=/tmp/.docker.xauth
 USERNAME=xplore
 CONTAINER_NAME=rover_humble_jetson
 IMAGE_NAME=ghcr.io/epflxplore/rover:humble-jetson
-DOCKER_COMMAND="sudo chown -R $USERNAME:$USERNAME /home/$USERNAME; source src/docker_humble_jetson/attach.sh; ros2 launch rover_pkg launch.py"
+# chown must run as root (no sudo in image); ros2 runs as xplore.
+DOCKER_RUN_COMMAND="chown -R $USERNAME:$USERNAME /home/$USERNAME && exec runuser -u $USERNAME -- /bin/bash -c 'source src/docker_humble_jetson/attach.sh; ros2 launch rover_pkg launch.py'"
+DOCKER_EXEC_COMMAND="source src/docker_humble_jetson/attach.sh; ros2 launch rover_pkg launch.py"
 
 # Function to check if a Docker container is running
 is_container_running() {
@@ -48,10 +50,12 @@ container_status=$(is_container_running "$CONTAINER_NAME")
 if [ "$container_status" == "false" ]; then
     echo "Container $CONTAINER_NAME is not running. Starting a new container..."
     docker run -i \
+        --user root \
         --name $CONTAINER_NAME \
         --rm \
         --privileged \
         --net=host \
+        -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
         -e DISPLAY=unix$DISPLAY \
         -e QT_X11_NO_MITSHM=1 \
         -e XAUTHORITY=$XAUTH \
@@ -63,8 +67,9 @@ if [ "$container_status" == "false" ]; then
         -v $parent_dir:/home/$USERNAME/dev_ws/src \
         -v rover_humble_jetson_home_volume:/home/$USERNAME \
         $IMAGE_NAME \
-        /bin/bash -c "$DOCKER_COMMAND"
+        /bin/bash -c "$DOCKER_RUN_COMMAND"
 else
     echo "Container $CONTAINER_NAME is already running. Attaching to it..."
-    docker exec -it $CONTAINER_NAME $DOCKER_COMMAND
+    docker exec -it -u "$USERNAME" -w "/home/$USERNAME/dev_ws" $CONTAINER_NAME \
+        /bin/bash -c "$DOCKER_EXEC_COMMAND"
 fi
