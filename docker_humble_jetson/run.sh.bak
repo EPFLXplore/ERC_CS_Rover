@@ -23,29 +23,6 @@ echo ""
 echo "Permissions:"
 ls -FAlh $XAUTH
 echo ""
-
-# Top Brio camera udev node (see ls /dev)
-if [ -e /dev/rover_cam_brio_top ]; then
-    echo -e "\033[0;32mtop brio cam detected!\033[0m"
-else
-    echo -e "\033[0;31mtop cam brio NOT detected ! still going in docker\033[0m"
-fi
-echo ""
-
-# GID owning the V4L device on the host — map into container and use as primary group for xplore
-# NOTE: stat on a udev symlink returns the symlink's gid (often 0), not the target (e.g. video=44).
-HOST_VIDEO_GID=""
-if [ -e /dev/rover_cam_brio_top ]; then
-    HOST_VIDEO_GID=$(stat -L -c '%g' /dev/rover_cam_brio_top)
-elif getent group video >/dev/null 2>&1; then
-    HOST_VIDEO_GID=$(getent group video | cut -d: -f3)
-fi
-
-DOCKER_DEVICE_ARGS=()
-if [ -e /dev/rover_cam_brio_top ]; then
-    DOCKER_DEVICE_ARGS+=(--device=/dev/rover_cam_brio_top)
-fi
-
 echo "Running docker..."
 
 USERNAME=xplore
@@ -59,7 +36,6 @@ export XAUTH=$XAUTH
 
 # Start as root so we can chown the mounted volume without sudo (image user xplore has no sudo password).
 docker run -it \
-    "${DOCKER_DEVICE_ARGS[@]}" \
     --user root \
     --name rover_humble_jetson \
     --rm \
@@ -76,22 +52,5 @@ docker run -it \
     -v /home/xplore/photos_competition:/home/xplore/dev_ws/photos_competition \
     -v $PARENT_DIR:/home/xplore/dev_ws/src \
     -v rover_humble_jetson_home_volume:/home/xplore \
-    -v $current_dir/cyclonedds.xml:/cyclone.xml:ro \
-    -e CYCLONEDDS_URI="file:///cyclone.xml" \
-    -e HOST_VIDEO_GID="$HOST_VIDEO_GID" \
     ghcr.io/epflxplore/rover:humble-jetson \
-    /bin/bash -c "$(cat <<'ROOTINIT'
-if [ -n "$HOST_VIDEO_GID" ]; then
-  GNAME=$(getent group "$HOST_VIDEO_GID" | cut -d: -f1)
-  if [ -z "$GNAME" ]; then
-    GNAME=rovervideo
-    groupadd -g "$HOST_VIDEO_GID" "$GNAME" || true
-  fi
-  usermod -g "$GNAME" xplore
-  usermod -aG "$GNAME" xplore
-  getent group xplore >/dev/null 2>&1 && usermod -aG xplore xplore
-fi
-chown -R xplore:xplore /home/xplore
-exec runuser -u xplore -- /bin/bash
-ROOTINIT
-)"
+    /bin/bash -c "chown -R $USERNAME:$USERNAME /home/$USERNAME && exec runuser -u $USERNAME -- /bin/bash"

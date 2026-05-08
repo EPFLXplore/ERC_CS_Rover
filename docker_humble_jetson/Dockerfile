@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     dnsutils \
     ethtool \
+    ffmpeg \
     iproute2 \
     iputils-ping \
     iperf3 \
@@ -30,7 +31,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     traceroute \
     wget \
  && rm -rf /var/lib/apt/lists/*
-
 RUN useradd -m -s /bin/bash xplore
 
 # Add USB rules (minimal base images may not ship /etc/udev/rules.d)
@@ -49,7 +49,7 @@ WORKDIR /home/xplore/dev_ws
 RUN mkdir -p /etc/ros/rosdep \
     && chown -R xplore:xplore /etc/ros/rosdep \
     && runuser -u xplore -- rosdep update \
-    && rosdep install -i --from-path src --rosdistro ${ROS_DISTRO} -y -r \
+    && rosdep install -i --from-path src --rosdistro ${ROS_DISTRO} -y -r --skip-keys="depthai opencv4" \
  && rm -rf /var/lib/apt/lists/*
 
 # Remove all the confidential Xplore source code from the image
