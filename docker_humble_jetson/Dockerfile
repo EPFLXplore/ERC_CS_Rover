@@ -23,14 +23,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     mtr-tiny \
     net-tools \
     netcat-openbsd \
+    gir1.2-gstreamer-1.0 \
+    gstreamer1.0-libav \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-ugly \
     libopencv-dev \
+    python3-gi \
+    python3-gst-1.0 \
     python3-opencv \
     python3-pip \
+    ros-${ROS_DISTRO}-cv-bridge \
     ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
     socat \
     tcpdump \
     traceroute \
     wget \
+    btop \
  && rm -rf /var/lib/apt/lists/*
 RUN useradd -m -s /bin/bash xplore
 
