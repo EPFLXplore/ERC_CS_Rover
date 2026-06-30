@@ -1,6 +1,6 @@
 ###########################################
 # Xplore Minimal Raspberry Pi 5 Image with ros2 humble
-# Image size: 2.6GB 
+# Image size: 2.61GB 
 ###########################################
 FROM ros:humble-ros-base
 
@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     mtr-tiny \
     net-tools \
     netcat-openbsd \
+    libopencv-dev \
     python3-opencv \
     python3-pip \
     ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \

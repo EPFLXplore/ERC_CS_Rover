@@ -24,27 +24,45 @@ echo "Permissions:"
 ls -FAlh $XAUTH
 echo ""
 
-# Top Brio camera udev node (see ls /dev)
-if [ -e /dev/rover_cam_brio_top ]; then
-    echo -e "\033[0;32mtop brio cam detected!\033[0m"
-else
-    echo -e "\033[0;31mtop cam brio NOT detected ! still going in docker\033[0m"
-fi
+# Rover camera udev nodes
+ROVER_CAMERAS=(
+    "/dev/top_cam"
+    "/dev/right_steer_cam"
+    "/dev/left_steer_cam"
+)
+
+echo "Checking rover cameras..."
+for cam in "${ROVER_CAMERAS[@]}"; do
+    if [ -e "$cam" ]; then
+        target=$(readlink -f "$cam")
+        echo -e "\033[0;32m$(basename "$cam") detected: $cam -> $target\033[0m"
+    else
+        echo -e "\033[0;31m$(basename "$cam") NOT detected! still going in docker\033[0m"
+    fi
+done
 echo ""
 
 # GID owning the V4L device on the host — map into container and use as primary group for xplore
-# NOTE: stat on a udev symlink returns the symlink's gid (often 0), not the target (e.g. video=44).
+# NOTE: stat on a udev symlink returns the symlink's gid, often 0, unless -L is used.
 HOST_VIDEO_GID=""
-if [ -e /dev/rover_cam_brio_top ]; then
-    HOST_VIDEO_GID=$(stat -L -c '%g' /dev/rover_cam_brio_top)
-elif getent group video >/dev/null 2>&1; then
+
+for cam in "${ROVER_CAMERAS[@]}"; do
+    if [ -e "$cam" ]; then
+        HOST_VIDEO_GID=$(stat -L -c '%g' "$cam")
+        break
+    fi
+done
+
+if [ -z "$HOST_VIDEO_GID" ] && getent group video >/dev/null 2>&1; then
     HOST_VIDEO_GID=$(getent group video | cut -d: -f3)
 fi
 
 DOCKER_DEVICE_ARGS=()
-if [ -e /dev/rover_cam_brio_top ]; then
-    DOCKER_DEVICE_ARGS+=(--device=/dev/rover_cam_brio_top)
-fi
+for cam in "${ROVER_CAMERAS[@]}"; do
+    if [ -e "$cam" ]; then
+        DOCKER_DEVICE_ARGS+=(--device="$cam")
+    fi
+done
 
 echo "Running docker..."
 
@@ -57,7 +75,7 @@ current_dir=$(pwd)
 export PARENT_DIR=$(dirname "$current_dir")
 export XAUTH=$XAUTH
 
-# Start as root so we can chown the mounted volume without sudo (image user xplore has no sudo password).
+# Start as root so we can chown the mounted volume without sudo.
 docker run -it \
     "${DOCKER_DEVICE_ARGS[@]}" \
     --user root \
