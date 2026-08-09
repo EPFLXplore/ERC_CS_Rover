@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd \
     gir1.2-gstreamer-1.0 \
     gstreamer1.0-libav \
+    gstreamer1.0-tools \
     gstreamer1.0-plugins-bad \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good \
@@ -69,6 +70,7 @@ RUN rm -rf /home/xplore/dev_ws/src/*
 USER xplore
 WORKDIR /home/xplore
 
+RUN pip install setuptools==58.2.0
 RUN pip install --no-cache-dir numpy
 # RUN pip install --no-cache-dir aiohttp aiortc aiohttp_cors
 # RUN pip install --no-cache-dir ping3 tornado requests bson pymongo
