@@ -29,6 +29,7 @@ ROVER_CAMERAS=(
     "/dev/top_cam"
     "/dev/right_steer_cam"
     "/dev/left_steer_cam"
+    "/dev/drill_cam_inside"
 )
 
 echo "Checking rover cameras..."
